@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Files\Window Setup">
+      <UniqueIdentifier>{5ba03497-9cfa-4776-a7c2-ba7794bdc266}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\General">
+      <UniqueIdentifier>{3722a91d-44c0-4275-9f51-f7d1a6e078b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\Display">
+      <UniqueIdentifier>{435b6a0a-ca1d-4997-a0f2-f74afc99ede7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\Model Loader">
+      <UniqueIdentifier>{9dbc6414-d591-45b8-8ad3-f5ae9974af5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\Shader">
+      <UniqueIdentifier>{e1b3560c-f5ce-4ca8-b09f-038f99382d9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\Shaders">
+      <UniqueIdentifier>{18fd384a-f6c0-45fa-b095-568a20c0f1ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\Shaders\Procedural">
+      <UniqueIdentifier>{5546ebcf-7320-40fe-b381-75d2392d3aa9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\Shaders\Render">
+      <UniqueIdentifier>{bddce3c3-cd99-413e-ae20-7d14abdee8d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\Shaders\Procedural\Density">
+      <UniqueIdentifier>{9304f3c8-cf3b-4176-90d4-44b7c4729a00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\Shaders\Procedural\Occupied">
+      <UniqueIdentifier>{ea7afc35-dfd8-4931-a571-e14e8534ed13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\Shaders\Procedural\VertexMesh">
+      <UniqueIdentifier>{ded67c18-96fb-4503-8510-529f866d489c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\Shaders\Procedural\GenVerts">
+      <UniqueIdentifier>{9e554670-0366-43ef-b12c-b13970cb0f77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\Shaders\Procedural\GenIndices">
+      <UniqueIdentifier>{2f727850-22ae-4491-96d9-b815ff60d8f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\Shaders\Procedural\VertSplat">
+      <UniqueIdentifier>{0b4f340d-d6cc-4672-9e4a-398b8d9aa35b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Manager.cpp">
+      <Filter>Files\Window Setup</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Files\Window Setup</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics.cpp">
+      <Filter>Files\Display</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Files\Shader</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Manager.h">
+      <Filter>Files\Window Setup</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>Files\Window Setup</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper.h">
+      <Filter>Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.h">
+      <Filter>Files\Display</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Files\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12.h">
+      <Filter>Files\General</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="RenderVS.hlsl">
+      <Filter>Files\Shaders\Render</Filter>
+    </FxCompile>
+    <FxCompile Include="RenderPS.hlsl">
+      <Filter>Files\Shaders\Render</Filter>
+    </FxCompile>
+    <FxCompile Include="DensityVS.hlsl">
+      <Filter>Files\Shaders\Procedural\Density</Filter>
+    </FxCompile>
+    <FxCompile Include="DensityGS.hlsl">
+      <Filter>Files\Shaders\Procedural\Density</Filter>
+    </FxCompile>
+    <FxCompile Include="DensityPS.hlsl">
+      <Filter>Files\Shaders\Procedural\Density</Filter>
+    </FxCompile>
+    <FxCompile Include="OccupiedVS.hlsl">
+      <Filter>Files\Shaders\Procedural\Occupied</Filter>
+    </FxCompile>
+    <FxCompile Include="OccupiedGS.hlsl">
+      <Filter>Files\Shaders\Procedural\Occupied</Filter>
+    </FxCompile>
+    <FxCompile Include="VertexMeshGS.hlsl">
+      <Filter>Files\Shaders\Procedural\VertexMesh</Filter>
+    </FxCompile>
+    <FxCompile Include="VertexMeshVS.hlsl">
+      <Filter>Files\Shaders\Procedural\VertexMesh</Filter>
+    </FxCompile>
+    <FxCompile Include="GenVertsVS.hlsl">
+      <Filter>Files\Shaders\Procedural\GenVerts</Filter>
+    </FxCompile>
+    <FxCompile Include="GenVertsGS.hlsl">
+      <Filter>Files\Shaders\Procedural\GenVerts</Filter>
+    </FxCompile>
+    <FxCompile Include="GenIndicesVS.hlsl">
+      <Filter>Files\Shaders\Procedural\GenIndices</Filter>
+    </FxCompile>
+    <FxCompile Include="GenIndicesGS.hlsl">
+      <Filter>Files\Shaders\Procedural\GenIndices</Filter>
+    </FxCompile>
+    <FxCompile Include="VertSplatGS.hlsl">
+      <Filter>Files\Shaders\Procedural\VertSplat</Filter>
+    </FxCompile>
+    <FxCompile Include="VertSplatVS.hlsl">
+      <Filter>Files\Shaders\Procedural\VertSplat</Filter>
+    </FxCompile>
+    <FxCompile Include="VertSplatPS.hlsl">
+      <Filter>Files\Shaders\Procedural\VertSplat</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ProceduralConstantsH.hlsl">
+      <Filter>Files\Shaders\Procedural</Filter>
+    </None>
+    <None Include="EdgesConstantsH.hlsl">
+      <Filter>Files\Shaders\Procedural</Filter>
+    </None>
+    <None Include="GenVertsH.hlsl">
+      <Filter>Files\Shaders\Procedural\GenVerts</Filter>
+    </None>
+  </ItemGroup>
+</Project>
