@@ -24,7 +24,8 @@ VS_OUTPUT main(VS_INPUT input)
 	output.worldPosition = getVoxelLoc(
 		input.texcoord, input.instanceID
 	);
-	output.instanceID = 0;// input.instanceID;
+
+	output.instanceID = input.instanceID;
 
 	return output;
 }

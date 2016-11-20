@@ -20,8 +20,7 @@ float2 voxelInvVecP1 = float2(
 inline float4 getVoxelLoc(float2 texcoord, uint instanceID)
 {
 	return float4(
-		voxelPos + float3(texcoord,
-			instanceID * voxelExpansion), 1) * voxelInvVecP1.x;
+		voxelPos + float3(texcoord, instanceID), 1);
 }
 
 inline uint3 getPos(uint bitPos)

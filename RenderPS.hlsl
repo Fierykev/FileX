@@ -10,10 +10,13 @@ SamplerState nearestSample : register(s0);
 float4 main(PS_INPUT input) : SV_TARGET
 {
 	// depth render
-	float ratio = input.position.z / 100.f;
+	float ratio;
 
-	ratio = densityTexture.SampleLevel(
-		nearestSample, float3(0, 0, 0), 0);
+	ratio = densityTexture.Sample(
+		nearestSample, float3(input.position.xy / 800.f, 0));
+	//(ratio < 0.f) ? float4(1, 0, 0, 1) : float4(0, 1, 0, 1);
 
-	return (ratio != .5f) ? float4(1, 0, 0, 1) : float4(0, 1, 0, 1);//float4(ratio, ratio, ratio, 1.0f);
+	//ratio = ratio == 0.f ? 1.f : 0.f;
+
+	return float4(ratio, ratio, ratio, 1.0f);
 }

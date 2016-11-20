@@ -29,6 +29,5 @@ void main(
 		output.Append(element);
 	}
 
-	// UNKOWN IF NEEDED
 	output.RestartStrip();
 }
