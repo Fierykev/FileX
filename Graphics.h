@@ -100,6 +100,7 @@ private:
 	// buffers
 	ComPtr<ID3D12Resource> bufferCB[CBV_COUNT],
 		bufferSRV[SRV_COUNT],
+		bufferUAV[UAV_COUNT],
 		zeroBuffer, plainVCB, pointVCB,
 		vertexBuffer[NUM_VOXELS], vertexBackBuffer;
 
@@ -272,7 +273,7 @@ private:
 	{
 		rpCB = 0,
 		rpSRV,
-		//rpUAV,
+		rpUAV,
 		rpSAMPLER,
 		rpCount
 	};

@@ -9,10 +9,10 @@ struct PS_INPUT
 float main(PS_INPUT input) : SV_TARGET0
 {
 #ifdef DEBUG
-	//debug[0] = true;
+	debug[0] = true;
 #endif
 
 	// eval the density function
 	// TODO: add better density function
-	return .5;// input.worldPosition.y;
+	return input.worldPosition.y;
 }

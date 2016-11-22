@@ -80,9 +80,9 @@ void Graphics::onRender()
 		voxelPos.z * NUM_VOXELS_Z;
 
 	renderDensity(voxelPos); // NOTE: causes error
-	renderOccupied(voxelPos, index);
-	renderGenVerts(voxelPos, index);
-	renderVertexMesh(voxelPos, index);
+	//renderOccupied(voxelPos, index);
+	//renderGenVerts(voxelPos, index);
+	//renderVertexMesh(voxelPos, index);
 	populateCommandList();
 
 
@@ -374,6 +374,33 @@ void Graphics::loadPipeline()
 	
 	bufferCB[CB_POLY_CONST]->Unmap(0, nullptr);
 	bufferCB[CB_EDGE_CONST]->Unmap(0, nullptr);
+
+	// setup DEBUG var for UAV
+
+	ThrowIfFailed(device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(BOOL),
+			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS),
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		nullptr,
+		IID_PPV_ARGS(&bufferUAV[DEBUG_VAR])));
+
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+	uavDesc.Buffer.FirstElement = 0;
+	uavDesc.Buffer.CounterOffsetInBytes = 0;
+	uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE uavHandle0(csuHeap->GetCPUDescriptorHandleForHeapStart(),
+		CBV_COUNT + SRV_COUNT, csuDescriptorSize);
+
+	uavDesc.Buffer.NumElements = 1;
+	uavDesc.Buffer.StructureByteStride = sizeof(BOOL);
+
+	device->CreateUnorderedAccessView(bufferUAV[DEBUG_VAR].Get(), nullptr, &uavDesc, uavHandle0);
+	uavHandle0.Offset(1, csuDescriptorSize);
 	
 	// create vertex buffer for each voxel
 
@@ -457,10 +484,12 @@ void Graphics::loadAssets()
 
 	ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, CBV_COUNT, 0);
 	ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, SRV_COUNT, 0);
-	ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, SAMPLER_COUNT, 0);
+	ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, UAV_COUNT, 0);
+	ranges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, SAMPLER_COUNT, 0);
 	rootParameters[rpCB].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_ALL);
 	rootParameters[rpSRV].InitAsDescriptorTable(1, &ranges[1], D3D12_SHADER_VISIBILITY_ALL);
-	rootParameters[rpSAMPLER].InitAsDescriptorTable(1, &ranges[2], D3D12_SHADER_VISIBILITY_ALL);
+	rootParameters[rpUAV].InitAsDescriptorTable(1, &ranges[2], D3D12_SHADER_VISIBILITY_ALL);
+	rootParameters[rpSAMPLER].InitAsDescriptorTable(1, &ranges[3], D3D12_SHADER_VISIBILITY_ALL);
 
 	// empty root signature
 
@@ -679,10 +708,12 @@ void Graphics::setupProceduralDescriptors()
 
 	CD3DX12_GPU_DESCRIPTOR_HANDLE cbvHandle(csuHeap->GetGPUDescriptorHandleForHeapStart(), 0, csuDescriptorSize);
 	CD3DX12_GPU_DESCRIPTOR_HANDLE srvHandle(csuHeap->GetGPUDescriptorHandleForHeapStart(), CBV_COUNT, csuDescriptorSize);
+	CD3DX12_GPU_DESCRIPTOR_HANDLE uavHandle(csuHeap->GetGPUDescriptorHandleForHeapStart(), CBV_COUNT + SRV_COUNT, csuDescriptorSize);
 	CD3DX12_GPU_DESCRIPTOR_HANDLE samplerHandle(samplerHeap->GetGPUDescriptorHandleForHeapStart(), 0, samplerDescriptorSize);
 
 	commandList->SetGraphicsRootDescriptorTable(rpCB, cbvHandle);
 	commandList->SetGraphicsRootDescriptorTable(rpSRV, srvHandle);
+	commandList->SetGraphicsRootDescriptorTable(rpUAV, uavHandle);
 	commandList->SetGraphicsRootDescriptorTable(rpSAMPLER, samplerHandle);
 
 	commandList->RSSetViewports(1, &voxelViewport);
