@@ -14,6 +14,9 @@ float voxelInv = 1 / 32.f;
 float2 voxelInvVecP1 = float2(
 	1 / 33.f, 0
 	);
+float2 voxelInvMinP1 = float2(
+	1 / 32.f, 0
+	);
 
 inline float4 getVoxelLoc(float2 texcoord, uint instanceID)
 {
@@ -31,12 +34,17 @@ inline float3 getRelLocP1(float2 texcoord, uint instanceID)
 	return float3(texcoord, instanceID * voxelInvVecP1.y);
 }
 
+inline float3 getRelLocM1(float2 texcoord, uint instanceID)
+{
+	return float3(texcoord, instanceID * voxelInvVecP1.y) + voxelInvMinP1.xxx;
+}
+
 inline uint3 getPos(uint bitPos)
 {
 	return int3(
-			(bitPos >> 24) & 0xFF,
-			(bitPos >> 16) & 0xFF,
-			(bitPos >> 8) & 0xFF
+			(bitPos >> 24) & 0x0FF,
+			(bitPos >> 16) & 0x0FF,
+			(bitPos >> 8) & 0x0FF
 		);
 }
 

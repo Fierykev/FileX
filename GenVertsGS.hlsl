@@ -1,4 +1,5 @@
 #include <GenVertsH.hlsl>
+#include <Debug.hlsl>
 
 struct GS_INPUT
 {
@@ -24,18 +25,27 @@ void main(
 	// other voxels will gen the data
 	if (input[0].bitPos & EDGE0)
 	{
+#ifdef DEBUG
+		debug[0] = true;
+#endif
 		element.bitPos = reducedPos | 0;
 		output.Append(element);
 	}
 
 	if (input[0].bitPos & EDGE3)
 	{
+#ifdef DEBUG
+		debug[0] = true;
+#endif
 		element.bitPos = reducedPos | 3;
 		output.Append(element);
 	}
 
 	if (input[0].bitPos & EDGE8)
 	{
+#ifdef DEBUG
+		debug[0] = true;
+#endif
 		element.bitPos = reducedPos | 8;
 		output.Append(element);
 	}

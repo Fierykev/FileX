@@ -22,11 +22,14 @@ void main(
 	GS_OUTPUT element;
 
 	// filter out position portion
-	uint edgesOnly = input[0].bitPos & 0x000000FF;
+	uint edgesOnly = input[0].bitPos & 0x0FF;
 
 	// filter out air blocks
 	if (0 < edgesOnly && edgesOnly < 255)
 	{
+#ifdef DEBUG
+		debug[0] = true;
+#endif
 		element.bitPos = input[0].bitPos;
 		output.Append(element);
 	}

@@ -80,7 +80,7 @@ void Graphics::onRender()
 		voxelPos.z * NUM_VOXELS_Z;
 
 	renderDensity(voxelPos); // NOTE: causes error
-	renderOccupied(voxelPos, index);
+	//renderOccupied(voxelPos, index);
 	//renderGenVerts(voxelPos, index);
 	//renderVertexMesh(voxelPos, index);
 	populateCommandList();
@@ -229,7 +229,7 @@ void Graphics::loadPipeline()
 	ThrowIfFailed(device->CreateDescriptorHeap(&samplerHeapDesc, IID_PPV_ARGS(&samplerHeap)));
 
 	// create sampler
-	samplerDesc.Filter = D3D12_FILTER_MIN_POINT_MAG_MIP_LINEAR;
+	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -267,11 +267,11 @@ void Graphics::loadPipeline()
 	voxelTextureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE3D;
 
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
-	rtvDesc.Format = DENSITY_FORMAT;
+	rtvDesc.Format = voxelTextureDesc.Format;
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE3D;
 	rtvDesc.Texture3D.MipSlice = 0;
 	rtvDesc.Texture3D.FirstWSlice = 0;
-	rtvDesc.Texture3D.WSize = VOXEL_SIZE_P1;
+	rtvDesc.Texture3D.WSize = voxelTextureDesc.DepthOrArraySize;
 
 	// density 3D texture
 	ThrowIfFailed(device->CreateCommittedResource(
@@ -283,7 +283,7 @@ void Graphics::loadPipeline()
 		IID_PPV_ARGS(&intermediateTarget[0])
 	));
 
-	device->CreateRenderTargetView(intermediateTarget[0].Get(), nullptr, rtvHandle);
+	device->CreateRenderTargetView(intermediateTarget[0].Get(), &rtvDesc, rtvHandle);
 	rtvHandle.Offset(1, rtvDescriptorSize);
 
 	// bind the SRV to t0
@@ -472,15 +472,6 @@ void Graphics::loadAssets()
 
 	CD3DX12_DESCRIPTOR_RANGE ranges[rpCount];
 	CD3DX12_ROOT_PARAMETER rootParameters[rpCount];
-	/*
-	ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, CBV_COUNT, 0);
-	ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, SRV_COUNT, 0);
-	ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, UAV_COUNT, 0);
-	ranges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, SAMPLER_COUNT, 0);
-	//rootParameters[rpCB].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_ALL);
-	rootParameters[rpSRV].InitAsDescriptorTable(1, &ranges[1], D3D12_SHADER_VISIBILITY_ALL);
-	rootParameters[rpUAV].InitAsDescriptorTable(1, &ranges[2], D3D12_SHADER_VISIBILITY_ALL);
-	rootParameters[rpSAMPLER].InitAsDescriptorTable(1, &ranges[3], D3D12_SHADER_VISIBILITY_ALL);*/
 
 	ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, CBV_COUNT, 0);
 	ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, SRV_COUNT, 0);
@@ -494,7 +485,6 @@ void Graphics::loadAssets()
 	// empty root signature
 
 	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-	//rootSignatureDesc.Init(_countof(rootParameters), rootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 	rootSignatureDesc.Init(_countof(rootParameters), rootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	ComPtr<ID3DBlob> signature;
@@ -514,7 +504,7 @@ void Graphics::loadAssets()
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "SV_InstanceID", 0, DXGI_FORMAT_R32_UINT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "IID", 0, DXGI_FORMAT_R32_UINT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
@@ -696,16 +686,6 @@ void Graphics::setupProceduralDescriptors()
 	commandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 	// setup the resources
-	/*
-	CD3DX12_GPU_DESCRIPTOR_HANDLE cbvHandle(csuHeap->GetGPUDescriptorHandleForHeapStart(), 0, csuDescriptorSize);
-	CD3DX12_GPU_DESCRIPTOR_HANDLE srvHandle(csuHeap->GetGPUDescriptorHandleForHeapStart(), CBV_COUNT, csuDescriptorSize);
-	CD3DX12_GPU_DESCRIPTOR_HANDLE uavHandle(csuHeap->GetGPUDescriptorHandleForHeapStart(), CBV_COUNT + SRV_COUNT, csuDescriptorSize);
-	CD3DX12_GPU_DESCRIPTOR_HANDLE samplerHandle(samplerHeap->GetGPUDescriptorHandleForHeapStart(), 0, samplerDescriptorSize);
-	commandList->SetGraphicsRootDescriptorTable(rpCB, cbvHandle);
-	commandList->SetGraphicsRootDescriptorTable(rpSRV, srvHandle);
-	commandList->SetGraphicsRootDescriptorTable(rpUAV, uavHandle);
-	commandList->SetGraphicsRootDescriptorTable(rpSAMPLER, samplerHandle);*/
-
 	CD3DX12_GPU_DESCRIPTOR_HANDLE cbvHandle(csuHeap->GetGPUDescriptorHandleForHeapStart(), 0, csuDescriptorSize);
 	CD3DX12_GPU_DESCRIPTOR_HANDLE srvHandle(csuHeap->GetGPUDescriptorHandleForHeapStart(), CBV_COUNT, csuDescriptorSize);
 	CD3DX12_GPU_DESCRIPTOR_HANDLE uavHandle(csuHeap->GetGPUDescriptorHandleForHeapStart(), CBV_COUNT + SRV_COUNT, csuDescriptorSize);
@@ -747,8 +727,9 @@ void Graphics::renderOccupied(XMUINT3 voxelPos, UINT index)
 
 	// draw the object
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+	commandList->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
 	commandList->IASetVertexBuffers(0, 1, &pointVB);
-	commandList->DrawInstanced(_countof(plainVerts) * VOXEL_SIZE_P1, 1, 0, 0);
+	commandList->DrawInstanced(NUM_POINTS, 1, 0, 0);
 }
 
 void Graphics::renderGenVerts(XMUINT3 voxelPos, UINT index)

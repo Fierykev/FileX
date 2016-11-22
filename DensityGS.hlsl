@@ -2,7 +2,7 @@ struct GS_INPUT
 {
 	float4 position : POSITION;
 	float4 worldPosition : TEXCOORD;
-	uint instanceID : SV_InstanceID;
+	uint instanceID : IID;// : SV_InstanceID;
 };
 
 struct GS_OUTPUT
