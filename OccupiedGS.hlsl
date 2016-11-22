@@ -1,4 +1,5 @@
 #include <EdgesConstantsH.hlsl>
+#include <Debug.hlsl>
 
 struct GS_INPUT
 {

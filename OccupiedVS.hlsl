@@ -19,13 +19,13 @@ VS_OUTPUT main(VS_INPUT input)
 {
 	VS_OUTPUT output;
 	
-	uint3 position = (uint3)getVoxelLoc(
+	uint3 position = (uint3)getRelLoc(
 		input.position, input.instanceID
 	);
 
 	// sample the texture where needed
 	output.bitPos = 0;
-	output.bitPos |= densityTexture.SampleLevel(nearestSample, position + voxelInvVecP1.yyy, 0).x > 0;
+	output.bitPos |= densityTexture.SampleLevel(nearestSample, position + voxelInvVecP1.yyy, 0).x > 0;/*
 	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvVecP1.yxy, 0).x > 0) << 1;
 	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvVecP1.xxy, 0).x > 0) << 2;
 	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvVecP1.xyy, 0).x > 0) << 3;
@@ -36,7 +36,7 @@ VS_OUTPUT main(VS_INPUT input)
 	
 	output.bitPos |= position.x << 24
 		| position.y << 16
-		| position.z << 8;
+		| position.z << 8;*/
 	
 	return output;
 }

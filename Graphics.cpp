@@ -80,7 +80,7 @@ void Graphics::onRender()
 		voxelPos.z * NUM_VOXELS_Z;
 
 	renderDensity(voxelPos); // NOTE: causes error
-	//renderOccupied(voxelPos, index);
+	renderOccupied(voxelPos, index);
 	//renderGenVerts(voxelPos, index);
 	//renderVertexMesh(voxelPos, index);
 	populateCommandList();
