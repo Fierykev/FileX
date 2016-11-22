@@ -72,7 +72,7 @@ void Graphics::onRender()
 
 	setupProceduralDescriptors();
 
-	XMUINT3 voxelPos = { 10, 10, 10 };
+	XMUINT3 voxelPos = { 0, 0, 0 };
 	voxelPosData->voxelPos = voxelPos;
 
 	UINT index = voxelPos.x * NUM_VOXELS_X +
@@ -314,22 +314,25 @@ void Graphics::loadPipeline()
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(VOXEL_POS) + 255) & ~255),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
-		IID_PPV_ARGS(&bufferCB[0])));
+		IID_PPV_ARGS(&bufferCB[CB_VOXEL_POS])));
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cdesc;
-	CD3DX12_CPU_DESCRIPTOR_HANDLE cbvHandle0(csuHeap->GetCPUDescriptorHandleForHeapStart(), 0, csuDescriptorSize);
+	CD3DX12_CPU_DESCRIPTOR_HANDLE cbvHandle0(
+		csuHeap->GetCPUDescriptorHandleForHeapStart(),
+		0, csuDescriptorSize);
 
 	// setup map
 	CD3DX12_RANGE readRange(0, 0);
-	bufferCB[0]->Map(0, &readRange, (void**)&voxelPosData);
+	bufferCB[CB_VOXEL_POS]->Map(0, &readRange, (void**)&voxelPosData);
 
 	// DO NOT EVER UNMAP
 	//bufferCB[0]->Unmap(0, nullptr);
 
-	cdesc.BufferLocation = bufferCB[0]->GetGPUVirtualAddress();
+	cdesc.BufferLocation = bufferCB[CB_VOXEL_POS]->GetGPUVirtualAddress();
 	cdesc.SizeInBytes = (sizeof(VOXEL_POS) + 255) & ~255;
 
 	device->CreateConstantBufferView(&cdesc, cbvHandle0);
+	cbvHandle0.Offset(csuDescriptorSize);
 
 	// setup poly and edge constants
 
@@ -368,10 +371,10 @@ void Graphics::loadPipeline()
 	bufferCB[CB_EDGE_CONST]->Map(0, &readRange, (void**)&edgeConst);
 
 	parsePoly("Polys.txt", "Edges.txt", polyConst->numberPolygons, edgeConst->edgeNumber);
-
+	
 	bufferCB[CB_POLY_CONST]->Unmap(0, nullptr);
 	bufferCB[CB_EDGE_CONST]->Unmap(0, nullptr);
-
+	
 	// create vertex buffer for each voxel
 
 	for (UINT i = 0; i < NUM_VOXELS; i++)
@@ -384,7 +387,7 @@ void Graphics::loadPipeline()
 			nullptr,
 			IID_PPV_ARGS(&vertexBuffer[i])));
 	}
-
+	
 	ThrowIfFailed(device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
@@ -801,7 +804,6 @@ void Graphics::populateCommandList()
 	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
 	// draw the object
-
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, &plainVB);

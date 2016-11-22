@@ -23,9 +23,10 @@ float4 main(PS_INPUT input) : SV_TARGET
 	return !debug[0] ? float4(1, 0, 0, 1) : float4(0, 1, 0, 1);
 #endif*/
 
-	return float4(ratio, ratio, ratio, 1.0f);
+	//return float4(ratio, ratio, ratio, 1.0f);
 
+	//voxelPos.z != 10
 	//ratio = ratio == 0.f ? 1.f : 0.f;
 	//numberPolygons[18] != 2
-	//return edgeNumber[3][0].y != 8 ? float4(1.f, 0.f, 0.f, 1.f) : float4(0.f, 1.f, 0.f, 1.f);// float4(ratio, ratio, ratio, 1.0f);
+	return edgeNumber[3][0].y != 8 ? float4(1.f, 0.f, 0.f, 1.f) : float4(0.f, 1.f, 0.f, 1.f);// float4(ratio, ratio, ratio, 1.0f);
 }

@@ -73,7 +73,7 @@ private:
 		CB_VOXEL_POS = 0,
 		CB_POLY_CONST,
 		CB_EDGE_CONST,
-		CBV_COUNT
+		CBV_COUNT = 3
 	};
 
 	enum BVSRV : UINT32
@@ -84,7 +84,7 @@ private:
 
 	enum BVUAV : UINT32
 	{
-		NEAREST_SAMPLE = 0,
+		DEBUG_VAR = 0,
 		UAV_COUNT
 	};
 
@@ -100,7 +100,6 @@ private:
 	// buffers
 	ComPtr<ID3D12Resource> bufferCB[CBV_COUNT],
 		bufferSRV[SRV_COUNT],
-		bufferCS[UAV_COUNT],
 		zeroBuffer, plainVCB, pointVCB,
 		vertexBuffer[NUM_VOXELS], vertexBackBuffer;
 
