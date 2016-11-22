@@ -19,9 +19,9 @@ VS_OUTPUT main(VS_INPUT input)
 
 	// get the needed bits for comparison
 	bool b0 = reducedPos & 1;
-	bool b1 = (reducedPos >> 1) & 1;
-	bool b3 = (reducedPos >> 3) & 1;
-	bool b4 = (reducedPos >> 4) & 1;
+	bool b1 = (reducedPos >> 1) & 0x1;
+	bool b3 = (reducedPos >> 3) & 0x1;
+	bool b4 = (reducedPos >> 4) & 0x1;
 
 	// remove the first byte
 	reducedPos = input.bitPos & 0xFFFFFF00;

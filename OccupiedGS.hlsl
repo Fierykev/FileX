@@ -29,4 +29,6 @@ void main(
 		element.bitPos = input[0].bitPos;
 		output.Append(element);
 	}
+
+	output.RestartStrip();
 }

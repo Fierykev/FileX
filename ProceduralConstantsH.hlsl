@@ -1,12 +1,10 @@
 #ifndef PROCEDURAL_CONSTANTSH_H
 #define PROCEDURAL_CONSTANTSH_H
-/*
+
 cbuffer VOXEL_POS : register(b0)
 {
 	uint3 voxelPos;
-};*/
-
-uint3 voxelPos = uint3(0, 0, 0);
+};
 
 float voxelExpansion = 32.f;
 

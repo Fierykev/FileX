@@ -1,14 +1,18 @@
 #ifndef EDGES_CONSTANTS_H
 #define EDGES_CONSTANTS_H
 /*
-cbuffer EDGE_CONSTANTS : register(b1)
+cbuffer POLY_CONSTANTS : register(b1)
 {
-	uint numberPolygons[256];
-	uint3 edgeNumber[256][5];
-}*/
+	int numberPolygons[256];
+};
 
-uint numberPolygons[256];
-uint3 edgeNumber[256][5];
+cbuffer EDGE_CONSTANTS : register(b2)
+{
+	int4 edgeNumber[256][5];
+};*/
+
+int numberPolygons[256];
+int4 edgeNumber[256][5];
 
 float3 edgeStartLoc[12] =
 {

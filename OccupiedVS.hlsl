@@ -2,8 +2,7 @@
 
 struct VS_INPUT
 {
-	float4 position : POSITION;
-	float2 texcoord : TEXCOORD;
+	float2 position : POSITION;
 	uint instanceID : SV_InstanceID;
 };
 
@@ -21,7 +20,7 @@ VS_OUTPUT main(VS_INPUT input)
 	VS_OUTPUT output;
 	
 	uint3 position = (uint3)getVoxelLoc(
-		input.texcoord, input.instanceID
+		input.position, input.instanceID
 	);
 
 	// sample the texture where needed

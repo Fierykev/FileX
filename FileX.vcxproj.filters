@@ -51,6 +51,9 @@
     <Filter Include="Files\Shaders\Procedural\VertSplat">
       <UniqueIdentifier>{0b4f340d-d6cc-4672-9e4a-398b8d9aa35b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Files\Parser">
+      <UniqueIdentifier>{9432b24d-6194-4317-aed5-92d369c335e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -67,6 +70,9 @@
     </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>Files\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Parser.cpp">
+      <Filter>Files\Parser</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -87,6 +93,9 @@
     </ClInclude>
     <ClInclude Include="d3dx12.h">
       <Filter>Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser.h">
+      <Filter>Files\Parser</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -148,6 +157,9 @@
     </None>
     <None Include="GenVertsH.hlsl">
       <Filter>Files\Shaders\Procedural\GenVerts</Filter>
+    </None>
+    <None Include="Debug.hlsl">
+      <Filter>Files\Shaders\Procedural</Filter>
     </None>
   </ItemGroup>
 </Project>

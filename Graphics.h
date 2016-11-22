@@ -19,11 +19,11 @@ using namespace DirectX;
 #define VOXEL_SIZE_P1 33
 #define SRVS_PER_FRAME 2
 
-#define MAX_BUFFER_SIZE 5 * VOXEL_SIZE_P1 * VOXEL_SIZE_P1
-
 #define DENSITY_FORMAT DXGI_FORMAT_R32_FLOAT
 
 #define CAM_DELTA .1f
+
+constexpr UINT COUNTER_SIZE = sizeof(UINT64);
 
 class Graphics : public Manager
 {
@@ -38,6 +38,14 @@ public:
 	virtual void onKeyDown(UINT8 key);
 	virtual void onKeyUp(UINT8 key);
 
+	const UINT NUM_POINTS = VOXEL_SIZE * VOXEL_SIZE * VOXEL_SIZE;
+
+	const UINT BYTES_POINTS = sizeof(OCCUPIED_POINT) * sizeof(OCCUPIED_POINT) * sizeof(OCCUPIED_POINT) *
+		NUM_POINTS;
+
+	const UINT MAX_BUFFER_SIZE =
+		(((5 * VOXEL_SIZE_P1 * VOXEL_SIZE_P1) >> 2) << 2) * sizeof(BITPOS);
+
 private:
 	// methods
 	void loadPipeline();
@@ -49,9 +57,9 @@ private:
 	// added methods
 	void setupProceduralDescriptors();
 	void renderDensity(XMUINT3 voxelPos);
-	void renderOccupied(XMUINT3 voxelPos);
-	void renderGenVerts(XMUINT3 voxelPos);
-	void renderVertexMesh(XMUINT3 voxelPos);
+	void renderOccupied(XMUINT3 voxelPos, UINT index);
+	void renderGenVerts(XMUINT3 voxelPos, UINT index);
+	void renderVertexMesh(XMUINT3 voxelPos, UINT index);
 
 	enum ComputeShader : UINT32
 	{
@@ -63,7 +71,9 @@ private:
 	enum BVCB : UINT32
 	{
 		CB_VOXEL_POS = 0,
-		CBV_COUNT = 1 // TMP
+		CB_POLY_CONST,
+		CB_EDGE_CONST,
+		CBV_COUNT
 	};
 
 	enum BVSRV : UINT32
@@ -88,13 +98,13 @@ private:
 	static const UINT numFrames = 2;
 
 	// buffers
-	ComPtr<ID3D12Resource> bufferCB[CBV_COUNT], 
+	ComPtr<ID3D12Resource> bufferCB[CBV_COUNT],
 		bufferSRV[SRV_COUNT],
 		bufferCS[UAV_COUNT],
-		zeroBuffer, plainVCB,
-		vertexBuffer[NUM_VOXELS];
+		zeroBuffer, plainVCB, pointVCB,
+		vertexBuffer[NUM_VOXELS], vertexBackBuffer;
 
-	D3D12_VERTEX_BUFFER_VIEW plainVB;
+	D3D12_VERTEX_BUFFER_VIEW plainVB, pointVB;
 
 	struct PLAIN_VERTEX
 	{
@@ -102,6 +112,28 @@ private:
 		XMFLOAT2 texcoord;
 		UINT svInstance;
 	};
+
+	struct OCCUPIED_POINT
+	{
+		XMFLOAT2 position;
+		UINT instanceID;
+	};
+
+	struct BITPOS
+	{
+		UINT bitpos;
+	};
+
+	struct POLY_CONSTANTS
+	{
+		INT numberPolygons[256];
+	};
+
+	struct EDGE_CONSTANTS
+	{
+		XMINT4 edgeNumber[256][5];
+	};
+
 
 	PLAIN_VERTEX plainVerts[6] = {
 		PLAIN_VERTEX{ XMFLOAT3(1, 1, 1), XMFLOAT2(1, 1), 0 },

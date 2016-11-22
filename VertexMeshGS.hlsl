@@ -17,4 +17,6 @@ void main(
 	GS_OUTPUT element;
 	element.position = input[0].position;
 	output.Append(element);
+
+	output.RestartStrip();
 }

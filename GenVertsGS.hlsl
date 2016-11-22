@@ -1,4 +1,3 @@
-#include <EdgesConstantsH.hlsl>
 #include <GenVertsH.hlsl>
 
 struct GS_INPUT
@@ -40,4 +39,6 @@ void main(
 		element.bitPos = reducedPos | 8;
 		output.Append(element);
 	}
+
+	output.RestartStrip();
 }
