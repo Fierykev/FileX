@@ -94,6 +94,7 @@ void Graphics::phase2(XMUINT3 voxelPos, UINT index)
 
 void Graphics::phase3(XMUINT3 voxelPos, UINT index)
 {
+	return;
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
 
@@ -123,6 +124,8 @@ void Graphics::phase4(XMUINT3 voxelPos, UINT index)
 		renderPipelineState.Get()));
 
 	setupProceduralDescriptors();
+	renderClearTex(voxelPos, index);
+	renderVertSplat(voxelPos, index);
 	renderGenIndices(voxelPos, index);
 
 	// run the commands
@@ -395,7 +398,7 @@ void Graphics::loadPipeline()
 	srvHandle0.Offset(csuDescriptorSize);
 
 	// SRV 2
-
+	
 	voxelTextureDesc.Format = INDEX_FORMAT;
 	voxelTextureDesc.Width = VOXEL_SIZE;
 	voxelTextureDesc.Height = VOXEL_SIZE;
@@ -410,10 +413,10 @@ void Graphics::loadPipeline()
 		&voxelTextureDesc,
 		D3D12_RESOURCE_STATE_RENDER_TARGET,
 		nullptr,
-		IID_PPV_ARGS(&intermediateTarget[DENSITY_TEXTURE])
+		IID_PPV_ARGS(&intermediateTarget[INDEX_TEXTURE])
 	));
-
-	device->CreateRenderTargetView(intermediateTarget[DENSITY_TEXTURE].Get(), &rtvDesc, rtvHandle);
+	
+	device->CreateRenderTargetView(intermediateTarget[INDEX_TEXTURE].Get(), &rtvDesc, rtvHandle);
 	rtvHandle.Offset(1, rtvDescriptorSize);
 
 	srvDesc.Format = INDEX_FORMAT;
@@ -423,7 +426,7 @@ void Graphics::loadPipeline()
 		intermediateTarget[INDEX_TEXTURE].Get(),
 		&srvDesc, srvHandle0);
 	srvHandle0.Offset(csuDescriptorSize);
-
+	
 	// create sampler
 	CD3DX12_CPU_DESCRIPTOR_HANDLE samplerHandle0(samplerHeap->GetCPUDescriptorHandleForHeapStart(), 0, samplerDescriptorSize);
 	device->CreateSampler(&samplerDesc, samplerHandle0);
@@ -579,6 +582,7 @@ void Graphics::loadAssets()
 		dataOccupiedVS, dataOccupiedGS,
 		dataGenVertsVS, dataGenVertsGS,
 		dataVertexMeshVS, dataVertexMeshGS,
+		dataClearTexVS, dataClearTexPS, dataClearTexGS,
 		dataVertSplatVS, dataVertSplatPS, dataVertSplatGS,
 		dataGenIndicesMeshVS, dataGenIndicesMeshGS,
 		dataVS, dataPS;
@@ -596,6 +600,10 @@ void Graphics::loadAssets()
 
 	ThrowIfFailed(ReadCSO("../x64/Debug/VertexMeshVS.cso", dataVertexMeshVS));
 	ThrowIfFailed(ReadCSO("../x64/Debug/VertexMeshGS.cso", dataVertexMeshGS));
+
+	ThrowIfFailed(ReadCSO("../x64/Debug/ClearTexVS.cso", dataClearTexVS));
+	ThrowIfFailed(ReadCSO("../x64/Debug/ClearTexPS.cso", dataClearTexPS));
+	ThrowIfFailed(ReadCSO("../x64/Debug/ClearTexGS.cso", dataClearTexGS));
 
 	ThrowIfFailed(ReadCSO("../x64/Debug/VertSplatVS.cso", dataVertSplatVS));
 	ThrowIfFailed(ReadCSO("../x64/Debug/VertSplatPS.cso", dataVertSplatPS));
@@ -688,6 +696,12 @@ void Graphics::loadAssets()
 	psoDesc.RTVFormats[0] = DENSITY_FORMAT;
 	psoDesc.SampleDesc.Count = 1;
 	ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&densityPipelineState)));
+
+	psoDesc.VS = { reinterpret_cast<UINT8*>((void*)dataClearTexVS.c_str()), dataClearTexVS.length() };
+	psoDesc.PS = { reinterpret_cast<UINT8*>((void*)dataClearTexPS.c_str()), dataClearTexPS.length() };
+	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataClearTexGS.c_str()), dataClearTexGS.length() };
+	psoDesc.RTVFormats[0] = INDEX_FORMAT;
+	ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&dataClearTexPipelineState)));
 
 	const D3D12_INPUT_ELEMENT_DESC vertSplatLayout[] =
 	{
@@ -934,11 +948,15 @@ void Graphics::renderDensity(XMUINT3 voxelPos)
 	// set the pipeline
 	commandList->SetPipelineState(densityPipelineState.Get());
 
-	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(), numFrames, rtvDescriptorSize);
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(), numFrames + DENSITY_TEXTURE, rtvDescriptorSize);
 	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, &plainVB);
 	commandList->DrawInstanced(_countof(plainVerts) * VOXEL_SIZE_P1, 1, 0, 0);
+
+	// TODO: CHECK IF THIS IS RIGHT
+	// wait for shader
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(NULL));
 }
 
 void Graphics::renderOccupied(XMUINT3 voxelPos, UINT index)
@@ -1100,6 +1118,39 @@ void Graphics::renderVertexMesh(XMUINT3 voxelPos, UINT index)
 		D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_STREAM_OUT));
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBackBuffer.Get(),
 		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_STREAM_OUT));
+}
+
+void Graphics::renderClearTex(XMUINT3 voxelPos, UINT index)
+{
+	// set the pipeline
+	commandList->SetPipelineState(dataClearTexPipelineState.Get());
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(), numFrames + INDEX_TEXTURE, rtvDescriptorSize);
+	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandList->IASetVertexBuffers(0, 1, &plainVB);
+	commandList->DrawInstanced(_countof(plainVerts) * VOXEL_SIZE, 1, 0, 0);
+
+	// TODO: CHECK IF THIS IS RIGHT
+	// wait for shader
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(NULL));
+}
+
+void Graphics::renderVertSplat(XMUINT3 voxelPos, UINT index)
+{
+	// set the pipeline
+	commandList->SetPipelineState(dataVertSplatPipelineState.Get());
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(), numFrames + INDEX_TEXTURE, rtvDescriptorSize);
+	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+	commandList->IASetVertexBuffers(0, 1, &pointVB);
+	// TODO: CHECK IF NUM_POINTS IS CORRECT
+	commandList->DrawInstanced(NUM_POINTS, 1, 0, 0);
+
+	// TODO: CHECK IF THIS IS RIGHT
+	// wait for shader
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(NULL));
 }
 
 void Graphics::renderGenIndices(XMUINT3 voxelPos, UINT index)

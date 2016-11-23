@@ -40,11 +40,7 @@ VS_OUTPUT main(VS_INPUT input)
 	VS_OUTPUT output;
 
 	// get the position
-	uint3 position = uint3(
-		(input.bitPos & 0xFF000000) >> 24,
-		(input.bitPos & 0x00FF0000) >> 16,
-		(input.bitPos & 0x0000FF00) >> 8
-		);
+	uint3 position = getPos(input.bitPos);
 
 	// get the edgenum
 	uint edgeNum = position & 0x0000000F;

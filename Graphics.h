@@ -61,6 +61,8 @@ private:
 	void renderOccupied(XMUINT3 voxelPos, UINT index);
 	void renderGenVerts(XMUINT3 voxelPos, UINT index);
 	void renderVertexMesh(XMUINT3 voxelPos, UINT index);
+	void renderClearTex(XMUINT3 voxelPos, UINT index);
+	void renderVertSplat(XMUINT3 voxelPos, UINT index);
 	void renderGenIndices(XMUINT3 voxelPos, UINT index);
 	void phase1(XMUINT3 voxelPos, UINT index);
 	void phase2(XMUINT3 voxelPos, UINT index);
@@ -176,7 +178,8 @@ private:
 		renderPipelineState,
 		vertexMeshPipelineState,
 		dataVertSplatPipelineState,
-		dataGenIndicesPipelineState;
+		dataGenIndicesPipelineState,
+		dataClearTexPipelineState;
 	ComPtr<ID3D12PipelineState> computeStatePR;
 	ComPtr<ID3D12PipelineState> computeStateMC;
 	ComPtr<ID3D12PipelineState> computeStateCS[CS_COUNT];

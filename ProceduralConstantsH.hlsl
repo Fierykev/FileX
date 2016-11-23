@@ -41,11 +41,11 @@ inline float3 getRelLocM1(float2 texcoord, uint instanceID)
 
 inline uint3 getPos(uint bitPos)
 {
-	return int3(
-			(bitPos >> 24) & 0x0FF,
-			(bitPos >> 16) & 0x0FF,
-			(bitPos >> 8) & 0x0FF
-		);
+	return uint3(
+		(bitPos & 0xFF000000) >> 24,
+		(bitPos & 0x00FF0000) >> 16,
+		(bitPos & 0x0000FF00) >> 8
+	);
 }
 
 #endif

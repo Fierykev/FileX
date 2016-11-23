@@ -54,6 +54,9 @@
     <Filter Include="Files\Parser">
       <UniqueIdentifier>{9432b24d-6194-4317-aed5-92d369c335e9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Files\Shaders\Procedural\ClearTex">
+      <UniqueIdentifier>{edc9bd65-743c-4327-b8b6-33ed0d883a02}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -146,6 +149,15 @@
     </FxCompile>
     <FxCompile Include="VertSplatPS.hlsl">
       <Filter>Files\Shaders\Procedural\VertSplat</Filter>
+    </FxCompile>
+    <FxCompile Include="ClearTexGS.hlsl">
+      <Filter>Files\Shaders\Procedural\ClearTex</Filter>
+    </FxCompile>
+    <FxCompile Include="ClearTexPS.hlsl">
+      <Filter>Files\Shaders\Procedural\ClearTex</Filter>
+    </FxCompile>
+    <FxCompile Include="ClearTexVS.hlsl">
+      <Filter>Files\Shaders\Procedural\ClearTex</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
