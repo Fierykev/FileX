@@ -8,7 +8,8 @@ cbuffer VOXEL_POS : register(b0)
 
 static const float voxelExpansion = 32.f;
 
-static const float voxelM1 = 31.f;
+static const float voxelM1 = 32.f;
+static const float voxelP1 = 33.f;
 
 static const float voxelInv = 1 / 32.f;
 static const float2 voxelInvVecP1 = float2(
@@ -41,8 +42,8 @@ inline float3 getRelLocM1(float2 texcoord, uint instanceID)
 
 inline float3 getPosOffset(float2 texcoord, uint instanceID)
 {
-	return float3(texcoord, instanceID * voxelInvVecM1.x)
-		+ voxelInvVecM1.xxx * .125;
+	return float3(texcoord, instanceID * voxelInvVecP1.x)
+		+ voxelInvVecP1.xxx * .125;
 }
 
 inline uint3 getPos(uint bitPos)

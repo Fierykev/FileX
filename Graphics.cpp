@@ -1041,7 +1041,7 @@ void Graphics::renderGenVerts(XMUINT3 voxelPos, UINT index)
 	UINT* readVert;
 	CD3DX12_RANGE readRange(0, sizeof(UINT));
 	vertexCount->Map(0, &readRange, (void**)&readVert);
-	vertCount = *readVert;
+	vertCount = *readVert / sizeof(BITPOS);
 	vertexCount->Unmap(0, nullptr);
 	
 	commandList->DrawInstanced(vertCount, 1, 0, 0);
@@ -1100,7 +1100,7 @@ void Graphics::renderVertexMesh(XMUINT3 voxelPos, UINT index)
 	UINT* readVert;
 	CD3DX12_RANGE readRange(0, sizeof(UINT));
 	vertexCount->Map(0, &readRange, (void**)&readVert);
-	vertCount = *readVert;
+	vertCount = *readVert / sizeof(BITPOS);
 	vertexCount->Unmap(0, nullptr);
 
 	commandList->DrawInstanced(vertCount, 1, 0, 0);
