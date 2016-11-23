@@ -28,11 +28,11 @@ VS_OUTPUT main(VS_INPUT input)
 
 	// look for differing signs to see if another
 	// cell will create the vertex
-	if (b3 != b0)
-		reducedPos |= EDGE3;
-
 	if (b1 != b0)
 		reducedPos |= EDGE0;
+
+	if (b3 != b0)
+		reducedPos |= EDGE3;
 
 	if (b4 != b0)
 		reducedPos |= EDGE8;

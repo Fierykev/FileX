@@ -60,6 +60,9 @@ private:
 	void renderOccupied(XMUINT3 voxelPos, UINT index);
 	void renderGenVerts(XMUINT3 voxelPos, UINT index);
 	void renderVertexMesh(XMUINT3 voxelPos, UINT index);
+	void phase1(XMUINT3 voxelPos, UINT index);
+	void phase2(XMUINT3 voxelPos, UINT index);
+	void drawPhase(XMUINT3 voxelPos, UINT index);
 
 	enum ComputeShader : UINT32
 	{
@@ -73,7 +76,7 @@ private:
 		CB_VOXEL_POS = 0,
 		CB_POLY_CONST,
 		CB_EDGE_CONST,
-		CBV_COUNT = 3
+		CBV_COUNT
 	};
 
 	enum BVSRV : UINT32
@@ -102,7 +105,8 @@ private:
 		bufferSRV[SRV_COUNT],
 		bufferUAV[UAV_COUNT],
 		zeroBuffer, plainVCB, pointVCB,
-		vertexBuffer[NUM_VOXELS], vertexBackBuffer;
+		vertexBuffer[NUM_VOXELS], vertexBackBuffer,
+		vertexCount;
 
 	D3D12_VERTEX_BUFFER_VIEW plainVB, pointVB;
 

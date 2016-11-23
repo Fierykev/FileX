@@ -17,8 +17,6 @@ void main(
 	inout PointStream<GS_OUTPUT> output
 )
 {
-	// TODO: mix position into one int
-
 	GS_OUTPUT element;
 
 	// filter out position portion
@@ -27,9 +25,7 @@ void main(
 	// filter out air blocks
 	if (0 < edgesOnly && edgesOnly < 255)
 	{
-#ifdef DEBUG
 		debug[0] = true;
-#endif
 		element.bitPos = input[0].bitPos;
 		output.Append(element);
 	}

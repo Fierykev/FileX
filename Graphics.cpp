@@ -48,6 +48,71 @@ void Graphics::onUpdate()
 	WaitForSingleObjectEx(swapChainEvent, 100, FALSE);
 }
 
+void Graphics::phase1(XMUINT3 voxelPos, UINT index)
+{
+	// reset the command allocator
+	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
+
+	// reset the command list
+	ThrowIfFailed(commandList->Reset(commandAllocator[frameIndex].Get(),
+		renderPipelineState.Get()));
+
+	setupProceduralDescriptors();
+
+	renderDensity(voxelPos); // NOTE: causes error
+	renderOccupied(voxelPos, index);
+
+	// run the commands
+	ThrowIfFailed(commandList->Close());
+	ID3D12CommandList* commandLists[] = { commandList.Get() };
+	commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+
+	// wait on the gpu
+	waitForGpu();
+}
+
+void Graphics::phase2(XMUINT3 voxelPos, UINT index)
+{
+	// reset the command allocator
+	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
+
+	// reset the command list
+	ThrowIfFailed(commandList->Reset(commandAllocator[frameIndex].Get(),
+		renderPipelineState.Get()));
+
+	setupProceduralDescriptors();
+	renderGenVerts(voxelPos, index);
+
+	// run the commands
+	ThrowIfFailed(commandList->Close());
+	ID3D12CommandList* commandLists[] = { commandList.Get() };
+	commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+
+	// wait on the gpu
+	waitForGpu();
+}
+
+void Graphics::drawPhase(XMUINT3 voxelPos, UINT index)
+{
+	// reset the command allocator
+	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
+
+	// reset the command list
+	ThrowIfFailed(commandList->Reset(commandAllocator[frameIndex].Get(),
+		renderPipelineState.Get()));
+
+	setupProceduralDescriptors();
+	populateCommandList();
+
+	// run the commands
+	ThrowIfFailed(commandList->Close());
+	ID3D12CommandList* commandLists[] = { commandList.Get() };
+	commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+
+	// wait on the gpu
+	waitForGpu();
+}
+
 void Graphics::onRender()
 {
 	double delta = (std::clock() - start) / (double)CLOCKS_PER_SEC;
@@ -62,16 +127,6 @@ void Graphics::onRender()
 	}
 
 	// record the render commands
-
-	// reset the command allocator
-	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
-
-	// reset the command list
-	ThrowIfFailed(commandList->Reset(commandAllocator[frameIndex].Get(),
-		renderPipelineState.Get()));
-
-	setupProceduralDescriptors();
-
 	XMUINT3 voxelPos = { 0, 0, 0 };
 	voxelPosData->voxelPos = voxelPos;
 
@@ -79,20 +134,13 @@ void Graphics::onRender()
 		voxelPos.y * NUM_VOXELS_Y +
 		voxelPos.z * NUM_VOXELS_Z;
 
-	renderDensity(voxelPos); // NOTE: causes error
-	//renderOccupied(voxelPos, index);
-	//renderGenVerts(voxelPos, index);
+	// run phase 1
+	phase1(voxelPos, index);
+	phase2(voxelPos, index);
+
 	//renderVertexMesh(voxelPos, index);
-	populateCommandList();
 
-
-	// close the commands
-	ThrowIfFailed(commandList->Close());
-
-	// run the commands
-
-	ID3D12CommandList* commandLists[] = { commandList.Get() };
-	commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+	drawPhase(voxelPos, index);
 
 	// show the frame
 
@@ -422,6 +470,15 @@ void Graphics::loadPipeline()
 		D3D12_RESOURCE_STATE_STREAM_OUT,
 		nullptr,
 		IID_PPV_ARGS(&vertexBackBuffer)));
+
+	// setup vertex count
+	ThrowIfFailed(device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT)),
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr,
+		IID_PPV_ARGS(&vertexCount)));
 }
 
 void Graphics::loadAssets()
@@ -485,7 +542,8 @@ void Graphics::loadAssets()
 	// empty root signature
 
 	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-	rootSignatureDesc.Init(_countof(rootParameters), rootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	rootSignatureDesc.Init(_countof(rootParameters), rootParameters, 0, nullptr,
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_ALLOW_STREAM_OUTPUT);
 
 	ComPtr<ID3DBlob> signature;
 	ComPtr<ID3DBlob> error;
@@ -523,14 +581,27 @@ void Graphics::loadAssets()
 	psoDesc.RTVFormats[0] = DENSITY_FORMAT;
 	psoDesc.SampleDesc.Count = 1;
 	ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&densityPipelineState)));
-	
+
 	const D3D12_INPUT_ELEMENT_DESC occupiedLayout[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "SV_InstanceID", 0, DXGI_FORMAT_R32_UINT, 0, 8, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "IID", 0, DXGI_FORMAT_R32_UINT, 0, 8, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
+	const D3D12_SO_DECLARATION_ENTRY occupiedOut[] =
+	{
+		{ 0, "BITPOS", 0, 0, 1, 0 }
+	};
+
+	UINT occupiedStride = sizeof(UINT);
+
 	psoDesc.InputLayout = { occupiedLayout, _countof(occupiedLayout) };
+	psoDesc.StreamOutput.NumEntries = _countof(occupiedOut);
+	psoDesc.StreamOutput.pBufferStrides = &occupiedStride;
+	psoDesc.StreamOutput.NumStrides = 1;
+	psoDesc.StreamOutput.RasterizedStream = 0;
+	psoDesc.StreamOutput.pSODeclaration = occupiedOut;
+	
 	psoDesc.VS = { reinterpret_cast<UINT8*>((void*)dataOccupiedVS.c_str()), dataOccupiedVS.length() };
 	psoDesc.PS = { 0, 0 };
 	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataOccupiedGS.c_str()), dataOccupiedGS.length() };
@@ -545,6 +616,7 @@ void Graphics::loadAssets()
 	};
 
 	psoDesc.InputLayout = { bitPosLayout, _countof(bitPosLayout) };
+	psoDesc.StreamOutput.NumEntries = 0;
 	psoDesc.VS = { reinterpret_cast<UINT8*>((void*)dataGenVertsVS.c_str()), dataGenVertsVS.length() };
 	psoDesc.PS = { 0, 0 };
 	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataGenVertsGS.c_str()), dataGenVertsGS.length() };
@@ -730,15 +802,24 @@ void Graphics::renderOccupied(XMUINT3 voxelPos, UINT index)
 	commandList->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
 	commandList->IASetVertexBuffers(0, 1, &pointVB);
 	commandList->DrawInstanced(NUM_POINTS, 1, 0, 0);
+
+	// wait for the buffer to be written to
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
+		D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_COPY_SOURCE));
+
+	// copy the output data to a buffer
+	commandList->CopyBufferRegion(vertexCount.Get(), 0,
+		vertexBuffer[index].Get(),
+		MAX_BUFFER_SIZE, sizeof(UINT));
+
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
+		D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 }
 
 void Graphics::renderGenVerts(XMUINT3 voxelPos, UINT index)
 {
 	// set the pipeline state
 	commandList->SetPipelineState(genVertsPipelineState.Get());
-
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
-		D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 
 	D3D12_VERTEX_BUFFER_VIEW vertBuffer;
 	vertBuffer.BufferLocation = vertexBuffer[index]->GetGPUVirtualAddress();
@@ -752,14 +833,31 @@ void Graphics::renderGenVerts(XMUINT3 voxelPos, UINT index)
 
 	// set the target
 	commandList->SOSetTargets(0, 1, &sobv);
-	//(sobv.BufferLocation + MAX_BUFFER_SIZE)
+	// READ IN THE VALUE
 	// draw the object
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	commandList->IASetVertexBuffers(0, 1, &vertBuffer);
-	commandList->DrawInstanced(100, 1, 0, 0); // FIX THIS
+	
+	// read in the vertex count
+	UINT vertCount;
+	UINT* readVert;
+	CD3DX12_RANGE readRange(0, sizeof(UINT));
+	vertexCount->Map(0, nullptr, (void**)&readVert);
+	vertCount = *readVert;
+	vertexCount->Unmap(0, nullptr);
+	
+	commandList->DrawInstanced(vertCount, 1, 0, 0);
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
-		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_STREAM_OUT));
+		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_COPY_SOURCE));
+
+	// copy the output data to a buffer
+	commandList->CopyBufferRegion(vertexCount.Get(), 0,
+		vertexBackBuffer.Get(),
+		MAX_BUFFER_SIZE, sizeof(UINT));
+
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
+		D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_STREAM_OUT));
 }
 
 void Graphics::renderVertexMesh(XMUINT3 voxelPos, UINT index)

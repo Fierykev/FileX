@@ -3,7 +3,7 @@
 struct VS_INPUT
 {
 	float2 position : POSITION;
-	uint instanceID : SV_InstanceID;
+	uint instanceID : IID;
 };
 
 struct VS_OUTPUT
@@ -22,17 +22,17 @@ VS_OUTPUT main(VS_INPUT input)
 	float3 position = getRelLocM1(
 		input.position, input.instanceID
 	);
-	position = float3(.2, .2, 0);
+
 	// sample the texture where needed
 	output.bitPos = 0;
-	output.bitPos |= densityTexture.SampleLevel(nearestSample, position + voxelInvMinP1.yyy, 0).x > 0;
-	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvMinP1.yxy, 0).x > 0) << 1;
-	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvMinP1.xxy, 0).x > 0) << 2;
-	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvMinP1.xyy, 0).x > 0) << 3;
-	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvMinP1.yyx, 0).x > 0) << 4;
-	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvMinP1.yxx, 0).x > 0) << 5;
-	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvMinP1.xxx, 0).x > 0) << 6;
-	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvMinP1.xyx, 0).x > 0) << 7;
+	output.bitPos |= densityTexture.SampleLevel(nearestSample, position + voxelInvVecM1.yyy, 0).x > 0;
+	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvVecM1.yxy, 0).x > 0) << 1;
+	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvVecM1.xxy, 0).x > 0) << 2;
+	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvVecM1.xyy, 0).x > 0) << 3;
+	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvVecM1.yyx, 0).x > 0) << 4;
+	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvVecM1.yxx, 0).x > 0) << 5;
+	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvVecM1.xxx, 0).x > 0) << 6;
+	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + voxelInvVecM1.xyx, 0).x > 0) << 7;
 	
 	uint3 coord = uint3(input.position * voxelM1, input.instanceID);
 
