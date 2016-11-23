@@ -12,7 +12,7 @@ struct GS_OUTPUT
 	uint index : INDEX;
 };
 
-texture3D<uint> indexTex: register(t1);
+Texture3D<uint> indexTex: register(t1);
 
 [maxvertexcount(15)]
 void main(

@@ -1,13 +1,13 @@
 struct GS_INPUT
 {
-	float4 position : POSITION;
+	float4 position : SV_POSITION;
 	uint vertID : VERTEXID;
 	uint renderTarget : SV_RenderTargetArrayIndex;
 };
 
 struct GS_OUTPUT
 {
-	float4 position : POSITION;
+	float4 position : SV_POSITION;
 	uint vertID : VERTEXID;
 	uint renderTarget : SV_RenderTargetArrayIndex;
 };

@@ -1,3 +1,5 @@
+#include <Debug.hlsl>
+
 struct GS_INPUT
 {
 	float4 position : SV_POSITION;

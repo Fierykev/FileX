@@ -19,12 +19,12 @@ float3 locateVertFromEdge(float3 position, uint edgeNum)
 {
 	float samplePT0 = densityTexture.SampleLevel(
 		nearestSample,
-		position + voxelInvVecP1.x * edgeStartLoc[edgeNum],
+		position + voxelInv.xxx * edgeStartLoc[edgeNum],
 		0).x;
 
 	float samplePT1 = densityTexture.SampleLevel(
 		nearestSample,
-		position + voxelInvVecP1.x * edgeEndLoc[edgeNum],
+		position + voxelInv.xxx * edgeEndLoc[edgeNum],
 		0).x;
 
 	// saturate is needed for div 0
@@ -41,13 +41,13 @@ VS_OUTPUT main(VS_INPUT input)
 
 	// get the position
 	uint3 position = uint3(
-		input.bitPos & 0xFF000000,
-		input.bitPos & 0x00FF0000,
-		input.bitPos & 0x0000FF00
+		(input.bitPos & 0xFF000000) >> 24,
+		(input.bitPos & 0x00FF0000) >> 16,
+		(input.bitPos & 0x0000FF00) >> 8
 		);
 
 	// get the edgenum
-	uint edgeNum = position & 0x000000FF;
+	uint edgeNum = position & 0x0000000F;
 
 	// get the vertex from the edge num
 	output.pos = float4(

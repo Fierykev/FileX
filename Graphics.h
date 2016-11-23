@@ -20,6 +20,7 @@ using namespace DirectX;
 #define SRVS_PER_FRAME 2
 
 #define DENSITY_FORMAT DXGI_FORMAT_R32_FLOAT
+#define INDEX_FORMAT DXGI_FORMAT_R32_UINT
 
 #define CAM_DELTA .1f
 
@@ -44,7 +45,7 @@ public:
 		NUM_POINTS;
 
 	const UINT MAX_BUFFER_SIZE =
-		(((5 * VOXEL_SIZE_P1 * VOXEL_SIZE_P1) >> 2) << 2) * sizeof(BITPOS);
+		(((5 * VOXEL_SIZE_P1 * VOXEL_SIZE_P1 * VOXEL_SIZE_P1) >> 2) << 2) * sizeof(BITPOS);
 
 private:
 	// methods
@@ -60,8 +61,11 @@ private:
 	void renderOccupied(XMUINT3 voxelPos, UINT index);
 	void renderGenVerts(XMUINT3 voxelPos, UINT index);
 	void renderVertexMesh(XMUINT3 voxelPos, UINT index);
+	void renderGenIndices(XMUINT3 voxelPos, UINT index);
 	void phase1(XMUINT3 voxelPos, UINT index);
 	void phase2(XMUINT3 voxelPos, UINT index);
+	void phase3(XMUINT3 voxelPos, UINT index);
+	void phase4(XMUINT3 voxelPos, UINT index);
 	void drawPhase(XMUINT3 voxelPos, UINT index);
 
 	enum ComputeShader : UINT32
@@ -82,6 +86,7 @@ private:
 	enum BVSRV : UINT32
 	{
 		DENSITY_TEXTURE = 0,
+		INDEX_TEXTURE,
 		SRV_COUNT
 	};
 
@@ -169,7 +174,9 @@ private:
 		occupiedPipelineState,
 		genVertsPipelineState,
 		renderPipelineState,
-		vertexMeshPipelineState;
+		vertexMeshPipelineState,
+		dataVertSplatPipelineState,
+		dataGenIndicesPipelineState;
 	ComPtr<ID3D12PipelineState> computeStatePR;
 	ComPtr<ID3D12PipelineState> computeStateMC;
 	ComPtr<ID3D12PipelineState> computeStateCS[CS_COUNT];
@@ -177,7 +184,7 @@ private:
 	ComPtr<IDXGISwapChain3> swapChain;
 
 	// per frame vars
-	ComPtr<ID3D12Resource> renderTarget[numFrames], intermediateTarget[1];
+	ComPtr<ID3D12Resource> renderTarget[numFrames], intermediateTarget[SRV_COUNT];
 	ComPtr<ID3D12CommandAllocator> commandAllocator[numFrames];
 
 	// heaps
@@ -193,7 +200,6 @@ private:
 	HANDLE fenceEvent;
 	HANDLE swapChainEvent;
 
-	D3D12_RESOURCE_DESC voxelTextureDesc = {};
 	D3D12_SAMPLER_DESC samplerDesc = {};
 
 	struct Ray

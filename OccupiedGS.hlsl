@@ -25,7 +25,6 @@ void main(
 	// filter out air blocks
 	if (0 < edgesOnly && edgesOnly < 255)
 	{
-		debug[0] = true;
 		element.bitPos = input[0].bitPos;
 		output.Append(element);
 	}
