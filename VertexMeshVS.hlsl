@@ -19,12 +19,12 @@ float3 locateVertFromEdge(float3 position, uint edgeNum)
 {
 	float samplePT0 = densityTexture.SampleLevel(
 		nearestSample,
-		position + voxelInv.xxx * edgeStartLoc[edgeNum],
+		position + voxelInvVecP1.xxx * edgeStartLoc[edgeNum],
 		0).x;
 
 	float samplePT1 = densityTexture.SampleLevel(
 		nearestSample,
-		position + voxelInv.xxx * edgeEndLoc[edgeNum],
+		position + voxelInvVecP1.xxx * edgeEndLoc[edgeNum],
 		0).x;
 
 	// saturate is needed for div 0
