@@ -145,7 +145,6 @@ private:
 		XMINT4 edgeNumber[256][5];
 	};
 
-
 	PLAIN_VERTEX plainVerts[6] = {
 		PLAIN_VERTEX{ XMFLOAT3(1, 1, 1), XMFLOAT2(1, 1), 0 },
 		PLAIN_VERTEX{ XMFLOAT3(1, -1, 0), XMFLOAT2(1, 0), 0 },
@@ -161,14 +160,17 @@ private:
 		UINT bitPoints;
 	};
 
+	// verts
+	UINT vertCount;
+
 	// fences
 	UINT frameIndex;
 	UINT64 fenceVal[numFrames];
 
 	// pipeline objects
-	D3D12_VIEWPORT viewport, voxelViewport;
+	D3D12_VIEWPORT viewport, voxelViewport, vertSplatViewport;
 	ComPtr<ID3D12Device> device;
-	D3D12_RECT scissorRect, voxelScissorRect;
+	D3D12_RECT scissorRect, voxelScissorRect, vertSplatScissorRect;
 	ComPtr<ID3D12CommandQueue> commandQueue;
 	ComPtr<ID3D12RootSignature> rootSignature;
 	ComPtr<ID3D12RootSignature> computeRootSignature;

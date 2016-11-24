@@ -44,15 +44,13 @@ VS_OUTPUT main(VS_INPUT input)
 	// TODO: alignment fix
 
 	// set the output position
-	output.position.w = 1;
-	output.position.x =
-		((float)uv.x * voxelInv / 3.0) * 2.f - 1.f;
-	output.position.y =
-		((float)uv.y * voxelInv) * 2.f;
-	output.position.z = 0;
-
 	// restrict to [-1, 1] range
-	output.position = output.position * 2 - 1;
+	output.position.x =
+		((float)uv.x * voxelInv.x / 3.0) * 2.f - 1.f;
+	output.position.y =
+		((float)uv.y * voxelInv.x) * 2.f - 1.f;
+	output.position.z = 0;
+	output.position.w = 1;
 
 	return output;
 }

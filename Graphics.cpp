@@ -28,11 +28,18 @@ Graphics::Graphics(std::wstring title, unsigned int width, unsigned int height)
 	voxelViewport.Height = VOXEL_SIZE_P1;
 	voxelViewport.MaxDepth = 1.0f;
 
+	vertSplatViewport.Width = VOXEL_SIZE;
+	vertSplatViewport.Height = VOXEL_SIZE;
+	vertSplatViewport.MaxDepth = 1.0f;
+
 	scissorRect.right = static_cast<LONG>(width);
 	scissorRect.bottom = static_cast<LONG>(height);
 
 	voxelScissorRect.right = VOXEL_SIZE_P1;
 	voxelScissorRect.bottom = VOXEL_SIZE_P1;
+
+	vertSplatScissorRect.right = VOXEL_SIZE;
+	vertSplatScissorRect.bottom = VOXEL_SIZE;
 }
 
 void Graphics::onInit()
@@ -81,7 +88,14 @@ void Graphics::phase2(XMUINT3 voxelPos, UINT index)
 		renderPipelineState.Get()));
 
 	setupProceduralDescriptors();
+
+	// verts
 	renderGenVerts(voxelPos, index);
+
+	// indices
+	renderClearTex(voxelPos, index);
+	renderVertSplat(voxelPos, index);
+	/*renderGenIndices(voxelPos, index);*/
 
 	// run the commands
 	ThrowIfFailed(commandList->Close());
@@ -123,9 +137,7 @@ void Graphics::phase4(XMUINT3 voxelPos, UINT index)
 		renderPipelineState.Get()));
 
 	setupProceduralDescriptors();
-	renderClearTex(voxelPos, index);
-	renderVertSplat(voxelPos, index);
-	renderGenIndices(voxelPos, index);
+
 
 	// run the commands
 	ThrowIfFailed(commandList->Close());
@@ -181,10 +193,10 @@ void Graphics::onRender()
 	// run phase 1
 	phase1(voxelPos, index);
 	phase2(voxelPos, index);
-	phase3(voxelPos, index);
+	//phase3(voxelPos, index);
 	//phase4(voxelPos, index);
 
-	//drawPhase(voxelPos, index);
+	drawPhase(voxelPos, index);
 
 	// show the frame
 
@@ -704,8 +716,8 @@ void Graphics::loadAssets()
 
 	const D3D12_INPUT_ELEMENT_DESC vertSplatLayout[] =
 	{
-		{ "BITPOS", 0, DXGI_FORMAT_R32_UINT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "SV_VERTEXID", 0, DXGI_FORMAT_R32_UINT, 0, 4, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "BITPOS", 0, DXGI_FORMAT_R32_UINT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }//,
+		//{ "SV_VERTEXID", 0, DXGI_FORMAT_R32_UINT, 0, 4, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 	psoDesc.InputLayout = { vertSplatLayout, _countof(vertSplatLayout) };
@@ -1037,7 +1049,6 @@ void Graphics::renderGenVerts(XMUINT3 voxelPos, UINT index)
 	commandList->IASetVertexBuffers(0, 1, &vertBuffer);
 	
 	// read in the vertex count
-	UINT vertCount;
 	UINT* readVert;
 	CD3DX12_RANGE readRange(0, sizeof(UINT));
 	vertexCount->Map(0, &readRange, (void**)&readVert);
@@ -1057,8 +1068,6 @@ void Graphics::renderGenVerts(XMUINT3 voxelPos, UINT index)
 	// TODO: combine barriers
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBackBuffer.Get(),
 		D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBackBuffer.Get(),
-		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_STREAM_OUT));
 }
 
 void Graphics::renderVertexMesh(XMUINT3 voxelPos, UINT index)
@@ -1096,7 +1105,6 @@ void Graphics::renderVertexMesh(XMUINT3 voxelPos, UINT index)
 	commandList->IASetVertexBuffers(0, 1, &vertBuffer);
 	
 	// read in the vertex count
-	UINT vertCount;
 	UINT* readVert;
 	CD3DX12_RANGE readRange(0, sizeof(UINT));
 	vertexCount->Map(0, &readRange, (void**)&readVert);
@@ -1125,9 +1133,12 @@ void Graphics::renderClearTex(XMUINT3 voxelPos, UINT index)
 	commandList->SetPipelineState(dataClearTexPipelineState.Get());
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(), numFrames + INDEX_TEXTURE, rtvDescriptorSize);
+	commandList->SOSetTargets(0, 0, 0);
 	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, &plainVB);
+	commandList->RSSetViewports(1, &vertSplatViewport);
+	commandList->RSSetScissorRects(1, &vertSplatScissorRect);
 	commandList->DrawInstanced(_countof(plainVerts) * VOXEL_SIZE, 1, 0, 0);
 
 	// TODO: CHECK IF THIS IS RIGHT
@@ -1140,16 +1151,19 @@ void Graphics::renderVertSplat(XMUINT3 voxelPos, UINT index)
 	// set the pipeline
 	commandList->SetPipelineState(dataVertSplatPipelineState.Get());
 
+	D3D12_VERTEX_BUFFER_VIEW vertBuffer;
+	vertBuffer.BufferLocation = vertexBackBuffer->GetGPUVirtualAddress();
+	vertBuffer.StrideInBytes = sizeof(BITPOS);
+	vertBuffer.SizeInBytes = MAX_BUFFER_SIZE;
+
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(), numFrames + INDEX_TEXTURE, rtvDescriptorSize);
 	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
-	commandList->IASetVertexBuffers(0, 1, &pointVB);
-	// TODO: CHECK IF NUM_POINTS IS CORRECT
-	commandList->DrawInstanced(NUM_POINTS, 1, 0, 0);
+	commandList->IASetVertexBuffers(0, 1, &vertBuffer);
+	commandList->DrawInstanced(vertCount, 1, 0, 0);
 
-	// TODO: CHECK IF THIS IS RIGHT
-	// wait for shader
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(NULL));
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBackBuffer.Get(),
+		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_STREAM_OUT));
 }
 
 void Graphics::renderGenIndices(XMUINT3 voxelPos, UINT index)
