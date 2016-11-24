@@ -31,18 +31,12 @@ inline float3 getRelLoc(float2 texcoord, uint instanceID)
 
 inline float3 getRelLocP1(float2 texcoord, uint instanceID)
 {
-	return float3(texcoord, instanceID * voxelInvVecP1.x);
+	return float3(texcoord, instanceID * voxelInvVecP1.y);
 }
 
 inline float3 getRelLocM1(float2 texcoord, uint instanceID)
 {
-	return float3(texcoord, instanceID * voxelInvVecM1.x);
-}
-
-inline float3 getPosOffset(float2 texcoord, uint instanceID)
-{
-	return float3(texcoord, instanceID * voxelInvVecM1.x)
-		+ voxelInvVecM1.xxx * .125;
+	return float3(texcoord, instanceID * voxelInvVecP1.y) + voxelInvVecM1.xxx;
 }
 
 inline uint3 getPos(uint bitPos)

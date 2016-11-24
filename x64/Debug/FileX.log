@@ -4,6 +4,8 @@ C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\GenIndicesGS.hl
 C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\GenIndicesGS.hlsl(43,8-42): warning X3206: implicit truncation of vector type
   
   compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\GenIndicesGS.cso
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\GenVertsGS.cso
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\GenVertsVS.cso
   compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\OccupiedVS.cso
   compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\RenderPS.cso
 C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\VertexMeshVS.hlsl(32,8-64): warning X3206: implicit truncation of vector type

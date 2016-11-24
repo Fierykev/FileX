@@ -94,6 +94,7 @@ void Graphics::phase2(XMUINT3 voxelPos, UINT index)
 
 void Graphics::phase3(XMUINT3 voxelPos, UINT index)
 {
+	return;
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
 
@@ -182,7 +183,7 @@ void Graphics::onRender()
 	phase1(voxelPos, index);
 	phase2(voxelPos, index);
 	phase3(voxelPos, index);
-	//phase4(voxelPos, index);
+	phase4(voxelPos, index);
 
 	//drawPhase(voxelPos, index);
 
@@ -875,7 +876,7 @@ void Graphics::loadAssets()
 			for (UINT k = 0; k < VOXEL_SIZE; k++)
 			{
 				OCCUPIED_POINT* p = &pointBufferData[k + j * VOXEL_SIZE + i * VOXEL_SIZE * VOXEL_SIZE];
-				p->position = XMFLOAT2((float)k / VOXEL_SIZE_P1, (float)j / VOXEL_SIZE_P1);
+				p->position = XMFLOAT2((float)k / VOXEL_SIZE, (float)j / VOXEL_SIZE);
 				p->instanceID = i;
 			}
 		}
@@ -1136,7 +1137,7 @@ void Graphics::renderClearTex(XMUINT3 voxelPos, UINT index)
 }
 
 void Graphics::renderVertSplat(XMUINT3 voxelPos, UINT index)
-{// TODO: ERROR NEED TO FIX LOCATION
+{
 	// set the pipeline
 	commandList->SetPipelineState(dataVertSplatPipelineState.Get());
 

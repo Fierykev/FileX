@@ -19,7 +19,7 @@ VS_OUTPUT main(VS_INPUT input)
 {
 	VS_OUTPUT output;
 	
-	float3 position = getPosOffset(
+	float3 position = getRelLocM1(
 		input.position, input.instanceID
 	);
 
