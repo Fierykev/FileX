@@ -1,5 +1,29 @@
 ﻿C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\ProceduralConstantsH.hlsl(14,20): warning X3206: implicit truncation of vector type
   
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\ClearTexVS.cso
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\VertSplatPS.cso
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\ProceduralConstantsH.hlsl(14,20): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\VertSplatVS.cso
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\VertSplatGS.cso
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\ProceduralConstantsH.hlsl(14,20): warning X3206: implicit truncation of vector type
+  
   compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\GenIndicesGS.cso
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\OccupiedGS.cso
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\ProceduralConstantsH.hlsl(14,20): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\OccupiedVS.cso
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\ProceduralConstantsH.hlsl(14,20): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\RenderPS.cso
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\ProceduralConstantsH.hlsl(14,20): warning X3206: implicit truncation of vector type
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\VertexMeshVS.hlsl(32,8-64): warning X3206: implicit truncation of vector type
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\VertexMeshVS.hlsl(46,7-37): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\VertexMeshVS.cso
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\ProceduralConstantsH.hlsl(14,20): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\DensityVS.cso
+  Graphics.cpp
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.exe
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.pdb (Partial PDB)
