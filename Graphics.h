@@ -47,6 +47,9 @@ public:
 	const UINT MAX_BUFFER_SIZE =
 		(((5 * VOXEL_SIZE_P1 * VOXEL_SIZE_P1 * VOXEL_SIZE_P1) >> 2) << 2) * sizeof(BITPOS);
 
+	const UINT MAX_INDEX_SIZE =
+		(((5 * VOXEL_SIZE_P1 * VOXEL_SIZE_P1 * VOXEL_SIZE_P1) >> 2) << 2) * sizeof(UINT);
+
 private:
 	// methods
 	void loadPipeline();
@@ -80,8 +83,8 @@ private:
 	enum BVCB : UINT32
 	{
 		CB_VOXEL_POS = 0,
-		CB_POLY_CONST,
-		CB_EDGE_CONST,
+		//CB_POLY_CONST,
+		//CB_EDGE_CONST,
 		CBV_COUNT
 	};
 
@@ -113,7 +116,9 @@ private:
 		bufferUAV[UAV_COUNT],
 		zeroBuffer, plainVCB, pointVCB,
 		vertexBuffer[NUM_VOXELS], vertexBackBuffer,
-		vertexCount;
+		indexBuffer,
+		vertexCount,
+		indexCount;
 
 	D3D12_VERTEX_BUFFER_VIEW plainVB, pointVB;
 

@@ -8,6 +8,5 @@ struct PS_INPUT
 
 uint main(PS_INPUT input) : SV_TARGET0
 {
-	debug[0] = true;
 	return input.vertID;
 }

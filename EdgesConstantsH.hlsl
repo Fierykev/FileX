@@ -1,16 +1,6 @@
 #ifndef EDGES_CONSTANTS_H
 #define EDGES_CONSTANTS_H
 
-cbuffer POLY_CONSTANTS : register(b1)
-{
-	int numberPolygons[256];
-};
-
-cbuffer EDGE_CONSTANTS : register(b2)
-{
-	int4 edgeNumber[256][5];
-};
-
 static const float3 edgeStartLoc[12] =
 {
 	float3(0, 0, 0),

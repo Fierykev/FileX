@@ -11,7 +11,9 @@ static const float voxelExpansion = 32.f;
 static const float voxelM1 = 32.f;
 static const float voxelP1 = 33.f;
 
-static const float voxelInv = 1 / 32.f;
+static const float voxelInv = float2(
+	1 / 32.f, 0
+	);
 static const float2 voxelInvVecP1 = float2(
 	1 / 33.f, 0
 	);

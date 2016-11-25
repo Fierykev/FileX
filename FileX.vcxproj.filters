@@ -173,5 +173,8 @@
     <None Include="Debug.hlsl">
       <Filter>Files\Shaders\Procedural</Filter>
     </None>
+    <None Include="PolyEdgeH.hlsl">
+      <Filter>Files\Shaders\Procedural</Filter>
+    </None>
   </ItemGroup>
 </Project>
