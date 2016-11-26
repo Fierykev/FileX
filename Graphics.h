@@ -72,7 +72,7 @@ private:
 	void phase2(XMUINT3 voxelPos, UINT index);
 	void phase3(XMUINT3 voxelPos, UINT index);
 	void phase4(XMUINT3 voxelPos, UINT index);
-	void drawPhase(XMUINT3 voxelPos, UINT index);
+	void drawPhase();
 
 	enum ComputeShader : UINT32
 	{

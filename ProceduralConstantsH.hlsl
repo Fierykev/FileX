@@ -8,7 +8,7 @@ cbuffer VOXEL_POS : register(b1)
 
 static const float voxelExpansion = 32.f;
 
-static const float voxelM1 = 32.f;
+static const float voxelM1 = 31.f;
 static const float voxelP1 = 33.f;
 
 static const float2 voxelInv = float2(

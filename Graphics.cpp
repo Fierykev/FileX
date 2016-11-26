@@ -163,7 +163,7 @@ void Graphics::phase4(XMUINT3 voxelPos, UINT index)
 	waitForGpu();
 }
 
-void Graphics::drawPhase(XMUINT3 voxelPos, UINT index)
+void Graphics::drawPhase()
 {
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -197,21 +197,7 @@ void Graphics::onRender()
 		start = std::clock();
 	}
 
-	// record the render commands
-	XMUINT3 voxelPos = { 0, 0, 0 };
-	voxelPosData->voxelPos = voxelPos;
-
-	UINT index = voxelPos.x * NUM_VOXELS_X +
-		voxelPos.y * NUM_VOXELS_Y +
-		voxelPos.z * NUM_VOXELS_Z;
-
-	// run phase 1
-	phase1(voxelPos, index);
-	phase2(voxelPos, index);
-	phase3(voxelPos, index);
-	phase4(voxelPos, index);
-
-	drawPhase(voxelPos, index);
+	drawPhase();
 
 	// show the frame
 
@@ -945,8 +931,34 @@ void Graphics::loadAssets()
 		ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
 
 	// wait for the command list to finish being run on the GPU
-
 	waitForGpu();
+
+	// generate the terrain
+
+	// record the render commands
+	XMUINT3 voxelPos = { 0, 0, 0 };
+
+	UINT index = 0;
+
+	for (UINT z = 0; z < NUM_VOXELS_Z; z++)
+	{
+		for (UINT y = 0; y < NUM_VOXELS_Y; y++)
+		{
+			for (UINT x = 0; x < NUM_VOXELS_X; x++)
+			{
+				voxelPos = { x, y, z };
+				voxelPosData->voxelPos = voxelPos;
+
+				// run phase 1
+				phase1(voxelPos, index);
+				phase2(voxelPos, index);
+				phase3(voxelPos, index);
+				phase4(voxelPos, index);
+
+				index ++;
+			}
+		}
+	}
 }
 
 void Graphics::setupProceduralDescriptors()
@@ -1272,25 +1284,26 @@ void Graphics::populateCommandList()
 
 	const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
 	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+	//UINT index = 10;
+	for (UINT index = 0; index < NUM_VOXELS; index++)
+	{
+		// draw the object
+		D3D12_VERTEX_BUFFER_VIEW vertBuffer;
+		vertBuffer.BufferLocation = vertexBuffer[index]->GetGPUVirtualAddress();
+		vertBuffer.StrideInBytes = sizeof(XMFLOAT4);
+		vertBuffer.SizeInBytes = MAX_BUFFER_SIZE;
 
-	// draw the object
-	UINT index = 0;
-	D3D12_VERTEX_BUFFER_VIEW vertBuffer;
-	vertBuffer.BufferLocation = vertexBuffer[index]->GetGPUVirtualAddress();
-	vertBuffer.StrideInBytes = sizeof(XMFLOAT4);
-	vertBuffer.SizeInBytes = MAX_BUFFER_SIZE;
+		D3D12_INDEX_BUFFER_VIEW indexBufferView;
+		indexBufferView.BufferLocation = indexBuffer[index]->GetGPUVirtualAddress();
+		indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+		indexBufferView.SizeInBytes = MAX_BUFFER_SIZE;
 
-	D3D12_INDEX_BUFFER_VIEW indexBufferView;
-	indexBufferView.BufferLocation = indexBuffer[index]->GetGPUVirtualAddress();
-	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
-	indexBufferView.SizeInBytes = MAX_BUFFER_SIZE;
-
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	commandList->IASetVertexBuffers(0, 1, &vertBuffer);
-	commandList->IASetIndexBuffer(&indexBufferView);
-	commandList->SOSetTargets(0, 0, nullptr);
-	commandList->DrawIndexedInstanced(indCount[index], 1, 0, 0, 0);
-
+		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		commandList->IASetVertexBuffers(0, 1, &vertBuffer);
+		commandList->IASetIndexBuffer(&indexBufferView);
+		commandList->SOSetTargets(0, 0, nullptr);
+		commandList->DrawIndexedInstanced(indCount[index], 1, 0, 0, 0);
+	}
 	//commandList->IASetVertexBuffers(0, 1, &plainVB);
 	//commandList->DrawInstanced(_countof(plainVerts), 1, 0, 0);
 
@@ -1342,7 +1355,14 @@ void Graphics::moveToNextFrame()
 
 void Graphics::onKeyDown(UINT8 key)
 {
+	switch (key)
+	{
+	case VK_LEFT:
 
+		eye.m128_f32[0] += 1.f;
+
+		break;
+	}
 }
 
 void Graphics::onKeyUp(UINT8 key)

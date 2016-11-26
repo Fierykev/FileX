@@ -1,7 +1,5 @@
-﻿  main.cpp
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\main.cpp(9): warning C4101: 'window': unreferenced local variable
-  Graphics.cpp
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(58): warning C4305: 'argument': truncation from 'double' to 'float'
-  Generating Code...
+﻿  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\GenIndicesGS.cso
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\RenderPS.cso
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\VertexMeshVS.cso
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.exe
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.pdb (Partial PDB)

@@ -29,7 +29,7 @@ float3 locateVertFromEdge(float3 position, uint edgeNum)
 
 	// saturate is needed for div 0
 	float ratio = saturate(samplePT0 / (samplePT0 - samplePT1));
-	float relPos = edgeStartLoc[edgeNum] + edgeDir[edgeNum] * ratio;
+	float3 relPos = edgeStartLoc[edgeNum] + edgeDir[edgeNum] * ratio;
 
 	// TODO: add normals
 	return position + relPos * voxelInvVecP1.xxx;
@@ -41,14 +41,14 @@ VS_OUTPUT main(VS_INPUT input)
 
 	// get the position
 	uint3 position = getPos(input.bitPos);
-
+	
 	// get the edgenum
-	uint edgeNum = position & 0x0F;
+	uint edgeNum = input.bitPos & 0x0F;
 
 	// get the vertex from the edge num
 	output.pos = float4(
 		locateVertFromEdge(
-		position, edgeNum), 1);
+		position, edgeNum), 1) + float4(voxelPos * voxelM1, 0);
 
 	return output;
 }

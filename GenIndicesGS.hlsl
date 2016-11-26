@@ -34,7 +34,7 @@ void main(
 
 	// check that everything is whithin the cell
 	// NOTE: this will most likely use cmove so no branch
-	if ((uint)voxelM1 <= max(max(position.x, position.y), position.z))
+	if ((uint)voxelExpansion <= max(max(position.x, position.y), position.z))
 		numPolygons = 0;
 
 	// generate the indices for each poly
