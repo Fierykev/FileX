@@ -50,6 +50,19 @@ void Graphics::onInit()
 
 void Graphics::onUpdate()
 {
+	// update world, view, proj
+
+	world = XMMatrixIdentity();
+	view = XMMatrixLookAtLH(eye, at, up);
+	projection = XMMatrixPerspectiveFovLH(XM_PI / 4,
+		(float)height / width, .1, 1000.0);
+	worldViewProjection = world * view * projection;
+
+	worldPosCB->worldViewProjection =
+		XMMatrixTranspose(worldViewProjection);
+	worldPosCB->worldView =
+		XMMatrixTranspose(world * view);
+
 	// wait for the last present
 
 	WaitForSingleObjectEx(swapChainEvent, 100, FALSE);
@@ -449,6 +462,14 @@ void Graphics::loadPipeline()
 	ThrowIfFailed(device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(WORLD_POS) + 255) & ~255),
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&bufferCB[CB_WORLD_POS])));
+
+	ThrowIfFailed(device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(VOXEL_POS) + 255) & ~255),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
@@ -461,10 +482,19 @@ void Graphics::loadPipeline()
 
 	// setup map
 	CD3DX12_RANGE readRange(0, 0);
+	bufferCB[CB_WORLD_POS]->Map(0, &readRange, (void**)&worldPosCB);
+
+	cdesc.BufferLocation = bufferCB[CB_WORLD_POS]->GetGPUVirtualAddress();
+	cdesc.SizeInBytes = (sizeof(WORLD_POS) + 255) & ~255;
+
+	device->CreateConstantBufferView(&cdesc, cbvHandle0);
+	cbvHandle0.Offset(csuDescriptorSize);
+
+	// IS NOT UNMAPPED
+
 	bufferCB[CB_VOXEL_POS]->Map(0, &readRange, (void**)&voxelPosData);
 
-	// DO NOT EVER UNMAP
-	//bufferCB[CB_VOXEL_POS]->Unmap(0, nullptr);
+	// IS NOT UNMAPPED
 
 	cdesc.BufferLocation = bufferCB[CB_VOXEL_POS]->GetGPUVirtualAddress();
 	cdesc.SizeInBytes = (sizeof(VOXEL_POS) + 255) & ~255;

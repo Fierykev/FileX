@@ -1,3 +1,7 @@
-﻿  Graphics.cpp
+﻿  main.cpp
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\main.cpp(9): warning C4101: 'window': unreferenced local variable
+  Graphics.cpp
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(58): warning C4305: 'argument': truncation from 'double' to 'float'
+  Generating Code...
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.exe
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.pdb (Partial PDB)

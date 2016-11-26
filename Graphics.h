@@ -83,7 +83,8 @@ private:
 	// setup the srv and uav enums
 	enum BVCB : UINT32
 	{
-		CB_VOXEL_POS = 0,
+		CB_WORLD_POS = 0,
+		CB_VOXEL_POS,
 		CBV_COUNT
 	};
 
@@ -262,19 +263,9 @@ private:
 		XMUINT3 voxelPos;
 	};
 
-	struct RAY_TRACE_BUFFER
-	{
-		UINT numGrps, numObjects;
-		UINT screenWidth, screenHeight;
-		XMFLOAT3 sceneBBMin;
-		UINT numIndices;
-		XMFLOAT3 sceneBBMax;
-	};
-
 	// constant buffers
 	VOXEL_POS* voxelPosData;
 	WORLD_POS* worldPosCB;
-	RAY_TRACE_BUFFER* rayTraceCB;
 
 	RESTART_BUFFER* bufferRestartData;
 
