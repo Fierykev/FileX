@@ -116,6 +116,7 @@ void Graphics::phase3(XMUINT3 voxelPos, UINT index)
 		renderPipelineState.Get()));
 
 	setupProceduralDescriptors();
+
 	renderVertexMesh(voxelPos, index);
 
 	// run the commands
@@ -138,6 +139,7 @@ void Graphics::phase4(XMUINT3 voxelPos, UINT index)
 
 	setupProceduralDescriptors();
 
+	getVertIndexData(voxelPos, index);
 
 	// run the commands
 	ThrowIfFailed(commandList->Close());
@@ -193,8 +195,8 @@ void Graphics::onRender()
 	// run phase 1
 	phase1(voxelPos, index);
 	phase2(voxelPos, index);
-	//phase3(voxelPos, index);
-	//phase4(voxelPos, index);
+	phase3(voxelPos, index);
+	phase4(voxelPos, index);
 
 	drawPhase(voxelPos, index);
 
@@ -469,47 +471,6 @@ void Graphics::loadPipeline()
 
 	device->CreateConstantBufferView(&cdesc, cbvHandle0);
 	cbvHandle0.Offset(csuDescriptorSize);
-	
-	// setup poly and edge constants
-	/*
-	ThrowIfFailed(device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(POLY_CONSTANTS) + 255) & ~255),
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&bufferCB[CB_POLY_CONST])));
-
-	cdesc.BufferLocation = bufferCB[CB_POLY_CONST]->GetGPUVirtualAddress();
-	cdesc.SizeInBytes = (sizeof(POLY_CONSTANTS) + 255) & ~255;
-	
-	device->CreateConstantBufferView(&cdesc, cbvHandle0);
-	cbvHandle0.Offset(csuDescriptorSize);
-	
-	ThrowIfFailed(device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(EDGE_CONSTANTS) + 255) & ~255),
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&bufferCB[CB_EDGE_CONST])));
-
-	cdesc.BufferLocation = bufferCB[CB_EDGE_CONST]->GetGPUVirtualAddress();
-	cdesc.SizeInBytes = (sizeof(EDGE_CONSTANTS) + 255) & ~255;
-
-	device->CreateConstantBufferView(&cdesc, cbvHandle0);
-	cbvHandle0.Offset(csuDescriptorSize);
-	
-	POLY_CONSTANTS* polyConst;
-	bufferCB[CB_POLY_CONST]->Map(0, &readRange, (void**)&polyConst);
-
-	EDGE_CONSTANTS* edgeConst;
-	bufferCB[CB_EDGE_CONST]->Map(0, &readRange, (void**)&edgeConst);
-
-	//parsePoly("Polys.txt", "Edges.txt", polyConst->numberPolygons, edgeConst->edgeNumber);
-	polyConst->numberPolygons[64] = 10;
-	bufferCB[CB_POLY_CONST]->Unmap(0, nullptr);
-	bufferCB[CB_EDGE_CONST]->Unmap(0, nullptr);*/
 
 	// setup DEBUG var for UAV
 
@@ -560,13 +521,16 @@ void Graphics::loadPipeline()
 
 	// setup index
 
-	ThrowIfFailed(device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(MAX_INDEX_SIZE + COUNTER_SIZE),
-		D3D12_RESOURCE_STATE_STREAM_OUT,
-		nullptr,
-		IID_PPV_ARGS(&indexBuffer)));
+	for (UINT i = 0; i < NUM_VOXELS; i++)
+	{
+		ThrowIfFailed(device->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(MAX_INDEX_SIZE + COUNTER_SIZE),
+			D3D12_RESOURCE_STATE_STREAM_OUT,
+			nullptr,
+			IID_PPV_ARGS(&indexBuffer[i])));
+	}
 
 	ThrowIfFailed(device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
@@ -1076,10 +1040,10 @@ void Graphics::renderGenVerts(XMUINT3 voxelPos, UINT index)
 	UINT* readVert;
 	CD3DX12_RANGE readRange(0, sizeof(UINT));
 	vertexCount->Map(0, &readRange, (void**)&readVert);
-	vertCount = *readVert / sizeof(BITPOS);
+	vertCount[index] = *readVert / sizeof(BITPOS);
 	vertexCount->Unmap(0, nullptr);
 	
-	commandList->DrawInstanced(vertCount, 1, 0, 0);
+	commandList->DrawInstanced(vertCount[index], 1, 0, 0);
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBackBuffer.Get(),
 		D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_COPY_SOURCE));
@@ -1132,10 +1096,10 @@ void Graphics::renderVertexMesh(XMUINT3 voxelPos, UINT index)
 	UINT* readVert;
 	CD3DX12_RANGE readRange(0, sizeof(UINT));
 	vertexCount->Map(0, &readRange, (void**)&readVert);
-	vertCount = *readVert / sizeof(BITPOS);
+	vertCount[index] = *readVert / sizeof(BITPOS);
 	vertexCount->Unmap(0, nullptr);
 
-	commandList->DrawInstanced(vertCount, 1, 0, 0);
+	commandList->DrawInstanced(vertCount[index], 1, 0, 0);
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
 		D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_COPY_SOURCE));
@@ -1184,7 +1148,7 @@ void Graphics::renderVertSplat(XMUINT3 voxelPos, UINT index)
 	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	commandList->IASetVertexBuffers(0, 1, &vertBuffer);
-	commandList->DrawInstanced(vertCount, 1, 0, 0);
+	commandList->DrawInstanced(vertCount[index], 1, 0, 0);
 
 	// TODO: CHECK IF THIS IS RIGHT
 	// wait for shader
@@ -1197,19 +1161,19 @@ void Graphics::renderGenIndices(XMUINT3 voxelPos, UINT index)
 	commandList->SetPipelineState(dataGenIndicesPipelineState.Get());
 
 	// clear out the filled size location
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer.Get(),
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer[index].Get(),
 		D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_COPY_DEST));
 
-	commandList->CopyBufferRegion(indexBuffer.Get(),
+	commandList->CopyBufferRegion(indexBuffer[index].Get(),
 		MAX_INDEX_SIZE,
 		zeroBuffer.Get(),
 		0, sizeof(UINT));
 
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer.Get(),
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer[index].Get(),
 		D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_STREAM_OUT));
 
 	D3D12_STREAM_OUTPUT_BUFFER_VIEW sobv;
-	sobv.BufferLocation = indexBuffer->GetGPUVirtualAddress();
+	sobv.BufferLocation = indexBuffer[index]->GetGPUVirtualAddress();
 	sobv.SizeInBytes = MAX_INDEX_SIZE;
 	sobv.BufferFilledSizeLocation = sobv.BufferLocation + MAX_INDEX_SIZE;
 
@@ -1224,21 +1188,36 @@ void Graphics::renderGenIndices(XMUINT3 voxelPos, UINT index)
 	commandList->OMSetRenderTargets(0, 0, FALSE, nullptr);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	commandList->IASetVertexBuffers(0, 1, &vertBuffer);
-	commandList->DrawInstanced(vertCount, 1, 0, 0);
+	commandList->DrawInstanced(vertCount[index], 1, 0, 0);
 
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer.Get(),
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer[index].Get(),
 		D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_COPY_SOURCE));
 
 	// copy the output data to a buffer
 	commandList->CopyBufferRegion(indexCount.Get(), 0,
-		indexBuffer.Get(),
+		indexBuffer[index].Get(),
 		MAX_INDEX_SIZE, sizeof(UINT));
 
 	// TODO: combine
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer.Get(),
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer[index].Get(),
 		D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_STREAM_OUT));
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBackBuffer.Get(),
 		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_STREAM_OUT));
+}
+
+void Graphics::getVertIndexData(XMUINT3 voxelPos, UINT index)
+{
+	// read in the vertex count
+	UINT* readData;
+	CD3DX12_RANGE readRange(0, sizeof(UINT));
+	vertexCount->Map(0, &readRange, (void**)&readData);
+	vertCount[index] = *readData / sizeof(XMFLOAT4);
+	vertexCount->Unmap(0, nullptr);
+	
+	// read in the index count
+	indexCount->Map(0, &readRange, (void**)&readData);
+	indCount[index] = *readData / sizeof(UINT);
+	indexCount->Unmap(0, nullptr);
 }
 
 void Graphics::populateCommandList()
@@ -1265,12 +1244,22 @@ void Graphics::populateCommandList()
 	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
 	// draw the object
+	UINT index = 0;
+	D3D12_VERTEX_BUFFER_VIEW vertBuffer;
+	vertBuffer.BufferLocation = vertexBuffer[index]->GetGPUVirtualAddress();
+	vertBuffer.StrideInBytes = sizeof(XMFLOAT4);
+	vertBuffer.SizeInBytes = MAX_BUFFER_SIZE;
+
+	D3D12_INDEX_BUFFER_VIEW indexBufferView;
+	indexBufferView.BufferLocation = indexBuffer[index]->GetGPUVirtualAddress();
+	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+	indexBufferView.SizeInBytes = MAX_BUFFER_SIZE;
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	commandList->IASetVertexBuffers(0, 1, &plainVB);
+	commandList->IASetVertexBuffers(0, 1, &vertBuffer);
+	commandList->IASetIndexBuffer(&indexBufferView);
 	commandList->SOSetTargets(0, 0, nullptr);
-	commandList->DrawInstanced(_countof(plainVerts), 1, 0, 0);
-	//commandList->DrawInstanced(100, 1, 0, 0);
+	commandList->DrawIndexedInstanced(indCount[index], 1, 0, 0, 0);
 
 	// do not present the back buffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTarget[frameIndex].Get(),

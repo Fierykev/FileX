@@ -23,6 +23,8 @@ VS_OUTPUT main(VS_INPUT input)
 		input.position, input.instanceID
 	);
 
+	//position.xy *= ((voxelM1 - 1) * voxelInvVecP1.x).xx;
+
 	// sample the texture where needed
 	output.bitPos = 0;
 	output.bitPos |= densityTexture.SampleLevel(nearestSample, position + voxelInvVecP1.yyy, 0).x > 0;

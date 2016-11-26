@@ -67,6 +67,7 @@ private:
 	void renderClearTex(XMUINT3 voxelPos, UINT index);
 	void renderVertSplat(XMUINT3 voxelPos, UINT index);
 	void renderGenIndices(XMUINT3 voxelPos, UINT index);
+	void getVertIndexData(XMUINT3 voxelPos, UINT index);
 	void phase1(XMUINT3 voxelPos, UINT index);
 	void phase2(XMUINT3 voxelPos, UINT index);
 	void phase3(XMUINT3 voxelPos, UINT index);
@@ -83,8 +84,6 @@ private:
 	enum BVCB : UINT32
 	{
 		CB_VOXEL_POS = 0,
-		//CB_POLY_CONST,
-		//CB_EDGE_CONST,
 		CBV_COUNT
 	};
 
@@ -116,7 +115,7 @@ private:
 		bufferUAV[UAV_COUNT],
 		zeroBuffer, plainVCB, pointVCB,
 		vertexBuffer[NUM_VOXELS], vertexBackBuffer,
-		indexBuffer,
+		indexBuffer[NUM_VOXELS],
 		vertexCount,
 		indexCount;
 
@@ -166,7 +165,8 @@ private:
 	};
 
 	// verts
-	UINT vertCount;
+	UINT vertCount[NUM_VOXELS],
+		indCount[NUM_VOXELS];
 
 	// fences
 	UINT frameIndex;
