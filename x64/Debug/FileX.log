@@ -1,6 +1,3 @@
-﻿  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\DensityPS.cso
-C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\ProceduralConstantsH.hlsl(14,20): warning X3206: implicit truncation of vector type
-  
-  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\OccupiedVS.cso
+﻿  Graphics.cpp
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.exe
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.pdb (Partial PDB)

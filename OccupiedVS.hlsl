@@ -23,7 +23,8 @@ VS_OUTPUT main(VS_INPUT input)
 		input.position, input.instanceID
 	);
 
-	//position.xy *= ((voxelM1 - 1) * voxelInvVecP1.x).xx;
+	// for float error
+	position.xy += voxelInvVecP1.xx * .125;
 
 	// sample the texture where needed
 	output.bitPos = 0;

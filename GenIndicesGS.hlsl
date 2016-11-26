@@ -59,8 +59,8 @@ void main(
 			
 			// load and output the index
 			element.index = indexTex.Load(int4(edgeTMP, 0)).x;
-			//if (element.index != 0)
-				//debug[0] = true;
+			if (edgeTMP.y > 10)
+				debug[0] = true;
 			// add to the strip
 			output.Append(element);
 		}

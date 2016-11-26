@@ -10,5 +10,5 @@ float main(PS_INPUT input) : SV_TARGET0
 {
 	// eval the density function
 	// TODO: add better density function
-	return input.worldPosition.y - .5f;
+	return input.worldPosition.y - .2f;
 }

@@ -1261,6 +1261,9 @@ void Graphics::populateCommandList()
 	commandList->SOSetTargets(0, 0, nullptr);
 	commandList->DrawIndexedInstanced(indCount[index], 1, 0, 0, 0);
 
+	//commandList->IASetVertexBuffers(0, 1, &plainVB);
+	//commandList->DrawInstanced(_countof(plainVerts), 1, 0, 0);
+
 	// do not present the back buffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTarget[frameIndex].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));

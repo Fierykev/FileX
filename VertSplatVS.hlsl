@@ -51,6 +51,7 @@ VS_OUTPUT main(VS_INPUT input)
 		(uv.x * voxelInvVecP1.x / 3.0) * 2.f - 1.f;
 	output.position.y =
 		(uv.y * voxelInvVecP1.x) * 2.f - 1.f;
+	output.position.y *= -1; // flip
 	output.position.z = 0;
 	output.position.w = 1;
 
