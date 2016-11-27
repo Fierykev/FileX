@@ -33,20 +33,21 @@ VS_OUTPUT locateVertFromEdge(float3 position, uint edgeNum)
 	float3 relPos = edgeStartLoc[edgeNum] + edgeDir[edgeNum] * ratio;
 	
 	// calculate normal gradient
-	float uvw = position + relPos * voxelInvVecP1.xxx;
-	float3 gradient;
+	float3 uvw = position;// +relPos * voxelInvVecP1.xxx;
+	float3 gradient = float3(0,0,0);
 	gradient.x = densityTexture.SampleLevel(
-		nearestSample, uvw + voxelInvVecP1.xyy, 0)
+		nearestSample, uvw + voxelInvVecP1.xyy, 0).x
 		- densityTexture.SampleLevel(
-			nearestSample, uvw - voxelInvVecP1.xyy, 0);
+			nearestSample, uvw - voxelInvVecP1.xyy, 0).x;
 	gradient.y = densityTexture.SampleLevel(
-		nearestSample, uvw + voxelInvVecP1.yxy, 0)
+		nearestSample, uvw + voxelInvVecP1.yxy, 0).x;
 		- densityTexture.SampleLevel(
-			nearestSample, uvw - voxelInvVecP1.yxy, 0);
+			nearestSample, uvw - voxelInvVecP1.yxy, 0).x;
+	
 	gradient.z = densityTexture.SampleLevel(
-		nearestSample, uvw + voxelInvVecP1.yyx, 0)
+		nearestSample, uvw + voxelInvVecP1.yyx, 0).x
 		- densityTexture.SampleLevel(
-			nearestSample, uvw - voxelInvVecP1.yyx, 0);
+			nearestSample, uvw - voxelInvVecP1.yyx, 0).x;
 
 	VS_OUTPUT vout;
 	vout.position =

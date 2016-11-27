@@ -17,12 +17,8 @@ float4 main(PS_INPUT input) : SV_TARGET
 #ifdef DEBUG
 	return !debug[0] ? float4(1, 0, 0, 1) : float4(0, 1, 0, 1);
 #endif
-	//float3 ratio = float3(input.position.x, input.position.y, input.position.z);
-	//ratio /= 2000.f;
 
-	//return float4(ratio.x, ratio.y, ratio.z, 1.0f);
-
-	float3 light = normalize(float3(0, 1000, 3) - input.position.xyz);
+	float3 light = normalize(float3(0, 100, 0) - input.position.xyz);
 
 	float3 normal = input.normal;
 	float4 color = float4(1, 1, 1, 1);
