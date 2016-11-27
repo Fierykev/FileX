@@ -3,7 +3,7 @@
 struct VS_INPUT
 {
 	float2 position : POSITION;
-	uint instanceID : IID;
+	uint instanceID : SV_InstanceID;
 };
 
 struct VS_OUTPUT

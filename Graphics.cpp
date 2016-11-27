@@ -685,8 +685,7 @@ void Graphics::loadAssets()
 	const D3D12_INPUT_ELEMENT_DESC densityLayout[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "IID", 0, DXGI_FORMAT_R32_UINT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
@@ -714,8 +713,7 @@ void Graphics::loadAssets()
 
 	const D3D12_INPUT_ELEMENT_DESC vertSplatLayout[] =
 	{
-		{ "BITPOS", 0, DXGI_FORMAT_R32_UINT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }//,
-		//{ "SV_VERTEXID", 0, DXGI_FORMAT_R32_UINT, 0, 4, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "BITPOS", 0, DXGI_FORMAT_R32_UINT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 	psoDesc.InputLayout = { vertSplatLayout, _countof(vertSplatLayout) };
@@ -728,8 +726,7 @@ void Graphics::loadAssets()
 
 	const D3D12_INPUT_ELEMENT_DESC occupiedLayout[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "IID", 0, DXGI_FORMAT_R32_UINT, 0, 8, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 	const D3D12_SO_DECLARATION_ENTRY occupiedOut[] =
@@ -843,7 +840,7 @@ void Graphics::loadAssets()
 	ThrowIfFailed(device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(PLAIN_VERTEX) * _countof(plainVerts) * VOXEL_SIZE_P1),
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(PLAIN_VERTEX) * _countof(plainVerts)),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&plainVCB)));
@@ -855,14 +852,10 @@ void Graphics::loadAssets()
 	plainVCB->Map(0, &readRange, (void**)&vertexBufferData);
 
 	// copy the data with instance IDs added
-	for (UINT i = 0; i < VOXEL_SIZE_P1; i++)
+	for (UINT j = 0; j < _countof(plainVerts); j++)
 	{
-		for (UINT j = 0; j < _countof(plainVerts); j++)
-		{
-			vertexBufferData[i * _countof(plainVerts) + j].position = plainVerts[j].position;
-			vertexBufferData[i * _countof(plainVerts) + j].texcoord = plainVerts[j].texcoord;
-			vertexBufferData[i * _countof(plainVerts) + j].svInstance = i;
-		}
+		vertexBufferData[j].position = plainVerts[j].position;
+		vertexBufferData[j].texcoord = plainVerts[j].texcoord;
 	}
 
 	plainVCB->Unmap(0, nullptr);
@@ -870,7 +863,7 @@ void Graphics::loadAssets()
 	// setup vertex and index buffer structs
 	plainVB.BufferLocation = plainVCB->GetGPUVirtualAddress();
 	plainVB.StrideInBytes = sizeof(PLAIN_VERTEX);
-	plainVB.SizeInBytes = sizeof(PLAIN_VERTEX) * _countof(plainVerts) * VOXEL_SIZE_P1;
+	plainVB.SizeInBytes = sizeof(PLAIN_VERTEX) * _countof(plainVerts);
 
 	// setup points
 	ThrowIfFailed(device->CreateCommittedResource(
@@ -884,16 +877,12 @@ void Graphics::loadAssets()
 	OCCUPIED_POINT* pointBufferData;
 	pointVCB->Map(0, &readRange, (void**)&pointBufferData);
 
-	for (UINT i = 0; i < VOXEL_SIZE; i++)
+	for (UINT j = 0; j < VOXEL_SIZE; j++)
 	{
-		for (UINT j = 0; j < VOXEL_SIZE; j++)
+		for (UINT k = 0; k < VOXEL_SIZE; k++)
 		{
-			for (UINT k = 0; k < VOXEL_SIZE; k++)
-			{
-				OCCUPIED_POINT* p = &pointBufferData[k + j * VOXEL_SIZE + i * VOXEL_SIZE * VOXEL_SIZE];
-				p->position = XMFLOAT2((float)k / VOXEL_SIZE_P1, (float)j / VOXEL_SIZE_P1);
-				p->instanceID = i;
-			}
+			OCCUPIED_POINT* p = &pointBufferData[k + j * VOXEL_SIZE];
+			p->position = XMFLOAT2((float)k / VOXEL_SIZE_P1, (float)j / VOXEL_SIZE_P1);
 		}
 	}
 
@@ -993,7 +982,7 @@ void Graphics::renderDensity(XMUINT3 voxelPos)
 	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, &plainVB);
-	commandList->DrawInstanced(_countof(plainVerts) * VOXEL_SIZE_P1, 1, 0, 0);
+	commandList->DrawInstanced(_countof(plainVerts), VOXEL_SIZE_P1, 0, 0);
 
 	// TODO: CHECK IF THIS IS RIGHT
 	// wait for shader
@@ -1029,7 +1018,7 @@ void Graphics::renderOccupied(XMUINT3 voxelPos, UINT index)
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	commandList->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
 	commandList->IASetVertexBuffers(0, 1, &pointVB);
-	commandList->DrawInstanced(NUM_POINTS, 1, 0, 0);
+	commandList->DrawInstanced(NUM_POINTS, VOXEL_SIZE, 0, 0);
 
 	// wait for the buffer to be written to
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
@@ -1169,7 +1158,7 @@ void Graphics::renderClearTex(XMUINT3 voxelPos, UINT index)
 	commandList->IASetVertexBuffers(0, 1, &plainVB);
 	commandList->RSSetViewports(1, &vertSplatViewport);
 	commandList->RSSetScissorRects(1, &vertSplatScissorRect);
-	commandList->DrawInstanced(_countof(plainVerts) * VOXEL_SIZE_P1, 1, 0, 0);
+	commandList->DrawInstanced(_countof(plainVerts), VOXEL_SIZE_P1, 0, 0);
 
 	// TODO: CHECK IF THIS IS RIGHT
 	// wait for shader

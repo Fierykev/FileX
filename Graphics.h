@@ -39,10 +39,9 @@ public:
 	virtual void onKeyDown(UINT8 key);
 	virtual void onKeyUp(UINT8 key);
 
-	const UINT NUM_POINTS = VOXEL_SIZE * VOXEL_SIZE * VOXEL_SIZE;
+	const UINT NUM_POINTS = VOXEL_SIZE * VOXEL_SIZE;
 
-	const UINT BYTES_POINTS = sizeof(OCCUPIED_POINT) * sizeof(OCCUPIED_POINT) * sizeof(OCCUPIED_POINT) *
-		NUM_POINTS;
+	const UINT BYTES_POINTS = sizeof(OCCUPIED_POINT) * sizeof(OCCUPIED_POINT) *	NUM_POINTS;
 
 	const UINT MAX_BUFFER_SIZE =
 		(((5 * VOXEL_SIZE_P1 * VOXEL_SIZE_P1 * VOXEL_SIZE_P1) >> 2) << 2) * sizeof(BITPOS);
@@ -132,7 +131,6 @@ private:
 	struct OCCUPIED_POINT
 	{
 		XMFLOAT2 position;
-		UINT instanceID;
 	};
 
 	struct BITPOS
