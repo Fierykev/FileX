@@ -587,7 +587,8 @@ void Graphics::loadPipeline()
 void Graphics::loadAssets()
 {
 	// load the shaders
-	string dataDensityVS, dataDensityPS, dataDensityGS,
+	string dataSimplexVS, dataSimplexPS, dataSimplexGS,
+		dataDensityVS, dataDensityPS, dataDensityGS,
 		dataOccupiedVS, dataOccupiedGS,
 		dataGenVertsVS, dataGenVertsGS,
 		dataVertexMeshVS, dataVertexMeshGS,
@@ -597,6 +598,10 @@ void Graphics::loadAssets()
 		dataVS, dataPS;
 
 #ifdef DEBUG
+	ThrowIfFailed(ReadCSO("../x64/Debug/SimplexVS.cso", dataSimplexVS));
+	ThrowIfFailed(ReadCSO("../x64/Debug/SimplexPS.cso", dataSimplexPS));
+	ThrowIfFailed(ReadCSO("../x64/Debug/SimplexGS.cso", dataSimplexGS));
+
 	ThrowIfFailed(ReadCSO("../x64/Debug/DensityVS.cso", dataDensityVS));
 	ThrowIfFailed(ReadCSO("../x64/Debug/DensityPS.cso", dataDensityPS));
 	ThrowIfFailed(ReadCSO("../x64/Debug/DensityGS.cso", dataDensityGS));
@@ -624,6 +629,10 @@ void Graphics::loadAssets()
 	ThrowIfFailed(ReadCSO("../x64/Debug/RenderVS.cso", dataVS));
 	ThrowIfFailed(ReadCSO("../x64/Debug/RenderPS.cso", dataPS));
 #else
+	ThrowIfFailed(ReadCSO("../x64/Release/SimplexVS.cso", dataSimplexVS));
+	ThrowIfFailed(ReadCSO("../x64/Release/SimplexPS.cso", dataSimplexPS));
+	ThrowIfFailed(ReadCSO("../x64/Release/SimplexGS.cso", dataSimplexGS));
+
 	ThrowIfFailed(ReadCSO("../x64/Release/DensityVS.cso", dataVS));
 	ThrowIfFailed(ReadCSO("../x64/Release/DensityPS.cso", dataVS));
 	ThrowIfFailed(ReadCSO("../x64/Release/DensityGS.cso", dataVS));
@@ -691,9 +700,9 @@ void Graphics::loadAssets()
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 	psoDesc.InputLayout = { densityLayout, _countof(densityLayout) };
 	psoDesc.pRootSignature = rootSignature.Get();
-	psoDesc.VS = { reinterpret_cast<UINT8*>((void*)dataDensityVS.c_str()), dataDensityVS.length() };
-	psoDesc.PS = { reinterpret_cast<UINT8*>((void*)dataDensityPS.c_str()), dataDensityPS.length() };
-	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataDensityGS.c_str()), dataDensityGS.length() };
+	//psoDesc.VS = { reinterpret_cast<UINT8*>((void*)dataSimplexVS.c_str()), dataSimplexVS.length() };
+	//psoDesc.PS = { reinterpret_cast<UINT8*>((void*)dataSimplexPS.c_str()), dataSimplexPS.length() };
+	//psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataSimplexGS.c_str()), dataSimplexGS.length() };
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	psoDesc.DepthStencilState.DepthEnable = FALSE;
@@ -703,6 +712,11 @@ void Graphics::loadAssets()
 	psoDesc.NumRenderTargets = 1;
 	psoDesc.RTVFormats[0] = DENSITY_FORMAT;
 	psoDesc.SampleDesc.Count = 1;
+	//ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&simplexPipelineState)));
+
+	psoDesc.VS = { reinterpret_cast<UINT8*>((void*)dataDensityVS.c_str()), dataDensityVS.length() };
+	psoDesc.PS = { reinterpret_cast<UINT8*>((void*)dataDensityPS.c_str()), dataDensityPS.length() };
+	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataDensityGS.c_str()), dataDensityGS.length() };
 	ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&densityPipelineState)));
 
 	psoDesc.VS = { reinterpret_cast<UINT8*>((void*)dataClearTexVS.c_str()), dataClearTexVS.length() };
@@ -771,12 +785,11 @@ void Graphics::loadAssets()
 
 	const D3D12_SO_DECLARATION_ENTRY vertexMeshOut[] =
 	{
-		{ 0, "SV_POSITION", 0, 0, 4, 0 }
+		{ 0, "SV_POSITION", 0, 0, 4, 0 },
+		{ 0, "NORMAL", 0, 0, 3, 0 }
 	};
 
-	UINT vertexMeshStride = {
-		sizeof(FLOAT) * 4
-	};
+	UINT vertexMeshStride = sizeof(FLOAT) * 7;
 
 	psoDesc.StreamOutput.NumEntries = _countof(vertexMeshOut);
 	psoDesc.StreamOutput.pBufferStrides = &vertexMeshStride;
@@ -814,7 +827,8 @@ void Graphics::loadAssets()
 	// setup for render pipeline
 	const D3D12_INPUT_ELEMENT_DESC layoutRender[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "SV_POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 	psoDesc.InputLayout = { layoutRender, _countof(layoutRender) };
@@ -1242,7 +1256,7 @@ void Graphics::getVertIndexData(XMUINT3 voxelPos, UINT index)
 	UINT* readData;
 	CD3DX12_RANGE readRange(0, sizeof(UINT));
 	vertexCount->Map(0, &readRange, (void**)&readData);
-	vertCount[index] = *readData / sizeof(XMFLOAT4);
+	vertCount[index] = *readData / sizeof(VERT_OUT);
 	vertexCount->Unmap(0, nullptr);
 	
 	// read in the index count
@@ -1273,13 +1287,13 @@ void Graphics::populateCommandList()
 
 	const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
 	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-	//UINT index = 10;
+	//UINT index = 10;//NUM_VOXELS
 	for (UINT index = 0; index < NUM_VOXELS; index++)
 	{
 		// draw the object
 		D3D12_VERTEX_BUFFER_VIEW vertBuffer;
 		vertBuffer.BufferLocation = vertexBuffer[index]->GetGPUVirtualAddress();
-		vertBuffer.StrideInBytes = sizeof(XMFLOAT4);
+		vertBuffer.StrideInBytes = sizeof(VERT_OUT);
 		vertBuffer.SizeInBytes = MAX_BUFFER_SIZE;
 
 		D3D12_INDEX_BUFFER_VIEW indexBufferView;
@@ -1348,7 +1362,22 @@ void Graphics::onKeyDown(UINT8 key)
 	{
 	case VK_LEFT:
 
+		eye.m128_f32[0] -= 1.f;
+
+		break;
+	case VK_RIGHT:
+
 		eye.m128_f32[0] += 1.f;
+
+		break;
+	case VK_UP:
+
+		eye.m128_f32[1] += 1.f;
+
+		break;
+	case VK_DOWN:
+
+		eye.m128_f32[1] -= 1.f;
 
 		break;
 	}

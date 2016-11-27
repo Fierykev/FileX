@@ -191,5 +191,8 @@
     <None Include="DensityH.hlsl">
       <Filter>Files\Shaders\Procedural\Density</Filter>
     </None>
+    <None Include="SimplexH.hlsl">
+      <Filter>Files\Shaders\Simplex</Filter>
+    </None>
   </ItemGroup>
 </Project>

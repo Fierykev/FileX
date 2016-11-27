@@ -148,6 +148,12 @@ private:
 		XMINT4 edgeNumber[256][5];
 	};
 
+	struct VERT_OUT
+	{
+		XMFLOAT4 position;
+		XMFLOAT3 normal;
+	};
+
 	PLAIN_VERTEX plainVerts[6] = {
 		PLAIN_VERTEX{ XMFLOAT3(1, 1, 1), XMFLOAT2(1, 1), 0 },
 		PLAIN_VERTEX{ XMFLOAT3(1, -1, 0), XMFLOAT2(1, 0), 0 },
@@ -178,7 +184,8 @@ private:
 	ComPtr<ID3D12CommandQueue> commandQueue;
 	ComPtr<ID3D12RootSignature> rootSignature;
 	ComPtr<ID3D12RootSignature> computeRootSignature;
-	ComPtr<ID3D12PipelineState> densityPipelineState,
+	ComPtr<ID3D12PipelineState> simplexPipelineState,
+		densityPipelineState,
 		occupiedPipelineState,
 		genVertsPipelineState,
 		renderPipelineState,
@@ -211,45 +218,6 @@ private:
 
 	D3D12_SAMPLER_DESC samplerDesc = {};
 
-	struct Ray
-	{
-		XMFLOAT3 origin;
-		XMFLOAT3 direction;
-
-		XMFLOAT3 invDirection;
-	};
-
-	struct RAYPRESENT
-	{
-		FLOAT intensity;
-		Ray ray;
-		XMFLOAT4 color;
-	};
-
-	struct Box
-	{
-		XMFLOAT3 bbMin, bbMax;
-	};
-
-	struct NODE
-	{
-		int parent;
-		int childL, childR;
-
-		UINT code;
-
-		// bounding box calc
-		Box bbox;
-
-		// index start value
-		UINT index;
-	};
-
-	struct RESTART_BUFFER
-	{
-		UINT restart;
-	};
-
 	struct WORLD_POS
 	{
 		XMMATRIX worldViewProjection;
@@ -264,8 +232,6 @@ private:
 	// constant buffers
 	VOXEL_POS* voxelPosData;
 	WORLD_POS* worldPosCB;
-
-	RESTART_BUFFER* bufferRestartData;
 
 	// view params
 	XMMATRIX world, view, projection, worldViewProjection;
