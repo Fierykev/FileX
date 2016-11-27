@@ -1,3 +1,4 @@
+#include <DensityH.hlsl>
 #include "Debug.hlsl"
 
 struct PS_INPUT
@@ -8,7 +9,6 @@ struct PS_INPUT
 
 float main(PS_INPUT input) : SV_TARGET0
 {
-	// eval the density function
-	// TODO: add better density function
-	return input.worldPosition.y - .2f;
+	return density(input.position.xyz); 
+//input.worldPosition.y - .2f;
 }

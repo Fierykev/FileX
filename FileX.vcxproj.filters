@@ -57,6 +57,9 @@
     <Filter Include="Files\Shaders\Procedural\ClearTex">
       <UniqueIdentifier>{edc9bd65-743c-4327-b8b6-33ed0d883a02}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Files\Shaders\Simplex">
+      <UniqueIdentifier>{5c41b4ff-d76f-4b44-a2cd-b7374c0e4762}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -159,6 +162,15 @@
     <FxCompile Include="ClearTexVS.hlsl">
       <Filter>Files\Shaders\Procedural\ClearTex</Filter>
     </FxCompile>
+    <FxCompile Include="SimplexPS.hlsl">
+      <Filter>Files\Shaders\Simplex</Filter>
+    </FxCompile>
+    <FxCompile Include="SimplexVS.hlsl">
+      <Filter>Files\Shaders\Simplex</Filter>
+    </FxCompile>
+    <FxCompile Include="SimplexGS.hlsl">
+      <Filter>Files\Shaders\Simplex</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ProceduralConstantsH.hlsl">
@@ -175,6 +187,9 @@
     </None>
     <None Include="PolyEdgeH.hlsl">
       <Filter>Files\Shaders\Procedural</Filter>
+    </None>
+    <None Include="DensityH.hlsl">
+      <Filter>Files\Shaders\Procedural\Density</Filter>
     </None>
   </ItemGroup>
 </Project>
