@@ -1,5 +1,7 @@
 #include <ProceduralConstantsH.hlsl>
 #include <EdgesConstantsH.hlsl>
+#include <RaysH.hlsl>
+#include <DensityH.hlsl>
 
 struct VS_INPUT
 {
@@ -16,7 +18,34 @@ Texture3D<float> densityTexture : register(t0);
 
 SamplerState nearestSample : register(s0);
 
-VS_OUTPUT locateVertFromEdge(float3 position, float sampleArea, uint edgeNum)
+float ambientOcclusion(float3 position)
+{
+	float vis = 0;
+
+	for (uint i = 0; i < 32; i++)
+	{
+		float3 direction = ray32[i];
+		float isVis = 1;
+
+		for (uint j = 1; j < 17; j++)
+		{
+			densityTexture.SampleLevel(nearestSample,
+				position + direction * j, 0);
+		}
+
+		for (uint k = 1; k < 5; k++)
+		{
+			float den = density(position + direction * densStep);
+			isVis *= saturate(den * 9999); // no branching with sat
+		}
+
+		vis += isVis;
+	}
+
+	return (1 - vis / 32.f);
+}
+
+VS_OUTPUT locateVertFromEdge(float3 position, float3 sampleArea, uint edgeNum)
 {
 	float samplePT0 = densityTexture.SampleLevel(
 		nearestSample,
@@ -51,6 +80,8 @@ VS_OUTPUT locateVertFromEdge(float3 position, float sampleArea, uint edgeNum)
 	VS_OUTPUT vout;
 	vout.position =
 		float4(position + relPos * voxelInvVecM1.xxx, 1);
+	vout.position.w = ambientOcclusion(vout.position.xyz);
+
 	vout.normal = 
 		-normalize(gradient);
 

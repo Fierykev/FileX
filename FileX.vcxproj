@@ -176,6 +176,9 @@
     <None Include="PolyEdgeH.hlsl">
       <FileType>Document</FileType>
     </None>
+    <None Include="RaysH.hlsl">
+      <FileType>Document</FileType>
+    </None>
     <FxCompile Include="SimplexGS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>

@@ -165,9 +165,9 @@ void Graphics::phase4(XMUINT3 voxelPos, UINT index)
 }
 
 void Graphics::drawPhase()
-{
+{/*
 	XMUINT3 voxelPos = { 0, 0, 0 };
-
+	
 	UINT index = 0;
 	UINT z = 0, y = 0, x = 0;
 	voxelPos = { x, y, z };
@@ -177,7 +177,7 @@ void Graphics::drawPhase()
 	phase1(voxelPos, index);
 	phase2(voxelPos, index);
 	phase3(voxelPos, index);
-	phase4(voxelPos, index);
+	phase4(voxelPos, index);*/
 
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -949,17 +949,17 @@ void Graphics::loadAssets()
 	waitForGpu();
 
 	// generate the terrain
-	/*
+	
 	// record the render commands
 	XMUINT3 voxelPos = { 0, 0, 0 };
 
 	UINT index = 0;
-	UINT z = 0, y = 0, x = 0;
-	//for (UINT z = 0; z < NUM_VOXELS_Z; z++)
+	//UINT z = 0, y = 0, x = 0;
+	for (UINT z = 0; z < NUM_VOXELS_Z; z++)
 	{
-		//for (UINT y = 0; y < NUM_VOXELS_Y; y++)
+		for (UINT y = 0; y < NUM_VOXELS_Y; y++)
 		{
-			//for (UINT x = 0; x < NUM_VOXELS_X; x++)
+			for (UINT x = 0; x < NUM_VOXELS_X; x++)
 			{
 				voxelPos = { x, y, z };
 				voxelPosData->voxelPos = voxelPos;
@@ -973,7 +973,7 @@ void Graphics::loadAssets()
 				index ++;
 			}
 		}
-	}*/
+	}
 }
 
 void Graphics::setupProceduralDescriptors()

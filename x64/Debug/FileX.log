@@ -1,5 +1,3 @@
-﻿C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\VertexMeshVS.hlsl(77,9-57): warning X3206: 'locateVertFromEdge': implicit truncation of vector type
-  
-  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\VertexMeshVS.cso
+﻿  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\VertexMeshVS.cso
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.exe
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.pdb (Partial PDB)

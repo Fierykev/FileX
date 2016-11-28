@@ -66,6 +66,8 @@ static const float2 occInvVecM1 = float2(
 	1.f / 40.f, 0
 	);
 
+static const float densStep = 100.f;
+
 inline float4 getVoxelLoc(float2 texcoord, uint instanceID)
 {
 	return float4(

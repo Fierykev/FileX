@@ -188,11 +188,14 @@
     <None Include="PolyEdgeH.hlsl">
       <Filter>Files\Shaders\Procedural</Filter>
     </None>
-    <None Include="DensityH.hlsl">
-      <Filter>Files\Shaders\Procedural\Density</Filter>
-    </None>
     <None Include="SimplexH.hlsl">
       <Filter>Files\Shaders\Simplex</Filter>
+    </None>
+    <None Include="RaysH.hlsl">
+      <Filter>Files\Shaders\Procedural</Filter>
+    </None>
+    <None Include="DensityH.hlsl">
+      <Filter>Files\Shaders\Procedural</Filter>
     </None>
   </ItemGroup>
 </Project>
