@@ -1,9 +1,9 @@
 #ifndef GRPAHICS_H
 #define GRAPHICS_H
 
-#define NUM_VOXELS_X 10
-#define NUM_VOXELS_Y 10
-#define NUM_VOXELS_Z 10
+#define NUM_VOXELS_X 1
+#define NUM_VOXELS_Y 1
+#define NUM_VOXELS_Z 1
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 #include <d3d12.h>
@@ -15,8 +15,14 @@
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
-#define VOXEL_SIZE 32
-#define VOXEL_SIZE_P1 33
+#define EXTRA 4.f
+#define VOXEL_SIZE_M2 31.f
+#define VOXEL_SIZE_M1 32.f
+#define VOXEL_SIZE 33.f
+#define VOXEL_SIZE_P1 34.f
+#define OCC_SIZE 41.f
+#define OCC_SIZE_P1 42.f
+#define OCC_SIZE_M1 40.f
 #define SRVS_PER_FRAME 2
 
 #define DENSITY_FORMAT DXGI_FORMAT_R32_FLOAT
@@ -39,15 +45,16 @@ public:
 	virtual void onKeyDown(UINT8 key);
 	virtual void onKeyUp(UINT8 key);
 
-	const UINT NUM_POINTS = VOXEL_SIZE * VOXEL_SIZE;
+	const UINT NUM_POINTS = VOXEL_SIZE_M1 * VOXEL_SIZE_M1;
 
 	const UINT BYTES_POINTS = sizeof(OCCUPIED_POINT) * sizeof(OCCUPIED_POINT) *	NUM_POINTS;
 
+	// TODO: check if need to throw more memory at gpu
 	const UINT MAX_BUFFER_SIZE =
-		(((5 * VOXEL_SIZE_P1 * VOXEL_SIZE_P1 * VOXEL_SIZE_P1) >> 2) << 2) * sizeof(BITPOS);
+		((((UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1) >> 2) << 2) * sizeof(VERT_OUT);
 
 	const UINT MAX_INDEX_SIZE =
-		(((5 * VOXEL_SIZE_P1 * VOXEL_SIZE_P1 * VOXEL_SIZE_P1) >> 2) << 2) * sizeof(UINT);
+		(((3 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1) >> 2) << 2) * sizeof(UINT);
 
 private:
 	// methods
@@ -131,6 +138,7 @@ private:
 	struct OCCUPIED_POINT
 	{
 		XMFLOAT2 position;
+		XMFLOAT2 uv;
 	};
 
 	struct BITPOS

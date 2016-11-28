@@ -10,7 +10,7 @@ struct GS_INPUT
 
 struct GS_OUTPUT
 {
-	uint index : INDEX;
+	uint index : BITPOS;
 };
 
 Texture3D<uint> indexTex: register(t1);
@@ -31,10 +31,21 @@ void main(
 
 	// get the number of polygons
 	uint numPolygons = numberPolygons[edgeIndex];
+/*
+	if (edgeIndex != 0)
+	{
+		element.index = 420;
+		output.Append(element);
+		output.Append(element);
+		output.Append(element);
+		output.RestartStrip();
+	}
+
+	return;*/
 
 	// check that everything is whithin the cell
 	// NOTE: this will most likely use cmove so no branch
-	if ((uint)voxelExpansion <= max(max(position.x, position.y), position.z))
+	if ((uint)occM1 <= max(max(position.x, position.y), position.z))
 		numPolygons = 0;
 
 	// generate the indices for each poly
@@ -59,6 +70,10 @@ void main(
 			
 			// load and output the index
 			element.index = indexTex.Load(int4(edgeTMP, 0)).x;
+
+			// TODO: look into vert splat fix
+			//if (element.index == 0)
+				//return;
 
 			// add to the strip
 			output.Append(element);

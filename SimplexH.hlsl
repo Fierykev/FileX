@@ -28,11 +28,12 @@ float noise(float3 pos)
 
 float simplex3D(float3 pos)
 {
-	return noise(pos.x +
+	return noise(pos);
+	/*return noise(pos.x +
 		noise(pos.y +
 			noise(pos.z
 				
-			)));//+ noise(seed)
+			)));//+ noise(seed)*/
 }
 
 #endif

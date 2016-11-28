@@ -42,15 +42,15 @@ VS_OUTPUT main(VS_INPUT input)
 	float2 uv = position.xy;
 	
 	// alignment fix
-	uv.x += .5 * voxelInvVecP1.x / 3.0;
-	uv.y += .5 * voxelInvVecP1.x;
+	uv.x += .5 * voxelInv.x / 3.0;
+	uv.y += .5 * voxelInv.x;
 
 	// set the output position
 	// restrict to [-1, 1] range
 	output.position.x =
-		(uv.x * voxelInvVecP1.x / 3.0) * 2.f - 1.f;
+		(uv.x * voxelInv.x / 3.0) * 2.f - 1.f;
 	output.position.y =
-		(uv.y * voxelInvVecP1.x) * 2.f - 1.f;
+		(uv.y * voxelInv.x) * 2.f - 1.f;
 	output.position.y *= -1; // flip
 	output.position.z = 0;
 	output.position.w = 1;
