@@ -12,7 +12,7 @@ float density(float3 pos)
 	//density += pos.x % 5;
 
 	//density = .2 < pos.x && pos.x < .9 && .2 < pos.y && pos.y < .9? density : 0;
-
+	//pos += float3(4, 17, 16);
 	density += snoise(pos * 4.03) * .25;
 	density += snoise(pos * 1.96) * .5;
 	density += snoise(pos * 1.01);

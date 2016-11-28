@@ -5,7 +5,8 @@ cbuffer VOXEL_POS : register(b1)
 {
 	uint3 voxelPos;
 };
-/*
+
+static const float chunkSize = 4.f;
 static const float extra = 4.f;
 static const float voxelExpansion = 65.f;
 static const float voxelM1 = 64.f;
@@ -33,10 +34,8 @@ static const float2 occInvVecP1 = float2(
 	);
 static const float2 occInvVecM1 = float2(
 	1.f / 72.f, 0
-	);*/
-
-static const float chunkSize = 4.f;
-
+	);
+/*
 static const float extra = 4.f;
 static const float voxelExpansion = 33.f;
 static const float voxelM1 = 32.f;
@@ -65,7 +64,7 @@ static const float2 occInvVecP1 = float2(
 static const float2 occInvVecM1 = float2(
 	1.f / 40.f, 0
 	);
-
+	*/
 static const float densStep = 100.f;
 
 inline float4 getVoxelLoc(float2 texcoord, uint instanceID)

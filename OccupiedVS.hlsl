@@ -24,8 +24,8 @@ VS_OUTPUT main(VS_INPUT input)
 		(input.instanceID + extra) * occInv.x);
 
 	// for float error
-	position.xyz += occInvVecM1.xxx * .125;
-	position.xy *= ((occExpansion.x - 1) * occInv.x).xx;
+	//position.xyz += occInvVecM1.xxx * .125;
+	//position.xy *= ((occExpansion.x - 1) * occInv.x).xx;
 
 	// sample the texture where needed
 	output.bitPos = 0;

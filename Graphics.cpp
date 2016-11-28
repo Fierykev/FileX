@@ -9,8 +9,6 @@
 
 #include <ctime>
 
-#define DATA_SIZE 256
-
 // TMP
 std::clock_t start;
 double fps = 0, frames = 0;
@@ -832,7 +830,7 @@ void Graphics::loadAssets()
 	psoDesc.RasterizerState = 
 	{
 		D3D12_FILL_MODE_SOLID,
-		D3D12_CULL_MODE_FRONT,
+		D3D12_CULL_MODE_NONE,
 		FALSE,
 		D3D12_DEFAULT_DEPTH_BIAS,
 		D3D12_DEFAULT_DEPTH_BIAS_CLAMP,

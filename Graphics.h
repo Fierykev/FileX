@@ -1,7 +1,7 @@
 #ifndef GRPAHICS_H
 #define GRAPHICS_H
 
-#define NUM_VOXELS_X 10
+#define NUM_VOXELS_X 1
 #define NUM_VOXELS_Y 1
 #define NUM_VOXELS_Z 1
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
@@ -14,7 +14,7 @@
 
 using namespace Microsoft::WRL;
 using namespace DirectX;
-
+/*
 #define EXTRA 4.f
 #define VOXEL_SIZE_M2 31.f
 #define VOXEL_SIZE_M1 32.f
@@ -22,7 +22,17 @@ using namespace DirectX;
 #define VOXEL_SIZE_P1 34.f
 #define OCC_SIZE 41.f
 #define OCC_SIZE_P1 42.f
-#define OCC_SIZE_M1 40.f
+#define OCC_SIZE_M1 40.f*/
+
+#define EXTRA 4.f
+#define VOXEL_SIZE_M2 63.f
+#define VOXEL_SIZE_M1 64.f
+#define VOXEL_SIZE 65.f
+#define VOXEL_SIZE_P1 66.f
+#define OCC_SIZE 73.f
+#define OCC_SIZE_P1 74.f
+#define OCC_SIZE_M1 72.f
+
 #define SRVS_PER_FRAME 2
 
 #define DENSITY_FORMAT DXGI_FORMAT_R32_FLOAT
