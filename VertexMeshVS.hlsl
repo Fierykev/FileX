@@ -20,14 +20,14 @@ SamplerState nearestSample : register(s0);
 
 float ambientOcclusion(float3 position)
 {
-	return snoise(position);
+	//return snoise(position);
 	float vis = 0;
 
 	for (uint i = 0; i < 32; i++)
 	{
 		float3 direction = ray32[i];
 		float isVis = 1;
-		/*
+		
 		for (uint j = 1; j < 17; j++)
 		{
 			float range = j * 1.f;
@@ -36,7 +36,7 @@ float ambientOcclusion(float3 position)
 				position + direction * range, 0);
 			isVis *= saturate(den * 9999);
 		}
-		*/
+		
 		for (uint k = 1; k < 5; k++)
 		{
 			float range = (k + 2) * 5.f;
@@ -88,7 +88,7 @@ VS_OUTPUT locateVertFromEdge(float3 position, float3 sampleArea, uint edgeNum)
 	VS_OUTPUT vout;
 	vout.position =
 		float4(position + relPos * voxelInvVecM1.xxx, 1);
-	vout.position.w = ambientOcclusion(vout.position.xyz);
+	vout.position.w = ambientOcclusion(uvw);
 
 	vout.normal = 
 		-normalize(gradient);

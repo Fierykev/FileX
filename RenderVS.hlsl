@@ -1,14 +1,14 @@
 struct VS_INPUT
 {
 	float4 position : SV_POSITION;
-	float3 normal : NORMAL_WRONG;
+	float3 normal : NORMAL;
 };
 
 struct VS_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float ambient : AMBIENT;
-	float3 normal : NORMAL_WRONG;
+	float3 normal : NORMAL;
 };
 
 cbuffer WORLD_POS : register(b0)
