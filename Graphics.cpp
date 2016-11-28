@@ -1182,7 +1182,7 @@ void Graphics::renderClearTex(XMUINT3 voxelPos, UINT index)
 	commandList->IASetVertexBuffers(0, 1, &plainVB);
 	commandList->RSSetViewports(1, &vertSplatViewport);
 	commandList->RSSetScissorRects(1, &vertSplatScissorRect);
-	commandList->DrawInstanced(_countof(plainVerts), VOXEL_SIZE_P1, 0, 0);
+	commandList->DrawInstanced(_countof(plainVerts), VOXEL_SIZE, 0, 0);
 
 	// TODO: CHECK IF THIS IS RIGHT
 	// wait for shader

@@ -5,9 +5,13 @@
 
 float density(float3 pos)
 {
-	float density = -pos.y + .5;// -.5;// +pos.x;
+	float density = -pos.y;// -.5;// +pos.x;
 	//density += pos.x / 100.f;
-	density += simplex3D(pos);
+	density += saturate(simplex3D(pos));
+
+	//density += pos.x % 2;
+
+	//density = .2 < pos.x && pos.x < .9 && .2 < pos.y && pos.y < .9? density : 0;
 
 	return density;
 

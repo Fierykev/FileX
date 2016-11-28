@@ -9,5 +9,5 @@ struct PS_INPUT
 uint main(PS_INPUT input) : SV_TARGET0
 {
 	// clear the value
-	return 0;
+	return MAX_INT;
 }

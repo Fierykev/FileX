@@ -9,5 +9,5 @@ struct PS_INPUT
 
 float main(PS_INPUT input) : SV_TARGET0
 {
-	return input.worldPosition.y - .5;//density(input.worldPosition.xyz);
+	return density(input.worldPosition.xyz);
 }
