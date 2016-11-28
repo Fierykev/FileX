@@ -75,7 +75,7 @@ void Graphics::phase1(XMUINT3 voxelPos, UINT index)
 
 	// reset the command list
 	ThrowIfFailed(commandList->Reset(commandAllocator[frameIndex].Get(),
-		renderPipelineState.Get()));
+		renderPipelineSolidState.Get()));
 
 	setupProceduralDescriptors();
 
@@ -98,7 +98,7 @@ void Graphics::phase2(XMUINT3 voxelPos, UINT index)
 
 	// reset the command list
 	ThrowIfFailed(commandList->Reset(commandAllocator[frameIndex].Get(),
-		renderPipelineState.Get()));
+		renderPipelineSolidState.Get()));
 
 	setupProceduralDescriptors();
 
@@ -126,7 +126,7 @@ void Graphics::phase3(XMUINT3 voxelPos, UINT index)
 
 	// reset the command list
 	ThrowIfFailed(commandList->Reset(commandAllocator[frameIndex].Get(),
-		renderPipelineState.Get()));
+		renderPipelineSolidState.Get()));
 
 	setupProceduralDescriptors();
 
@@ -149,7 +149,7 @@ void Graphics::phase4(XMUINT3 voxelPos, UINT index)
 
 	// reset the command list
 	ThrowIfFailed(commandList->Reset(commandAllocator[frameIndex].Get(),
-		renderPipelineState.Get()));
+		renderPipelineSolidState.Get()));
 
 	setupProceduralDescriptors();
 
@@ -184,7 +184,7 @@ void Graphics::drawPhase()
 
 	// reset the command list
 	ThrowIfFailed(commandList->Reset(commandAllocator[frameIndex].Get(),
-		renderPipelineState.Get()));
+		renderPipelineSolidState.Get()));
 
 	setupProceduralDescriptors();
 
@@ -819,7 +819,7 @@ void Graphics::loadAssets()
 	const D3D12_INPUT_ELEMENT_DESC layoutRender[] =
 	{
 		{ "SV_POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "NORMAL_WRONG", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 	psoDesc.InputLayout = { layoutRender, _countof(layoutRender) };
@@ -831,8 +831,8 @@ void Graphics::loadAssets()
 	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	psoDesc.RasterizerState = 
 	{
-		D3D12_FILL_MODE_WIREFRAME,
-		D3D12_CULL_MODE_BACK,
+		D3D12_FILL_MODE_SOLID,
+		D3D12_CULL_MODE_NONE,
 		FALSE,
 		D3D12_DEFAULT_DEPTH_BIAS,
 		D3D12_DEFAULT_DEPTH_BIAS_CLAMP,
@@ -843,7 +843,23 @@ void Graphics::loadAssets()
 		0,
 		D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF
 	};
-	ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&renderPipelineState)));
+	ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&renderPipelineSolidState)));
+
+	psoDesc.RasterizerState =
+	{
+		D3D12_FILL_MODE_WIREFRAME,
+		D3D12_CULL_MODE_NONE,
+		FALSE,
+		D3D12_DEFAULT_DEPTH_BIAS,
+		D3D12_DEFAULT_DEPTH_BIAS_CLAMP,
+		D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS,
+		TRUE,
+		FALSE,
+		FALSE,
+		0,
+		D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF
+	};
+	ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&renderPipelineWireframeState)));
 
 	// create the compute pipeline (radix sort)
 	D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc = {};
@@ -1288,7 +1304,10 @@ void Graphics::getVertIndexData(XMUINT3 voxelPos, UINT index)
 void Graphics::populateCommandList()
 {
 	// set the pipeline state
-	commandList->SetPipelineState(renderPipelineState.Get());
+	if (isSolid)
+		commandList->SetPipelineState(renderPipelineSolidState.Get());
+	else
+		commandList->SetPipelineState(renderPipelineWireframeState.Get());
 
 	commandList->RSSetViewports(1, &viewport);
 	commandList->RSSetScissorRects(1, &scissorRect);
@@ -1319,7 +1338,7 @@ void Graphics::populateCommandList()
 		D3D12_INDEX_BUFFER_VIEW indexBufferView;
 		indexBufferView.BufferLocation = indexBuffer[index]->GetGPUVirtualAddress();
 		indexBufferView.Format = DXGI_FORMAT_R32_UINT;
-		indexBufferView.SizeInBytes = MAX_BUFFER_SIZE;
+		indexBufferView.SizeInBytes = MAX_INDEX_SIZE;
 
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		commandList->IASetVertexBuffers(0, 1, &vertBuffer);
@@ -1398,6 +1417,11 @@ void Graphics::onKeyDown(UINT8 key)
 	case VK_DOWN:
 
 		eye.m128_f32[1] -= 1.f;
+
+		break;
+	case VK_TAB:
+
+		isSolid = !isSolid;
 
 		break;
 	}

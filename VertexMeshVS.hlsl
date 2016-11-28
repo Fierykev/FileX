@@ -20,22 +20,30 @@ SamplerState nearestSample : register(s0);
 
 float ambientOcclusion(float3 position)
 {
+	return snoise(position);
 	float vis = 0;
 
 	for (uint i = 0; i < 32; i++)
 	{
 		float3 direction = ray32[i];
 		float isVis = 1;
-
+		/*
 		for (uint j = 1; j < 17; j++)
 		{
-			densityTexture.SampleLevel(nearestSample,
-				position + direction * j, 0);
-		}
+			float range = j * 1.f;
 
+			float den = densityTexture.SampleLevel(nearestSample,
+				position + direction * range, 0);
+			isVis *= saturate(den * 9999);
+		}
+		*/
 		for (uint k = 1; k < 5; k++)
 		{
-			float den = density(position + direction * densStep);
+			float range = (k + 2) * 5.f;
+			range = pow(range, 1.8);
+			range *= 40.f;
+
+			float den = density(position + direction * range);
 			isVis *= saturate(den * 9999); // no branching with sat
 		}
 
@@ -65,17 +73,17 @@ VS_OUTPUT locateVertFromEdge(float3 position, float3 sampleArea, uint edgeNum)
 	float3 uvw = sampleArea + relPos * occInvVecM1.xxx;
 	float3 gradient;
 	gradient.x = densityTexture.SampleLevel(
-		nearestSample, uvw + occInvVecP1.xyy, 0).x
+		nearestSample, uvw + occInv.xyy, 0).x
 		- densityTexture.SampleLevel(
-			nearestSample, uvw - occInvVecP1.xyy, 0).x;
+			nearestSample, uvw - occInv.xyy, 0).x;
 	gradient.y = densityTexture.SampleLevel(
-		nearestSample, uvw + voxelInvVecP1.yxy, 0).x;
+		nearestSample, uvw + occInv.yxy, 0).x;
 		- densityTexture.SampleLevel(
-			nearestSample, uvw - occInvVecP1.yxy, 0).x;
+			nearestSample, uvw - occInv.yxy, 0).x;
 	gradient.z = densityTexture.SampleLevel(
-		nearestSample, uvw + occInvVecP1.yyx, 0).x
+		nearestSample, uvw + occInv.yyx, 0).x
 		- densityTexture.SampleLevel(
-			nearestSample, uvw - occInvVecP1.yyx, 0).x;
+			nearestSample, uvw - occInv.yyx, 0).x;
 
 	VS_OUTPUT vout;
 	vout.position =
@@ -94,9 +102,10 @@ VS_OUTPUT main(VS_INPUT input)
 	uint3 position = getPos(input.bitPos);
 
 	float3 sampleArea =
-		((float3)position + extra) / occInvVecM1.xxx;
+		((float3)position + extra) * occInvVecM1.xxx;
 
 	sampleArea += occInvVecM1.xxx * .25f;
+	sampleArea.xyz *= (occExpansion.x - 1.f) * occInv.x;
 
 	float3 worldPos = (float3)position * chunkSize
 		+ (float3)position * voxelInvVecM1.xxx * chunkSize;

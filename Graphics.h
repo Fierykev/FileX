@@ -1,9 +1,9 @@
 #ifndef GRPAHICS_H
 #define GRAPHICS_H
 
-#define NUM_VOXELS_X 1
-#define NUM_VOXELS_Y 1
-#define NUM_VOXELS_Z 1
+#define NUM_VOXELS_X 5
+#define NUM_VOXELS_Y 5
+#define NUM_VOXELS_Z 5
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 #include <d3d12.h>
@@ -54,7 +54,7 @@ public:
 		(((2 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1) >> 2) << 2) * sizeof(VERT_OUT);
 
 	const UINT MAX_INDEX_SIZE =
-		(((5 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1) >> 2) << 2) * sizeof(UINT);
+		(((2 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1) >> 2) << 2) * sizeof(UINT);
 
 private:
 	// methods
@@ -196,7 +196,8 @@ private:
 		densityPipelineState,
 		occupiedPipelineState,
 		genVertsPipelineState,
-		renderPipelineState,
+		renderPipelineSolidState,
+		renderPipelineWireframeState,
 		vertexMeshPipelineState,
 		dataVertSplatPipelineState,
 		dataGenIndicesPipelineState,
@@ -237,6 +238,8 @@ private:
 		XMUINT3 voxelPos;
 	};
 
+	bool isSolid = false;
+
 	// constant buffers
 	VOXEL_POS* voxelPosData;
 	WORLD_POS* worldPosCB;
@@ -244,9 +247,9 @@ private:
 	// view params
 	XMMATRIX world, view, projection, worldViewProjection;
 
-	const XMVECTOR origEye{ 0.0f, 5.0f, -100.0f };
+	const XMVECTOR origEye{ 0.0f, 100.0f, -100.0f };
 	XMVECTOR eye = origEye;
-	XMVECTOR at{ 0.0f, 0.0f, 0.0f };
+	XMVECTOR at{ 0.0f, 100.0f, 0.0f };
 	XMVECTOR up{ 0.0f, 1.f, 0.0f };
 
 	float yAngle = 0, xAngle = 0;
