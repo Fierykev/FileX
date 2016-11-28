@@ -35,6 +35,8 @@ static const float2 occInvVecM1 = float2(
 	1.f / 72.f, 0
 	);*/
 
+static const float chunkSize = 4.f;
+
 static const float extra = 4.f;
 static const float voxelExpansion = 33.f;
 static const float voxelM1 = 32.f;

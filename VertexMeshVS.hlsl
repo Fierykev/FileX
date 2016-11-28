@@ -16,16 +16,16 @@ Texture3D<float> densityTexture : register(t0);
 
 SamplerState nearestSample : register(s0);
 
-VS_OUTPUT locateVertFromEdge(float3 position, uint edgeNum)
+VS_OUTPUT locateVertFromEdge(float3 position, float sampleArea, uint edgeNum)
 {
 	float samplePT0 = densityTexture.SampleLevel(
 		nearestSample,
-		position + occInvVecM1.xxx * edgeStartLoc[edgeNum],
+		sampleArea + occInvVecM1.xxx * edgeStartLoc[edgeNum],
 		0).x;
 
 	float samplePT1 = densityTexture.SampleLevel(
 		nearestSample,
-		position + occInvVecM1.xxx * edgeEndLoc[edgeNum],
+		sampleArea + occInvVecM1.xxx * edgeEndLoc[edgeNum],
 		0).x;
 
 	// saturate is needed for div 0
@@ -33,7 +33,7 @@ VS_OUTPUT locateVertFromEdge(float3 position, uint edgeNum)
 	float3 relPos = edgeStartLoc[edgeNum] + edgeDir[edgeNum] * ratio;
 	
 	// calculate normal gradient
-	float3 uvw = position + relPos * occInvVecM1.xxx;
+	float3 uvw = sampleArea + relPos * occInvVecM1.xxx;
 	float3 gradient;
 	gradient.x = densityTexture.SampleLevel(
 		nearestSample, uvw + occInvVecP1.xyy, 0).x
@@ -50,8 +50,7 @@ VS_OUTPUT locateVertFromEdge(float3 position, uint edgeNum)
 
 	VS_OUTPUT vout;
 	vout.position =
-		float4(position + relPos * voxelInvVecM1.xxx
-			+ voxelPos * voxelExpansion, 1);
+		float4(position + relPos * voxelInvVecM1.xxx, 1);
 	vout.normal = 
 		-normalize(gradient);
 
@@ -62,10 +61,18 @@ VS_OUTPUT main(VS_INPUT input)
 {
 	// get the position
 	uint3 position = getPos(input.bitPos);
+
+	float3 sampleArea =
+		((float3)position + extra) / occInvVecM1.xxx;
+
+	sampleArea += occInvVecM1.xxx * .25f;
+
+	float3 worldPos = (float3)position * chunkSize
+		+ (float3)position * voxelInvVecM1.xxx * chunkSize;
 	
 	// get the edgenum
 	uint edgeNum = input.bitPos & 0x0F;
 
 	// get the vertex from the edge num
-	return locateVertFromEdge(position, edgeNum);
+	return locateVertFromEdge(worldPos, sampleArea, edgeNum);
 }
