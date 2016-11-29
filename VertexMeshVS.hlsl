@@ -3,6 +3,9 @@
 #include <RaysH.hlsl>
 #include <DensityH.hlsl>
 
+#define NUM_STEPS 16
+#define FAR_SAMPLES 5
+
 struct VS_INPUT
 {
 	uint bitPos : BITPOS;
@@ -23,25 +26,34 @@ float ambientOcclusion(float3 position)
 	//return snoise(position);
 	float vis = 0;
 
+	const float skipCells = 1.53;
+
 	for (uint i = 0; i < 32; i++)
 	{
 		float3 direction = ray32[i];
 		float isVis = 1;
+
+		float3 rays =
+			position + direction * occInv.xxx * skipCells;
+		float3 delta =
+			direction * occExpansion.xxx / 180.f / NUM_STEPS;
 		
-		for (uint j = 1; j < 17; j++)
+		for (uint j = 1; j < NUM_STEPS; j++)
 		{
+			rays += delta;
+
 			float range = j * 1.f;
 
 			float den = densityTexture.SampleLevel(nearestSample,
-				position + direction * range, 0);
+				rays, 0);
 			isVis *= saturate(den * 9999);
 		}
 		
-		for (uint k = 1; k < 5; k++)
+		for (uint k = 0; k < FAR_SAMPLES; k++)
 		{
-			float range = (k + 2) * 5.f;
-			range = pow(range, 1.8);
-			range *= 40.f;
+			float range = 10.f * k + 1.f;
+			range = pow(range, 2.1);
+			range *= 45.f;
 
 			float den = density(position + direction * range);
 			isVis *= saturate(den * 9999); // no branching with sat
