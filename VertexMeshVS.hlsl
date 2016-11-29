@@ -107,7 +107,7 @@ VS_OUTPUT main(VS_INPUT input)
 	sampleArea += occInvVecM1.xxx * .25f;
 	sampleArea.xyz *= (occExpansion.x - 1.f) * occInv.x;
 
-	float3 worldPos = (float3)position * chunkSize
+	float3 worldPos = (float3)voxelPos * chunkSize
 		+ (float3)position * voxelInvVecM1.xxx * chunkSize;
 	
 	// get the edgenum

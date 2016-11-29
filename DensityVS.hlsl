@@ -22,10 +22,10 @@ VS_OUTPUT main(VS_INPUT input)
 		);
 	
 	output.worldPosition = 
-		float4(getRelLocP1(
-			input.texcoord, input.instanceID
-			)
-			+ (float3)voxelPos * occInv.xxx
+		float4(
+			float3(input.texcoord,
+				input.instanceID * voxelInv.x)
+			+ (float3)voxelPos
 			, 1);
 
 	output.instanceID = input.instanceID;

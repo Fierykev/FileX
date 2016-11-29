@@ -3,7 +3,7 @@
 
 #define NUM_VOXELS_X 1
 #define NUM_VOXELS_Y 1
-#define NUM_VOXELS_Z 1
+#define NUM_VOXELS_Z 10
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 #include <d3d12.h>
@@ -22,8 +22,8 @@ using namespace DirectX;
 #define VOXEL_SIZE_P1 34.f
 #define OCC_SIZE 41.f
 #define OCC_SIZE_P1 42.f
-#define OCC_SIZE_M1 40.f*/
-
+#define OCC_SIZE_M1 40.f
+*/
 #define EXTRA 4.f
 #define VOXEL_SIZE_M2 63.f
 #define VOXEL_SIZE_M1 64.f
@@ -78,14 +78,14 @@ private:
 	void setupProceduralDescriptors();
 	void renderDensity(XMUINT3 voxelPos);
 	void renderOccupied(XMUINT3 voxelPos, UINT index);
-	void renderGenVerts(XMUINT3 voxelPos, UINT index);
+	bool renderGenVerts(XMUINT3 voxelPos, UINT index);
 	void renderVertexMesh(XMUINT3 voxelPos, UINT index);
 	void renderClearTex(XMUINT3 voxelPos, UINT index);
 	void renderVertSplat(XMUINT3 voxelPos, UINT index);
 	void renderGenIndices(XMUINT3 voxelPos, UINT index);
 	void getVertIndexData(XMUINT3 voxelPos, UINT index);
 	void phase1(XMUINT3 voxelPos, UINT index);
-	void phase2(XMUINT3 voxelPos, UINT index);
+	bool phase2(XMUINT3 voxelPos, UINT index);
 	void phase3(XMUINT3 voxelPos, UINT index);
 	void phase4(XMUINT3 voxelPos, UINT index);
 	void drawPhase();
@@ -202,8 +202,7 @@ private:
 	ComPtr<ID3D12CommandQueue> commandQueue;
 	ComPtr<ID3D12RootSignature> rootSignature;
 	ComPtr<ID3D12RootSignature> computeRootSignature;
-	ComPtr<ID3D12PipelineState> simplexPipelineState,
-		densityPipelineState,
+	ComPtr<ID3D12PipelineState> densityPipelineState,
 		occupiedPipelineState,
 		genVertsPipelineState,
 		renderPipelineSolidState,

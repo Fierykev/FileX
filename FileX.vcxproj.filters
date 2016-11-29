@@ -165,9 +165,6 @@
     <FxCompile Include="SimplexPS.hlsl">
       <Filter>Files\Shaders\Simplex</Filter>
     </FxCompile>
-    <FxCompile Include="SimplexVS.hlsl">
-      <Filter>Files\Shaders\Simplex</Filter>
-    </FxCompile>
     <FxCompile Include="SimplexGS.hlsl">
       <Filter>Files\Shaders\Simplex</Filter>
     </FxCompile>

@@ -89,7 +89,7 @@ void Graphics::phase1(XMUINT3 voxelPos, UINT index)
 	waitForGpu();
 }
 
-void Graphics::phase2(XMUINT3 voxelPos, UINT index)
+bool Graphics::phase2(XMUINT3 voxelPos, UINT index)
 {
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -101,7 +101,12 @@ void Graphics::phase2(XMUINT3 voxelPos, UINT index)
 	setupProceduralDescriptors();
 
 	// verts
-	renderGenVerts(voxelPos, index);
+	if (!renderGenVerts(voxelPos, index))
+	{
+		// close the command list
+		ThrowIfFailed(commandList->Close());
+		return false;
+	}
 
 	// indices
 	renderClearTex(voxelPos, index);
@@ -115,6 +120,8 @@ void Graphics::phase2(XMUINT3 voxelPos, UINT index)
 
 	// wait on the gpu
 	waitForGpu();
+
+	return true;
 }
 
 void Graphics::phase3(XMUINT3 voxelPos, UINT index)
@@ -600,8 +607,7 @@ void Graphics::loadPipeline()
 void Graphics::loadAssets()
 {
 	// load the shaders
-	string dataSimplexVS, dataSimplexPS, dataSimplexGS,
-		dataDensityVS, dataDensityPS, dataDensityGS,
+	string dataDensityVS, dataDensityPS, dataDensityGS,
 		dataOccupiedVS, dataOccupiedGS,
 		dataGenVertsVS, dataGenVertsGS,
 		dataVertexMeshVS, dataVertexMeshGS,
@@ -610,11 +616,8 @@ void Graphics::loadAssets()
 		dataGenIndicesMeshVS, dataGenIndicesMeshGS,
 		dataVS, dataPS;
 
-#ifdef DEBUG
-	ThrowIfFailed(ReadCSO("../x64/Debug/SimplexVS.cso", dataSimplexVS));
-	ThrowIfFailed(ReadCSO("../x64/Debug/SimplexPS.cso", dataSimplexPS));
-	ThrowIfFailed(ReadCSO("../x64/Debug/SimplexGS.cso", dataSimplexGS));
-
+	// release optimizations currently break shaders currently so prefer debug versions
+#ifndef DEBUG_
 	ThrowIfFailed(ReadCSO("../x64/Debug/DensityVS.cso", dataDensityVS));
 	ThrowIfFailed(ReadCSO("../x64/Debug/DensityPS.cso", dataDensityPS));
 	ThrowIfFailed(ReadCSO("../x64/Debug/DensityGS.cso", dataDensityGS));
@@ -642,13 +645,9 @@ void Graphics::loadAssets()
 	ThrowIfFailed(ReadCSO("../x64/Debug/RenderVS.cso", dataVS));
 	ThrowIfFailed(ReadCSO("../x64/Debug/RenderPS.cso", dataPS));
 #else
-	ThrowIfFailed(ReadCSO("../x64/Release/SimplexVS.cso", dataSimplexVS));
-	ThrowIfFailed(ReadCSO("../x64/Release/SimplexPS.cso", dataSimplexPS));
-	ThrowIfFailed(ReadCSO("../x64/Release/SimplexGS.cso", dataSimplexGS));
-
-	ThrowIfFailed(ReadCSO("../x64/Release/DensityVS.cso", dataVS));
-	ThrowIfFailed(ReadCSO("../x64/Release/DensityPS.cso", dataVS));
-	ThrowIfFailed(ReadCSO("../x64/Release/DensityGS.cso", dataVS));
+	ThrowIfFailed(ReadCSO("../x64/Release/DensityVS.cso", dataDensityVS));
+	ThrowIfFailed(ReadCSO("../x64/Release/DensityPS.cso", dataDensityPS));
+	ThrowIfFailed(ReadCSO("../x64/Release/DensityGS.cso", dataDensityGS));
 
 	ThrowIfFailed(ReadCSO("../x64/Release/OccupiedVS.cso", dataOccupiedVS));
 	ThrowIfFailed(ReadCSO("../x64/Release/OccupiedGS.cso", dataOccupiedGS));
@@ -658,6 +657,10 @@ void Graphics::loadAssets()
 
 	ThrowIfFailed(ReadCSO("../x64/Release/VertexMeshVS.cso", dataVertexMeshVS));
 	ThrowIfFailed(ReadCSO("../x64/Release/VertexMeshGS.cso", dataVertexMeshGS));
+
+	ThrowIfFailed(ReadCSO("../x64/Release/ClearTexVS.cso", dataClearTexVS));
+	ThrowIfFailed(ReadCSO("../x64/Release/ClearTexPS.cso", dataClearTexPS));
+	ThrowIfFailed(ReadCSO("../x64/Release/ClearTexGS.cso", dataClearTexGS));
 
 	ThrowIfFailed(ReadCSO("../x64/Release/VertSplatVS.cso", dataVertSplatVS));
 	ThrowIfFailed(ReadCSO("../x64/Release/VertSplatPS.cso", dataVertSplatPS));
@@ -713,9 +716,6 @@ void Graphics::loadAssets()
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 	psoDesc.InputLayout = { densityLayout, _countof(densityLayout) };
 	psoDesc.pRootSignature = rootSignature.Get();
-	//psoDesc.VS = { reinterpret_cast<UINT8*>((void*)dataSimplexVS.c_str()), dataSimplexVS.length() };
-	//psoDesc.PS = { reinterpret_cast<UINT8*>((void*)dataSimplexPS.c_str()), dataSimplexPS.length() };
-	//psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataSimplexGS.c_str()), dataSimplexGS.length() };
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	psoDesc.DepthStencilState.DepthEnable = FALSE;
@@ -725,8 +725,6 @@ void Graphics::loadAssets()
 	psoDesc.NumRenderTargets = 1;
 	psoDesc.RTVFormats[0] = DENSITY_FORMAT;
 	psoDesc.SampleDesc.Count = 1;
-	//ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&simplexPipelineState)));
-
 	psoDesc.VS = { reinterpret_cast<UINT8*>((void*)dataDensityVS.c_str()), dataDensityVS.length() };
 	psoDesc.PS = { reinterpret_cast<UINT8*>((void*)dataDensityPS.c_str()), dataDensityPS.length() };
 	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataDensityGS.c_str()), dataDensityGS.length() };
@@ -968,7 +966,6 @@ void Graphics::loadAssets()
 	XMUINT3 voxelPos = { 0, 0, 0 };
 
 	UINT index = 0;
-	//UINT z = 0, y = 0, x = 0;
 	for (UINT z = 0; z < NUM_VOXELS_Z; z++)
 	{
 		for (UINT y = 0; y < NUM_VOXELS_Y; y++)
@@ -980,7 +977,8 @@ void Graphics::loadAssets()
 
 				// run phase 1
 				phase1(voxelPos, index);
-				phase2(voxelPos, index);
+				if (!phase2(voxelPos, index)) // no verts
+					continue;
 				phase3(voxelPos, index);
 				phase4(voxelPos, index);
 				
@@ -1073,7 +1071,7 @@ void Graphics::renderOccupied(XMUINT3 voxelPos, UINT index)
 		D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 }
 
-void Graphics::renderGenVerts(XMUINT3 voxelPos, UINT index)
+bool Graphics::renderGenVerts(XMUINT3 voxelPos, UINT index)
 {
 	// set the pipeline state
 	commandList->SetPipelineState(genVertsPipelineState.Get());
@@ -1114,8 +1112,9 @@ void Graphics::renderGenVerts(XMUINT3 voxelPos, UINT index)
 	vertCount[index] = *readVert / sizeof(BITPOS);
 	vertexCount->Unmap(0, nullptr);
 
-	cout << "1 " << vertCount[0] << endl;
-	
+	if (vertCount[index] == 0)
+		return false;
+
 	commandList->DrawInstanced(vertCount[index], 1, 0, 0);
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBackBuffer.Get(),
@@ -1131,6 +1130,8 @@ void Graphics::renderGenVerts(XMUINT3 voxelPos, UINT index)
 		D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 	//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
 		//D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_STREAM_OUT));
+
+	return true;
 }
 
 void Graphics::renderVertexMesh(XMUINT3 voxelPos, UINT index)
@@ -1327,6 +1328,9 @@ void Graphics::populateCommandList()
 
 	for (UINT index = 0; index < NUM_VOXELS; index++)
 	{
+		if (vertCount[index] == 0)
+			continue;
+
 		// draw the object
 		D3D12_VERTEX_BUFFER_VIEW vertBuffer;
 		vertBuffer.BufferLocation = vertexBuffer[index]->GetGPUVirtualAddress();
