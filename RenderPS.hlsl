@@ -6,7 +6,8 @@ struct PS_INPUT
 {
 	float4 position : SV_POSITION;
 	float ambient : AMBIENT;
-	float3 normal : NORMAL;
+	float3 texcoord : TEXCOORD;
+	float3 normal : TEXCOORD1;
 };
 
 // TMP

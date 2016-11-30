@@ -2,13 +2,15 @@ struct VS_INPUT
 {
 	float4 position : SV_POSITION;
 	float3 normal : NORMAL;
+	float3 texcoord : TEXCOORD;
 };
 
 struct VS_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float ambient : AMBIENT;
-	float3 normal : NORMAL;
+	float3 texcoord : TEXCOORD;
+	float3 normal : TEXCOORD1;
 };
 
 cbuffer WORLD_POS : register(b0)
@@ -24,7 +26,8 @@ VS_OUTPUT main(VS_INPUT input)
 	output.ambient = input.position.w;
 	input.position.w = 1.f;
 	output.position = mul(input.position, worldViewProjection);
-	output.normal = mul(normalize(input.normal), world); // may need to fix
+	output.texcoord = input.texcoord;
+	output.normal = input.normal;
 
 	return output;
 }

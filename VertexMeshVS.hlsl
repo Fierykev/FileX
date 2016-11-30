@@ -15,6 +15,7 @@ struct VS_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float3 normal : NORMAL;
+	float3 texcoord : TEXCOORD;
 };
 
 Texture3D<float> densityTexture : register(t0);
@@ -58,8 +59,6 @@ float ambientOcclusion(float3 position)
 			float den = density(position + direction * range);
 			isVis *=
 				.08 + .92 * saturate(-den * .21 + 24);
-				
-				//saturate(den * 9999) * .1; // no branching with sat
 		}
 
 		vis += isVis;
@@ -107,6 +106,8 @@ VS_OUTPUT locateVertFromEdge(float3 position, float3 sampleArea, uint edgeNum)
 
 	vout.normal = 
 		-normalize(gradient);
+
+	vout.texcoord = uvw;
 
 	return vout;
 }

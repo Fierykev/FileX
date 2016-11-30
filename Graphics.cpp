@@ -858,10 +858,11 @@ void Graphics::loadAssets()
 	const D3D12_SO_DECLARATION_ENTRY vertexMeshOut[] =
 	{
 		{ 0, "SV_POSITION", 0, 0, 4, 0 },
-		{ 0, "NORMAL", 0, 0, 3, 0 }
+		{ 0, "NORMAL", 0, 0, 3, 0 },
+		{ 0, "TEXCOORD", 0, 0, 3, 0 }
 	};
 
-	UINT vertexMeshStride = sizeof(FLOAT) * 7;
+	UINT vertexMeshStride = sizeof(FLOAT) * 10;
 
 	psoDesc.StreamOutput.NumEntries = _countof(vertexMeshOut);
 	psoDesc.StreamOutput.pBufferStrides = &vertexMeshStride;
@@ -878,7 +879,8 @@ void Graphics::loadAssets()
 	const D3D12_INPUT_ELEMENT_DESC layoutRender[] =
 	{
 		{ "SV_POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA , 0 }
 	};
 
 	psoDesc.InputLayout = { layoutRender, _countof(layoutRender) };

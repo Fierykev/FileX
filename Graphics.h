@@ -183,6 +183,7 @@ private:
 	{
 		XMFLOAT4 position;
 		XMFLOAT3 normal;
+		XMFLOAT3 texcoord;
 	};
 
 	PLAIN_VERTEX plainVerts[6] = {
