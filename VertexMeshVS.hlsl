@@ -4,7 +4,7 @@
 #include <DensityH.hlsl>
 
 #define NUM_STEPS 16
-#define FAR_SAMPLES 5
+#define FAR_SAMPLES 6
 
 struct VS_INPUT
 {
@@ -23,7 +23,6 @@ SamplerState nearestSample : register(s0);
 
 float ambientOcclusion(float3 position)
 {
-	//return snoise(position);
 	float vis = 0;
 
 	const float skipCells = 1.53;
@@ -46,7 +45,8 @@ float ambientOcclusion(float3 position)
 
 			float den = densityTexture.SampleLevel(nearestSample,
 				rays, 0);
-			isVis *= saturate(den * 9999);
+			isVis *= lerp(isVis, 0, saturate(den * 7.f)
+				* occWeigths[j].z);
 		}
 		
 		for (uint k = 0; k < FAR_SAMPLES; k++)
@@ -56,7 +56,10 @@ float ambientOcclusion(float3 position)
 			range *= 45.f;
 
 			float den = density(position + direction * range);
-			isVis *= saturate(den * 9999); // no branching with sat
+			isVis *=
+				.08 + .92 * saturate(-den * .21 + 24);
+				
+				//saturate(den * 9999) * .1; // no branching with sat
 		}
 
 		vis += isVis;
