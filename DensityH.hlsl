@@ -1,10 +1,13 @@
 #ifndef _DENSITY_H_
 #define _DENSITY_H_
 
+#include <ProceduralConstantsH.hlsl>
 #include "NoiseH.hlsl"
 
 float density(float3 pos)
 {
+	pos /= chunkSize;
+
 	//pos.y *= -1;
 	float density = pos.y -.5;
 	//density += snoise(pos * 4.03) / 100.f;

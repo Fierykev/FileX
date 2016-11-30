@@ -28,7 +28,7 @@ VS_OUTPUT main(VS_INPUT input)
 		input.position.xy, 0, 1
 		);
 
-	float3 tmp = voxelPosF.xyz;
+	float3 tmp = voxelPos.xyz;
 	tmp.x *= -1;
 	
 	output.worldPosition =

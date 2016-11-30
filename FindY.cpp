@@ -90,7 +90,7 @@ float Graphics::findY()
 
 	while (true)
 	{
-		voxelPosData->voxelPosF =
+		voxelPosData->voxelPos =
 			XMFLOAT4(pos.m128_f32[0],
 				pos.m128_f32[1],
 				pos.m128_f32[2], 0);

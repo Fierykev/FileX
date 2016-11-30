@@ -382,10 +382,10 @@ void Graphics::loadPipeline()
 	D3D12_RESOURCE_DESC voxelTextureDesc = {};
 	voxelTextureDesc.MipLevels = 1;
 	voxelTextureDesc.Format = DENSITY_FORMAT;
-	voxelTextureDesc.Width = OCC_SIZE_M1;
-	voxelTextureDesc.Height = OCC_SIZE_M1;
+	voxelTextureDesc.Width = OCC_SIZE_P1;
+	voxelTextureDesc.Height = OCC_SIZE_P1;
 	voxelTextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-	voxelTextureDesc.DepthOrArraySize = OCC_SIZE_M1;
+	voxelTextureDesc.DepthOrArraySize = OCC_SIZE_P1;
 	voxelTextureDesc.SampleDesc.Count = 1;
 	voxelTextureDesc.SampleDesc.Quality = 0;
 	voxelTextureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE3D;
@@ -1035,7 +1035,7 @@ void Graphics::loadAssets()
 	// generate the terrain
 	
 	// record the render commands
-	XMUINT4 voxelPos;
+	XMFLOAT4 voxelPos;
 
 	clock_t startGen = 0;
 
@@ -1046,7 +1046,7 @@ void Graphics::loadAssets()
 		{
 			for (UINT x = 0; x < NUM_VOXELS_X; x++)
 			{
-				voxelPos = { x, y, z, 1 };
+				voxelPos = { x * CHUNK_SIZE, y * CHUNK_SIZE, z * CHUNK_SIZE, 1 };
 				voxelPosData->voxelPos = voxelPos;
 
 				// run phase 1
@@ -1100,7 +1100,7 @@ void Graphics::renderDensity(UINT index)
 	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, &plainVB);
-	commandList->DrawInstanced(_countof(plainVerts), OCC_SIZE_M1, 0, 0);
+	commandList->DrawInstanced(_countof(plainVerts), OCC_SIZE_P1, 0, 0);
 
 	// TODO: CHECK IF THIS IS RIGHT
 	// wait for shader

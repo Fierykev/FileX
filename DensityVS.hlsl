@@ -20,12 +20,21 @@ VS_OUTPUT main(VS_INPUT input)
 	output.position = float4(
 		input.position.xy, 0, 1
 		);
+
+	float3 samplePos = float3(input.texcoord.xy,
+		input.instanceID * occInv.x);
+
+	samplePos *= voxelExpansion * voxelInvVecM1.x;
+
+	samplePos = (samplePos * occExpansion.x
+		- extra) * voxelInv.x;
+
+	samplePos *= chunkSize;
+	
+	samplePos += voxelPos;
+
 	output.worldPosition = 
-		float4(
-			float3(input.texcoord.xy,
-				input.instanceID * occInvVecP1.x)
-			+ (float3)voxelPos
-			, 1);
+		float4(samplePos, 1);
 
 	output.instanceID = input.instanceID;
 

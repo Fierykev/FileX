@@ -74,7 +74,5 @@ void main(uint threadID : SV_DispatchThreadID, uint groupThreadID : SV_GroupInde
 
 		if (reduction[0] == (1 << 30))
 			yPos[0] |= (positive << 31);
-
-		float3 tmp = voxelPosF;
 	}
 }

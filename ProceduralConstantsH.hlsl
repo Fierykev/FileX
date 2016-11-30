@@ -3,8 +3,7 @@
 
 cbuffer VOXEL_POS : register(b1)
 {
-	uint4 voxelPos;
-	float4 voxelPosF;
+	float4 voxelPos;
 };
 
 static const float chunkSize = 20.f;
