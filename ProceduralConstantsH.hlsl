@@ -7,7 +7,7 @@ cbuffer VOXEL_POS : register(b1)
 	float4 voxelPosF;
 };
 
-static const float chunkSize = 100.f;
+static const float chunkSize = 25.f;
 /*
 static const float extra = 4.f;
 static const float voxelExpansion = 65.f;

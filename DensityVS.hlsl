@@ -20,10 +20,6 @@ VS_OUTPUT main(VS_INPUT input)
 	output.position = float4(
 		input.position.xy, 0, 1
 		);
-	//output.position.y = -output.position.y;
-	
-	//if (output.position.z != 0)
-		//output.position.y = -output.position.y;
 
 	output.worldPosition = 
 		float4(

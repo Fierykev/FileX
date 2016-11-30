@@ -54,14 +54,14 @@ void main(
 		{
 			// get the starting edge
 			edgeTMP = position + edgeStartLoc[triEdges[i]].xyz;
-			
-			// check if runs off texture
-			valid[i] = edgeTMP.x < voxelExpansion
-				&& edgeTMP.y < voxelExpansion
-				&& edgeTMP.z < voxelExpansion;
 
 			// expand x
 			edgeTMP.x = edgeTMP.x * 3 + edgeAlignment[triEdges[i]];
+
+			// check if runs off texture
+			valid[i] = edgeTMP.x < voxelExpansion * 3
+				&& edgeTMP.y < voxelExpansion
+				&& edgeTMP.z < voxelExpansion;
 			
 			// load and output the index
 			element[i].index = indexTex.Load(int4(edgeTMP, 0)).x;
@@ -69,7 +69,10 @@ void main(
 
 		if (valid[0] &&
 			valid[1] &&
-			valid[2])
+			valid[2] &&
+			element[0].index != MAX_INT &&
+			element[1].index != MAX_INT &&
+			element[2].index != MAX_INT)
 		{
 			[unroll(3)]
 			for (uint i = 0; i < 3; i++)

@@ -1,9 +1,9 @@
 #ifndef GRPAHICS_H
 #define GRAPHICS_H
 
-#define NUM_VOXELS_X 2
-#define NUM_VOXELS_Y 2
-#define NUM_VOXELS_Z 2
+#define NUM_VOXELS_X 1
+#define NUM_VOXELS_Y 1
+#define NUM_VOXELS_Z 5
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 #include <d3d12.h>
@@ -15,8 +15,8 @@
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
-#define PERSON_HEIGHT 50.f
-#define CHUNK_SIZE 100.f
+#define PERSON_HEIGHT 5.f
+#define CHUNK_SIZE 25.f
 
 #define EXTRA 4.f
 #define VOXEL_SIZE_M2 31.f
@@ -39,7 +39,7 @@ using namespace DirectX;
 
 #define FINDY_SIZE 256.f
 #define FINDY_SIZE_P1 257.f
-#define SAMP_EXPANSION 100.f
+#define SAMP_EXPANSION 5
 
 #define SRVS_PER_FRAME 2
 

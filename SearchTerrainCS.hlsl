@@ -10,7 +10,7 @@ Texture3D<float> sampleDensityTexture : register(t2);
 
 SamplerState nearestSample : register(s0);
 
-RWStructuredBuffer<int> yPos : register(u0);
+RWStructuredBuffer<uint> yPos : register(u0);
 
 static const float3 offsetVec = float3(1.f / 2.f, 1.f / FINDY_SIZE_P1, 0.f);
 
@@ -76,8 +76,5 @@ void main(uint threadID : SV_DispatchThreadID, uint groupThreadID : SV_GroupInde
 			yPos[0] |= (positive << 31);
 
 		float3 tmp = voxelPosF;
-		
-		yPos[0] = density(tmp / chunkSize) * 100.f;
-			//sampleDensityTexture.SampleLevel(nearestSample, float3(0, 0.f, 0), 0).x;
 	}
 }

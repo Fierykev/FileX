@@ -83,9 +83,10 @@ void Graphics::findYRender()
 
 float Graphics::findY()
 {
-	INT* tmpPos;
-	INT ypos;	
+	UINT* tmpPos;
+	UINT ypos;	
 	XMVECTOR pos = at;
+	int type = 0;
 
 	while (true)
 	{
@@ -102,29 +103,43 @@ float Graphics::findY()
 
 		ypos = *tmpPos;
 
-		// fetch the data
-		cout << ypos << " "
-			<< pos.m128_f32[0] << " "
-			<< pos.m128_f32[1] << " "
-			<< pos.m128_f32[2]
-			<< endl;
-
 		yposMap->Unmap(0, nullptr);
-/*
+
 		if ((ypos >> 30) & 0x1)
 		{
 			if ((ypos >> 31) & 0x1)
 			{
+				if (type == 1)
+				{
+					ypos = 0;
+					break;
+				}
+
 				pos.m128_f32[1] -= SAMP_EXPANSION / 2.f;
+				type = 1;
 			}
 			else
 			{
+				if (type == 1)
+				{
+					ypos = 128;
+					break;
+				}
+
 				pos.m128_f32[1] += SAMP_EXPANSION / 2.f;
+				type = 2;
 			}
 		}
-		else // done*/
+		else // done
 			break;
 	}
 
-	return pos.m128_f32[1] + (ypos / FINDY_SIZE) * SAMP_EXPANSION + PERSON_HEIGHT;
+	// fetch the data
+	cout << ypos << " "
+		<< pos.m128_f32[0] << " "
+		<< pos.m128_f32[1] << " "
+		<< pos.m128_f32[2]
+		<< endl;
+
+	return pos.m128_f32[1] + (((int)ypos - FINDY_SIZE / 2.f) / FINDY_SIZE / 2.f) * SAMP_EXPANSION / 2.f + PERSON_HEIGHT;
 }

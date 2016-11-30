@@ -59,7 +59,7 @@ void Graphics::onUpdate()
 	
 	world = XMMatrixIdentity();
 	view = XMMatrixLookAtLH(eye, at, up);
-	projection = XMMatrixPerspectiveFovLH(XM_PI / 4,
+	projection = XMMatrixPerspectiveFovLH(XM_PI / 16,
 		(float)height / width, .1, 1000.0);
 	worldViewProjection = world * view * projection;
 
@@ -180,8 +180,8 @@ void Graphics::phase4(UINT index)
 void Graphics::drawPhase()
 {
 	float y = findY();
-	//eye.m128_f32[1] = y;
-	//at.m128_f32[1] = y;
+	eye.m128_f32[1] = y;
+	at.m128_f32[1] = y;
 
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -891,7 +891,7 @@ void Graphics::loadAssets()
 	psoDesc.RasterizerState = 
 	{
 		D3D12_FILL_MODE_SOLID,
-		D3D12_CULL_MODE_NONE,
+		D3D12_CULL_MODE_BACK,
 		FALSE,
 		D3D12_DEFAULT_DEPTH_BIAS,
 		D3D12_DEFAULT_DEPTH_BIAS_CLAMP,

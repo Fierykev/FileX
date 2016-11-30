@@ -1,3 +1,9 @@
-﻿  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\VertexMeshVS.cso
+﻿  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\DensityPS.cso
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\SearchTerrainCS.hlsl(78,10-24): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\SearchTerrainCS.cso
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\VertexMeshVS.cso
+  Skipping... (no relevant changes detected)
+  FindY.cpp
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.exe
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.pdb (Partial PDB)
