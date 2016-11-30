@@ -116,11 +116,11 @@ VS_OUTPUT main(VS_INPUT input)
 	float3 sampleArea =
 		((float3)position + extra) * occInvVecM1.xxx;
 
-	sampleArea += occInvVecM1.xxx * .25f;
-	sampleArea.xyz *= (occExpansion.x - 1.f) * occInv.x;
+	//sampleArea += occInvVecM1.xxx * .25f;
+	//sampleArea.xyz *= (occExpansion.x - 1.f) * occInv.x;
 
 	float3 worldPos = (float3)voxelPos * chunkSize
-		+ (float3)position * voxelInvVecM1.xxx * chunkSize;
+		+ (float3)position * voxelInv.xxx * chunkSize;
 	
 	// get the edgenum
 	uint edgeNum = input.bitPos & 0x0F;

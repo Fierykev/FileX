@@ -2,7 +2,7 @@
 
 struct VS_INPUT
 {
-	float4 position : POSITION;
+	float3 position : POSITION;
 	float2 texcoord : TEXCOORD;
 	uint instanceID : SV_InstanceID;
 };
@@ -20,10 +20,14 @@ VS_OUTPUT main(VS_INPUT input)
 	output.position = float4(
 		input.position.xy, 0, 1
 		);
+	//output.position.y = -output.position.y;
 	
+	//if (output.position.z != 0)
+		//output.position.y = -output.position.y;
+
 	output.worldPosition = 
 		float4(
-			float3(input.texcoord,
+			float3(input.texcoord.xy,
 				input.instanceID * voxelInv.x)
 			+ (float3)voxelPos
 			, 1);

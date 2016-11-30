@@ -3,10 +3,12 @@
 
 cbuffer VOXEL_POS : register(b1)
 {
-	uint3 voxelPos;
+	uint4 voxelPos;
+	float4 voxelPosF;
 };
 
 static const float chunkSize = 100.f;
+/*
 static const float extra = 4.f;
 static const float voxelExpansion = 65.f;
 static const float voxelM1 = 64.f;
@@ -35,7 +37,7 @@ static const float2 occInvVecP1 = float2(
 static const float2 occInvVecM1 = float2(
 	1.f / 72.f, 0
 	);
-/*
+*/
 static const float extra = 4.f;
 static const float voxelExpansion = 33.f;
 static const float voxelM1 = 32.f;
@@ -64,13 +66,13 @@ static const float2 occInvVecP1 = float2(
 static const float2 occInvVecM1 = float2(
 	1.f / 40.f, 0
 	);
-	*/
+	
 static const float densStep = 100.f;
 
 inline float4 getVoxelLoc(float2 texcoord, uint instanceID)
 {
 	return float4(
-		voxelPos + float3(texcoord, instanceID) * voxelExpansion, 1);
+		voxelPos.xyz + float3(texcoord, instanceID) * voxelExpansion, 1);
 }
 
 inline float3 getRelLoc(float2 texcoord, uint instanceID)

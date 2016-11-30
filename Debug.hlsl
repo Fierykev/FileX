@@ -7,7 +7,7 @@
 
 #ifdef DEBUG
 
-RWStructuredBuffer<bool> debug;
+RWStructuredBuffer<bool> debug : register(u1);
 
 #endif
 

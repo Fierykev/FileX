@@ -9,9 +9,6 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Files\Window Setup">
-      <UniqueIdentifier>{5ba03497-9cfa-4776-a7c2-ba7794bdc266}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Files\General">
       <UniqueIdentifier>{3722a91d-44c0-4275-9f51-f7d1a6e078b2}</UniqueIdentifier>
     </Filter>
@@ -60,6 +57,18 @@
     <Filter Include="Files\Shaders\Simplex">
       <UniqueIdentifier>{5c41b4ff-d76f-4b44-a2cd-b7374c0e4762}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Files\FindY">
+      <UniqueIdentifier>{c4a59b31-2550-46cc-99f3-b16d25bb1b1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\Window Setup">
+      <UniqueIdentifier>{5ba03497-9cfa-4776-a7c2-ba7794bdc266}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\HLSL CPU">
+      <UniqueIdentifier>{e4095b41-4164-4158-aa09-47e4d77c0a43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\Shaders\Procedural\FindY">
+      <UniqueIdentifier>{0b0ff91f-3b37-4f9d-820d-de2b87822180}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -79,6 +88,9 @@
     </ClCompile>
     <ClCompile Include="Parser.cpp">
       <Filter>Files\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="FindY.cpp">
+      <Filter>Files\FindY</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +114,9 @@
     </ClInclude>
     <ClInclude Include="Parser.h">
       <Filter>Files\Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="HLSL_CPU.h">
+      <Filter>Files\HLSL CPU</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -162,11 +177,11 @@
     <FxCompile Include="ClearTexVS.hlsl">
       <Filter>Files\Shaders\Procedural\ClearTex</Filter>
     </FxCompile>
-    <FxCompile Include="SimplexPS.hlsl">
-      <Filter>Files\Shaders\Simplex</Filter>
+    <FxCompile Include="SampleDensityVS.hlsl">
+      <Filter>Files\Shaders\Procedural\FindY</Filter>
     </FxCompile>
-    <FxCompile Include="SimplexGS.hlsl">
-      <Filter>Files\Shaders\Simplex</Filter>
+    <FxCompile Include="SearchTerrainCS.hlsl">
+      <Filter>Files\Shaders\Procedural\FindY</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,9 +1,9 @@
 #ifndef GRPAHICS_H
 #define GRAPHICS_H
 
-#define NUM_VOXELS_X 1
-#define NUM_VOXELS_Y 1
-#define NUM_VOXELS_Z 10
+#define NUM_VOXELS_X 2
+#define NUM_VOXELS_Y 2
+#define NUM_VOXELS_Z 2
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 #include <d3d12.h>
@@ -14,7 +14,10 @@
 
 using namespace Microsoft::WRL;
 using namespace DirectX;
-/*
+
+#define PERSON_HEIGHT 50.f
+#define CHUNK_SIZE 100.f
+
 #define EXTRA 4.f
 #define VOXEL_SIZE_M2 31.f
 #define VOXEL_SIZE_M1 32.f
@@ -23,7 +26,8 @@ using namespace DirectX;
 #define OCC_SIZE 41.f
 #define OCC_SIZE_P1 42.f
 #define OCC_SIZE_M1 40.f
-*/
+
+/*
 #define EXTRA 4.f
 #define VOXEL_SIZE_M2 63.f
 #define VOXEL_SIZE_M1 64.f
@@ -31,7 +35,11 @@ using namespace DirectX;
 #define VOXEL_SIZE_P1 66.f
 #define OCC_SIZE 73.f
 #define OCC_SIZE_P1 74.f
-#define OCC_SIZE_M1 72.f
+#define OCC_SIZE_M1 72.f*/
+
+#define FINDY_SIZE 256.f
+#define FINDY_SIZE_P1 257.f
+#define SAMP_EXPANSION 100.f
 
 #define SRVS_PER_FRAME 2
 
@@ -55,7 +63,7 @@ public:
 	virtual void onKeyDown(UINT8 key);
 	virtual void onKeyUp(UINT8 key);
 
-	const UINT NUM_POINTS = VOXEL_SIZE_M1 * VOXEL_SIZE_M1;
+	const UINT NUM_POINTS = VOXEL_SIZE * VOXEL_SIZE;
 
 	const UINT BYTES_POINTS = sizeof(OCCUPIED_POINT) * sizeof(OCCUPIED_POINT) *	NUM_POINTS;
 
@@ -76,23 +84,27 @@ private:
 
 	// added methods
 	void setupProceduralDescriptors();
-	void renderDensity(XMUINT3 voxelPos);
-	void renderOccupied(XMUINT3 voxelPos, UINT index);
-	bool renderGenVerts(XMUINT3 voxelPos, UINT index);
-	void renderVertexMesh(XMUINT3 voxelPos, UINT index);
-	void renderClearTex(XMUINT3 voxelPos, UINT index);
-	void renderVertSplat(XMUINT3 voxelPos, UINT index);
-	void renderGenIndices(XMUINT3 voxelPos, UINT index);
-	void getVertIndexData(XMUINT3 voxelPos, UINT index);
-	void phase1(XMUINT3 voxelPos, UINT index);
-	bool phase2(XMUINT3 voxelPos, UINT index);
-	void phase3(XMUINT3 voxelPos, UINT index);
-	void phase4(XMUINT3 voxelPos, UINT index);
+	void renderDensity(UINT index);
+	void renderOccupied(UINT index);
+	bool renderGenVerts(UINT index);
+	void renderVertexMesh(UINT index);
+	void renderClearTex(UINT index);
+	void renderVertSplat(UINT index);
+	void renderGenIndices(UINT index);
+	void getVertIndexData(UINT index);
+	float findY();
+	void findYRender();
+	void searchTerrain();
+	void sampleDensity();
+	void phase1(UINT index);
+	bool phase2(UINT index);
+	void phase3(UINT index);
+	void phase4(UINT index);
 	void drawPhase();
 
 	enum ComputeShader : UINT32
 	{
-		CSTMP = 0,
+		CS_SEARCH_TERRAIN = 0,
 		CS_COUNT
 	};
 
@@ -108,12 +120,14 @@ private:
 	{
 		DENSITY_TEXTURE = 0,
 		INDEX_TEXTURE,
+		FINDY_TEXTURE,
 		SRV_COUNT
 	};
 
 	enum BVUAV : UINT32
 	{
-		DEBUG_VAR = 0,
+		UAV_YPOS = 0,
+		DEBUG_VAR,
 		UAV_COUNT
 	};
 
@@ -134,7 +148,7 @@ private:
 		vertexBuffer[NUM_VOXELS], vertexBackBuffer,
 		indexBuffer[NUM_VOXELS],
 		vertexCount,
-		indexCount;
+		indexCount, yposMap;
 
 	D3D12_VERTEX_BUFFER_VIEW plainVB, pointVB;
 
@@ -142,7 +156,6 @@ private:
 	{
 		XMFLOAT3 position;
 		XMFLOAT2 texcoord;
-		UINT svInstance;
 	};
 
 	struct OCCUPIED_POINT
@@ -173,12 +186,12 @@ private:
 	};
 
 	PLAIN_VERTEX plainVerts[6] = {
-		PLAIN_VERTEX{ XMFLOAT3(1, 1, 1), XMFLOAT2(1, 1), 0 },
-		PLAIN_VERTEX{ XMFLOAT3(1, -1, 0), XMFLOAT2(1, 0), 0 },
-		PLAIN_VERTEX{ XMFLOAT3(-1, 1, 0), XMFLOAT2(0, 1), 0 },
-		PLAIN_VERTEX{ XMFLOAT3(-1, -1, 0), XMFLOAT2(0, 0), 0 },
-		PLAIN_VERTEX{ XMFLOAT3(-1, 1, 0), XMFLOAT2(0, 1), 0 },
-		PLAIN_VERTEX{ XMFLOAT3(1, -1, 0), XMFLOAT2(1, 0), 0 }
+		PLAIN_VERTEX{ XMFLOAT3(1, 1, 0), XMFLOAT2(1, 1) },
+		PLAIN_VERTEX{ XMFLOAT3(1, -1, 0), XMFLOAT2(1, 0) },
+		PLAIN_VERTEX{ XMFLOAT3(-1, 1, 0), XMFLOAT2(0, 1) },
+		PLAIN_VERTEX{ XMFLOAT3(-1, -1, 0), XMFLOAT2(0, 0) },
+		PLAIN_VERTEX{ XMFLOAT3(-1, 1, 0), XMFLOAT2(0, 1) },
+		PLAIN_VERTEX{ XMFLOAT3(1, -1, 0), XMFLOAT2(1, 0) }
 	};
 
 	struct INTERMEDIATE_VB
@@ -196,9 +209,9 @@ private:
 	UINT64 fenceVal[numFrames];
 
 	// pipeline objects
-	D3D12_VIEWPORT viewport, voxelViewport, vertSplatViewport;
+	D3D12_VIEWPORT viewport, voxelViewport, vertSplatViewport, viewYViewport;
 	ComPtr<ID3D12Device> device;
-	D3D12_RECT scissorRect, voxelScissorRect, vertSplatScissorRect;
+	D3D12_RECT scissorRect, voxelScissorRect, vertSplatScissorRect, viewYScissorRect;
 	ComPtr<ID3D12CommandQueue> commandQueue;
 	ComPtr<ID3D12RootSignature> rootSignature;
 	ComPtr<ID3D12RootSignature> computeRootSignature;
@@ -210,7 +223,8 @@ private:
 		vertexMeshPipelineState,
 		dataVertSplatPipelineState,
 		dataGenIndicesPipelineState,
-		dataClearTexPipelineState;
+		dataClearTexPipelineState,
+		sampleDensityPipelineState;
 	ComPtr<ID3D12PipelineState> computeStatePR;
 	ComPtr<ID3D12PipelineState> computeStateMC;
 	ComPtr<ID3D12PipelineState> computeStateCS[CS_COUNT];
@@ -238,13 +252,15 @@ private:
 
 	struct WORLD_POS
 	{
-		XMMATRIX worldViewProjection;
+		XMMATRIX world;
 		XMMATRIX worldView;
+		XMMATRIX worldViewProjection;
 	};
 
 	struct VOXEL_POS
 	{
-		XMUINT3 voxelPos;
+		XMUINT4 voxelPos;
+		XMFLOAT4 voxelPosF;
 	};
 
 	bool isSolid = false;
@@ -256,9 +272,9 @@ private:
 	// view params
 	XMMATRIX world, view, projection, worldViewProjection;
 
-	const XMVECTOR origEye{ 0.0f, 100.0f, -100.0f };
+	const XMVECTOR origEye{ 0.0f, 0.0f, 0.0f };
 	XMVECTOR eye = origEye;
-	XMVECTOR at{ 0.0f, 100.0f, 0.0f };
+	XMVECTOR at{ 0.0f, 0.0f, 20.0f };
 	XMVECTOR up{ 0.0f, 1.f, 0.0f };
 
 	float yAngle = 0, xAngle = 0;

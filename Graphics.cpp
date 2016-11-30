@@ -30,6 +30,10 @@ Graphics::Graphics(std::wstring title, unsigned int width, unsigned int height)
 	vertSplatViewport.Height = VOXEL_SIZE;
 	vertSplatViewport.MaxDepth = 1.0f;
 
+	viewYViewport.Width = 2;
+	viewYViewport.Height = FINDY_SIZE_P1;
+	viewYViewport.MaxDepth = 1.0f;
+
 	scissorRect.right = static_cast<LONG>(width);
 	scissorRect.bottom = static_cast<LONG>(height);
 
@@ -38,6 +42,9 @@ Graphics::Graphics(std::wstring title, unsigned int width, unsigned int height)
 
 	vertSplatScissorRect.right = VOXEL_SIZE * 3;
 	vertSplatScissorRect.bottom = VOXEL_SIZE;
+
+	viewYScissorRect.right = 2;
+	viewYScissorRect.bottom = FINDY_SIZE_P1;
 }
 
 void Graphics::onInit()
@@ -49,24 +56,25 @@ void Graphics::onInit()
 void Graphics::onUpdate()
 {
 	// update world, view, proj
-
+	
 	world = XMMatrixIdentity();
 	view = XMMatrixLookAtLH(eye, at, up);
 	projection = XMMatrixPerspectiveFovLH(XM_PI / 4,
 		(float)height / width, .1, 1000.0);
 	worldViewProjection = world * view * projection;
 
-	worldPosCB->worldViewProjection =
-		XMMatrixTranspose(worldViewProjection);
+	worldPosCB->world = XMMatrixTranspose(world);
 	worldPosCB->worldView =
 		XMMatrixTranspose(world * view);
+	worldPosCB->worldViewProjection =
+		XMMatrixTranspose(worldViewProjection);
 
 	// wait for the last present
 
 	WaitForSingleObjectEx(swapChainEvent, 100, FALSE);
 }
 
-void Graphics::phase1(XMUINT3 voxelPos, UINT index)
+void Graphics::phase1(UINT index)
 {
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -77,8 +85,8 @@ void Graphics::phase1(XMUINT3 voxelPos, UINT index)
 
 	setupProceduralDescriptors();
 
-	renderDensity(voxelPos); // NOTE: causes error
-	renderOccupied(voxelPos, index);
+	renderDensity(index); // NOTE: causes error
+	renderOccupied(index);
 
 	// run the commands
 	ThrowIfFailed(commandList->Close());
@@ -89,7 +97,7 @@ void Graphics::phase1(XMUINT3 voxelPos, UINT index)
 	waitForGpu();
 }
 
-bool Graphics::phase2(XMUINT3 voxelPos, UINT index)
+bool Graphics::phase2(UINT index)
 {
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -101,7 +109,7 @@ bool Graphics::phase2(XMUINT3 voxelPos, UINT index)
 	setupProceduralDescriptors();
 
 	// verts
-	if (!renderGenVerts(voxelPos, index))
+	if (!renderGenVerts(index))
 	{
 		// close the command list
 		ThrowIfFailed(commandList->Close());
@@ -109,9 +117,9 @@ bool Graphics::phase2(XMUINT3 voxelPos, UINT index)
 	}
 
 	// indices
-	renderClearTex(voxelPos, index);
-	renderVertSplat(voxelPos, index);
-	renderGenIndices(voxelPos, index);
+	renderClearTex(index);
+	renderVertSplat(index);
+	renderGenIndices(index);
 
 	// run the commands
 	ThrowIfFailed(commandList->Close());
@@ -124,7 +132,7 @@ bool Graphics::phase2(XMUINT3 voxelPos, UINT index)
 	return true;
 }
 
-void Graphics::phase3(XMUINT3 voxelPos, UINT index)
+void Graphics::phase3(UINT index)
 {
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -136,7 +144,7 @@ void Graphics::phase3(XMUINT3 voxelPos, UINT index)
 	setupProceduralDescriptors();
 
 	// verts
-	renderVertexMesh(voxelPos, index);
+	renderVertexMesh(index);
 
 	// run the commands
 	ThrowIfFailed(commandList->Close());
@@ -147,7 +155,7 @@ void Graphics::phase3(XMUINT3 voxelPos, UINT index)
 	waitForGpu();
 }
 
-void Graphics::phase4(XMUINT3 voxelPos, UINT index)
+void Graphics::phase4(UINT index)
 {
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -158,7 +166,7 @@ void Graphics::phase4(XMUINT3 voxelPos, UINT index)
 
 	setupProceduralDescriptors();
 
-	getVertIndexData(voxelPos, index);
+	getVertIndexData(index);
 
 	// run the commands
 	ThrowIfFailed(commandList->Close());
@@ -170,19 +178,10 @@ void Graphics::phase4(XMUINT3 voxelPos, UINT index)
 }
 
 void Graphics::drawPhase()
-{/*
-	XMUINT3 voxelPos = { 0, 0, 0 };
-	
-	UINT index = 0;
-	UINT z = 0, y = 0, x = 0;
-	voxelPos = { x, y, z };
-	voxelPosData->voxelPos = voxelPos;
-
-	// run phase 1
-	phase1(voxelPos, index);
-	phase2(voxelPos, index);
-	phase3(voxelPos, index);
-	phase4(voxelPos, index);*/
+{
+	float y = findY();
+	//eye.m128_f32[1] = y;
+	//at.m128_f32[1] = y;
 
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -192,7 +191,6 @@ void Graphics::drawPhase()
 		renderPipelineSolidState.Get()));
 
 	setupProceduralDescriptors();
-
 	populateCommandList();
 
 	// run the commands
@@ -458,6 +456,36 @@ void Graphics::loadPipeline()
 		intermediateTarget[INDEX_TEXTURE].Get(),
 		&srvDesc, srvHandle0);
 	srvHandle0.Offset(csuDescriptorSize);
+
+	// SRV 3
+
+	voxelTextureDesc.Format = DENSITY_FORMAT;
+	voxelTextureDesc.Width = 2;
+	voxelTextureDesc.Height = FINDY_SIZE_P1;
+	voxelTextureDesc.DepthOrArraySize = 2;
+
+	rtvDesc.Format = DENSITY_FORMAT;
+	rtvDesc.Texture3D.WSize = voxelTextureDesc.DepthOrArraySize;
+
+	ThrowIfFailed(device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&voxelTextureDesc,
+		D3D12_RESOURCE_STATE_RENDER_TARGET,
+		nullptr,
+		IID_PPV_ARGS(&intermediateTarget[FINDY_TEXTURE])
+	));
+
+	device->CreateRenderTargetView(intermediateTarget[FINDY_TEXTURE].Get(), &rtvDesc, rtvHandle);
+	rtvHandle.Offset(1, rtvDescriptorSize);
+
+	srvDesc.Format = DENSITY_FORMAT;
+
+	// bind texture to srv
+	device->CreateShaderResourceView(
+		intermediateTarget[FINDY_TEXTURE].Get(),
+		&srvDesc, srvHandle0);
+	srvHandle0.Offset(csuDescriptorSize);
 	
 	// create sampler
 	CD3DX12_CPU_DESCRIPTOR_HANDLE samplerHandle0(samplerHeap->GetCPUDescriptorHandleForHeapStart(), 0, samplerDescriptorSize);
@@ -508,6 +536,25 @@ void Graphics::loadPipeline()
 	device->CreateConstantBufferView(&cdesc, cbvHandle0);
 	cbvHandle0.Offset(csuDescriptorSize);
 
+	// setup YPOS var for UAV
+
+	ThrowIfFailed(device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT)),
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr,
+		IID_PPV_ARGS(&yposMap)));
+
+	ThrowIfFailed(device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT),
+			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS),
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		nullptr,
+		IID_PPV_ARGS(&bufferUAV[UAV_YPOS])));
+
 	// setup DEBUG var for UAV
 
 	ThrowIfFailed(device->CreateCommittedResource(
@@ -528,6 +575,12 @@ void Graphics::loadPipeline()
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE uavHandle0(csuHeap->GetCPUDescriptorHandleForHeapStart(),
 		CBV_COUNT + SRV_COUNT, csuDescriptorSize);
+
+	uavDesc.Buffer.NumElements = 1;
+	uavDesc.Buffer.StructureByteStride = sizeof(UINT);
+
+	device->CreateUnorderedAccessView(bufferUAV[UAV_YPOS].Get(), nullptr, &uavDesc, uavHandle0);
+	uavHandle0.Offset(1, csuDescriptorSize);
 
 	uavDesc.Buffer.NumElements = 1;
 	uavDesc.Buffer.StructureByteStride = sizeof(BOOL);
@@ -607,17 +660,20 @@ void Graphics::loadPipeline()
 void Graphics::loadAssets()
 {
 	// load the shaders
-	string dataDensityVS, dataDensityPS, dataDensityGS,
+	string sampleDataDensityVS,
+		dataDensityVS, dataDensityPS, dataDensityGS,
 		dataOccupiedVS, dataOccupiedGS,
 		dataGenVertsVS, dataGenVertsGS,
 		dataVertexMeshVS, dataVertexMeshGS,
 		dataClearTexVS, dataClearTexPS, dataClearTexGS,
 		dataVertSplatVS, dataVertSplatPS, dataVertSplatGS,
 		dataGenIndicesMeshVS, dataGenIndicesMeshGS,
-		dataVS, dataPS;
+		dataVS, dataPS, dataCS[CS_COUNT];
 
 	// release optimizations currently break shaders currently so prefer debug versions
 #ifndef DEBUG_
+	ThrowIfFailed(ReadCSO("../x64/Debug/SampleDensityVS.cso", sampleDataDensityVS));
+
 	ThrowIfFailed(ReadCSO("../x64/Debug/DensityVS.cso", dataDensityVS));
 	ThrowIfFailed(ReadCSO("../x64/Debug/DensityPS.cso", dataDensityPS));
 	ThrowIfFailed(ReadCSO("../x64/Debug/DensityGS.cso", dataDensityGS));
@@ -644,7 +700,11 @@ void Graphics::loadAssets()
 
 	ThrowIfFailed(ReadCSO("../x64/Debug/RenderVS.cso", dataVS));
 	ThrowIfFailed(ReadCSO("../x64/Debug/RenderPS.cso", dataPS));
+
+	ThrowIfFailed(ReadCSO("../x64/Debug/SearchTerrainCS.cso", dataCS[CS_SEARCH_TERRAIN]));
 #else
+	ThrowIfFailed(ReadCSO("../x64/Release/SampleDensityVS.cso", sampleDataDensityVS));
+
 	ThrowIfFailed(ReadCSO("../x64/Release/DensityVS.cso", dataDensityVS));
 	ThrowIfFailed(ReadCSO("../x64/Release/DensityPS.cso", dataDensityPS));
 	ThrowIfFailed(ReadCSO("../x64/Release/DensityGS.cso", dataDensityGS));
@@ -698,13 +758,13 @@ void Graphics::loadAssets()
 	ComPtr<ID3DBlob> error;
 	ThrowIfFailed(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
 	ThrowIfFailed(device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature)));
-	/*
+	
 	// create compute signiture
 	CD3DX12_ROOT_SIGNATURE_DESC computeRootSignatureDesc(_countof(rootParameters), rootParameters, 0, nullptr);
 	ThrowIfFailed(D3D12SerializeRootSignature(&computeRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
 
 	ThrowIfFailed(device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&computeRootSignature)));
-	*/
+	
 	// vertex input layout
 
 	const D3D12_INPUT_ELEMENT_DESC densityLayout[] =
@@ -729,6 +789,9 @@ void Graphics::loadAssets()
 	psoDesc.PS = { reinterpret_cast<UINT8*>((void*)dataDensityPS.c_str()), dataDensityPS.length() };
 	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataDensityGS.c_str()), dataDensityGS.length() };
 	ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&densityPipelineState)));
+
+	psoDesc.VS = { reinterpret_cast<UINT8*>((void*)sampleDataDensityVS.c_str()), sampleDataDensityVS.length() };
+	ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&sampleDensityPipelineState)));
 
 	psoDesc.VS = { reinterpret_cast<UINT8*>((void*)dataClearTexVS.c_str()), dataClearTexVS.length() };
 	psoDesc.PS = { reinterpret_cast<UINT8*>((void*)dataClearTexPS.c_str()), dataClearTexPS.length() };
@@ -860,7 +923,14 @@ void Graphics::loadAssets()
 	// create the compute pipeline (radix sort)
 	D3D12_COMPUTE_PIPELINE_STATE_DESC computePsoDesc = {};
 
-	//computePsoDesc.pRootSignature = computeRootSignature.Get();
+	computePsoDesc.pRootSignature = computeRootSignature.Get();
+
+	for (unsigned int i = 0; i < CS_COUNT; i++)
+	{
+		computePsoDesc.CS = { reinterpret_cast<UINT8*>((void*)dataCS[i].c_str()), dataCS[i].length() };
+
+		ThrowIfFailed(device->CreateComputePipelineState(&computePsoDesc, IID_PPV_ARGS(&computeStateCS[i])));
+	}
 
 	// setup data
 
@@ -908,11 +978,11 @@ void Graphics::loadAssets()
 	OCCUPIED_POINT* pointBufferData;
 	pointVCB->Map(0, &readRange, (void**)&pointBufferData);
 
-	for (UINT j = 0; j < VOXEL_SIZE_M1; j++)
+	for (UINT j = 0; j < VOXEL_SIZE; j++)
 	{
-		for (UINT k = 0; k < VOXEL_SIZE_M1; k++)
+		for (UINT k = 0; k < VOXEL_SIZE; k++)
 		{
-			OCCUPIED_POINT* p = &pointBufferData[k + j * (UINT)VOXEL_SIZE_M1];
+			OCCUPIED_POINT* p = &pointBufferData[k + j * (UINT)VOXEL_SIZE];
 			p->position = XMFLOAT2(
 				(k + EXTRA) / OCC_SIZE_M1,
 				(j + EXTRA) / OCC_SIZE_M1
@@ -963,7 +1033,7 @@ void Graphics::loadAssets()
 	// generate the terrain
 	
 	// record the render commands
-	XMUINT3 voxelPos = { 0, 0, 0 };
+	XMUINT4 voxelPos;
 
 	UINT index = 0;
 	for (UINT z = 0; z < NUM_VOXELS_Z; z++)
@@ -972,15 +1042,18 @@ void Graphics::loadAssets()
 		{
 			for (UINT x = 0; x < NUM_VOXELS_X; x++)
 			{
-				voxelPos = { x, y, z };
+				voxelPos = { x, y, z, 1 };
 				voxelPosData->voxelPos = voxelPos;
 
 				// run phase 1
-				phase1(voxelPos, index);
-				if (!phase2(voxelPos, index)) // no verts
+				phase1(index);
+				if (!phase2(index)) // no verts
+				{
+					cout << "NO VERTS" << endl;
 					continue;
-				phase3(voxelPos, index);
-				phase4(voxelPos, index);
+				}
+				phase3(index);
+				phase4(index);
 				
 				index ++;
 			}
@@ -1011,7 +1084,7 @@ void Graphics::setupProceduralDescriptors()
 	commandList->RSSetScissorRects(1, &voxelScissorRect);
 }
 
-void Graphics::renderDensity(XMUINT3 voxelPos)
+void Graphics::renderDensity(UINT index)
 {
 	// set the pipeline
 	commandList->SetPipelineState(densityPipelineState.Get());
@@ -1027,7 +1100,7 @@ void Graphics::renderDensity(XMUINT3 voxelPos)
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(NULL));
 }
 
-void Graphics::renderOccupied(XMUINT3 voxelPos, UINT index)
+void Graphics::renderOccupied(UINT index)
 {
 	// set the pipeline state
 	commandList->SetPipelineState(occupiedPipelineState.Get());
@@ -1056,7 +1129,7 @@ void Graphics::renderOccupied(XMUINT3 voxelPos, UINT index)
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	commandList->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
 	commandList->IASetVertexBuffers(0, 1, &pointVB);
-	commandList->DrawInstanced(NUM_POINTS, VOXEL_SIZE_M1, 0, 0);
+	commandList->DrawInstanced(NUM_POINTS, VOXEL_SIZE, 0, 0);
 
 	// wait for the buffer to be written to
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
@@ -1071,7 +1144,7 @@ void Graphics::renderOccupied(XMUINT3 voxelPos, UINT index)
 		D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 }
 
-bool Graphics::renderGenVerts(XMUINT3 voxelPos, UINT index)
+bool Graphics::renderGenVerts(UINT index)
 {
 	// set the pipeline state
 	commandList->SetPipelineState(genVertsPipelineState.Get());
@@ -1134,7 +1207,7 @@ bool Graphics::renderGenVerts(XMUINT3 voxelPos, UINT index)
 	return true;
 }
 
-void Graphics::renderVertexMesh(XMUINT3 voxelPos, UINT index)
+void Graphics::renderVertexMesh(UINT index)
 {
 	// set the pipeline state
 	commandList->SetPipelineState(vertexMeshPipelineState.Get());
@@ -1185,7 +1258,7 @@ void Graphics::renderVertexMesh(XMUINT3 voxelPos, UINT index)
 		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_STREAM_OUT));
 }
 
-void Graphics::renderClearTex(XMUINT3 voxelPos, UINT index)
+void Graphics::renderClearTex(UINT index)
 {
 	// set the pipeline
 	commandList->SetPipelineState(dataClearTexPipelineState.Get());
@@ -1204,7 +1277,7 @@ void Graphics::renderClearTex(XMUINT3 voxelPos, UINT index)
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(NULL));
 }
 
-void Graphics::renderVertSplat(XMUINT3 voxelPos, UINT index)
+void Graphics::renderVertSplat(UINT index)
 {
 	// set the pipeline
 	commandList->SetPipelineState(dataVertSplatPipelineState.Get());
@@ -1234,7 +1307,7 @@ void Graphics::renderVertSplat(XMUINT3 voxelPos, UINT index)
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(NULL));
 }
 
-void Graphics::renderGenIndices(XMUINT3 voxelPos, UINT index)
+void Graphics::renderGenIndices(UINT index)
 {
 	// set the pipeline
 	commandList->SetPipelineState(dataGenIndicesPipelineState.Get());
@@ -1283,7 +1356,7 @@ void Graphics::renderGenIndices(XMUINT3 voxelPos, UINT index)
 		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_STREAM_OUT));
 }
 
-void Graphics::getVertIndexData(XMUINT3 voxelPos, UINT index)
+void Graphics::getVertIndexData(UINT index)
 {
 	// read in the vertex count
 	UINT* readData;
@@ -1348,8 +1421,6 @@ void Graphics::populateCommandList()
 		commandList->SOSetTargets(0, 0, nullptr);
 		commandList->DrawIndexedInstanced(indCount[index], 1, 0, 0, 0);
 	}
-	//commandList->IASetVertexBuffers(0, 1, &plainVB);
-	//commandList->DrawInstanced(_countof(plainVerts), 1, 0, 0);
 
 	// do not present the back buffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTarget[frameIndex].Get(),
@@ -1404,21 +1475,37 @@ void Graphics::onKeyDown(UINT8 key)
 	case VK_LEFT:
 
 		eye.m128_f32[0] -= 1.f;
+		at.m128_f32[0] -= 1.f;
 
 		break;
 	case VK_RIGHT:
 
 		eye.m128_f32[0] += 1.f;
+		at.m128_f32[0] += 1.f;
 
 		break;
 	case VK_UP:
 
 		eye.m128_f32[1] += 1.f;
+		at.m128_f32[1] += 1.f;
 
 		break;
 	case VK_DOWN:
 
 		eye.m128_f32[1] -= 1.f;
+		at.m128_f32[1] -= 1.f;
+
+		break;
+	case VK_SHIFT:
+
+		eye.m128_f32[2] += 1.f;
+		at.m128_f32[2] += 1.f;
+
+		break;
+	case VK_CONTROL:
+
+		eye.m128_f32[2] -= 1.f;
+		at.m128_f32[2] -= 1.f;
 
 		break;
 	case VK_TAB:

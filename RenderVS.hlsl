@@ -13,8 +13,9 @@ struct VS_OUTPUT
 
 cbuffer WORLD_POS : register(b0)
 {
-	matrix worldViewProjection;
+	matrix world;
 	matrix worldView;
+	matrix worldViewProjection;
 };
 
 VS_OUTPUT main(VS_INPUT input)
@@ -23,7 +24,7 @@ VS_OUTPUT main(VS_INPUT input)
 	output.ambient = input.position.w;
 	input.position.w = 1.f;
 	output.position = mul(input.position, worldViewProjection);
-	output.normal = normalize(input.normal); // may need to fix
+	output.normal = mul(normalize(input.normal), world); // may need to fix
 
 	return output;
 }

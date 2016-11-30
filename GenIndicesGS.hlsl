@@ -22,6 +22,7 @@ void main(
 )
 {
 	GS_OUTPUT element[3];
+	bool valid[3];
 
 	// get the value to index into the lookup tables
 	uint edgeIndex = input[0].bitPos & 0x0FF;
@@ -54,6 +55,11 @@ void main(
 			// get the starting edge
 			edgeTMP = position + edgeStartLoc[triEdges[i]].xyz;
 			
+			// check if runs off texture
+			valid[i] = edgeTMP.x < voxelExpansion
+				&& edgeTMP.y < voxelExpansion
+				&& edgeTMP.z < voxelExpansion;
+
 			// expand x
 			edgeTMP.x = edgeTMP.x * 3 + edgeAlignment[triEdges[i]];
 			
@@ -61,9 +67,9 @@ void main(
 			element[i].index = indexTex.Load(int4(edgeTMP, 0)).x;
 		}
 
-		if (element[0].index != MAX_INT &&
-			element[1].index != MAX_INT && 
-			element[2].index != MAX_INT)
+		if (valid[0] &&
+			valid[1] &&
+			valid[2])
 		{
 			[unroll(3)]
 			for (uint i = 0; i < 3; i++)
