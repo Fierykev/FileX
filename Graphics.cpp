@@ -22,8 +22,8 @@ Graphics::Graphics(std::wstring title, unsigned int width, unsigned int height)
 	viewport.Height = static_cast<float>(height);
 	viewport.MaxDepth = 1.0f;
 
-	voxelViewport.Width = OCC_SIZE_M1;
-	voxelViewport.Height = OCC_SIZE_M1;
+	voxelViewport.Width = OCC_SIZE_P1;
+	voxelViewport.Height = OCC_SIZE_P1;
 	voxelViewport.MaxDepth = 1.0f;
 
 	vertSplatViewport.Width = VOXEL_SIZE * 3;
@@ -37,8 +37,8 @@ Graphics::Graphics(std::wstring title, unsigned int width, unsigned int height)
 	scissorRect.right = static_cast<LONG>(width);
 	scissorRect.bottom = static_cast<LONG>(height);
 
-	voxelScissorRect.right = OCC_SIZE_M1;
-	voxelScissorRect.bottom = OCC_SIZE_M1;
+	voxelScissorRect.right = OCC_SIZE_P1;
+	voxelScissorRect.bottom = OCC_SIZE_P1;
 
 	vertSplatScissorRect.right = VOXEL_SIZE * 3;
 	vertSplatScissorRect.bottom = VOXEL_SIZE;
