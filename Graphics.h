@@ -3,7 +3,7 @@
 
 #define NUM_VOXELS_X 1
 #define NUM_VOXELS_Y 1
-#define NUM_VOXELS_Z 5
+#define NUM_VOXELS_Z 1
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 #include <d3d12.h>
@@ -15,17 +15,16 @@
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
-#define PERSON_HEIGHT 5.f
-#define CHUNK_SIZE 25.f
+constexpr float PERSON_HEIGHT = 0.f;
+constexpr float CHUNK_SIZE = 20.f;
 
-#define EXTRA 4.f
-#define VOXEL_SIZE_M2 31.f
-#define VOXEL_SIZE_M1 32.f
-#define VOXEL_SIZE 33.f
-#define VOXEL_SIZE_P1 34.f
-#define OCC_SIZE 41.f
-#define OCC_SIZE_P1 42.f
-#define OCC_SIZE_M1 40.f
+constexpr float EXTRA = 4.f;
+constexpr float VOXEL_SIZE = 66.f;
+constexpr float VOXEL_SIZE_M1 = VOXEL_SIZE - 1.f;
+constexpr float VOXEL_SIZE_P1 = VOXEL_SIZE + 1.f;
+constexpr float OCC_SIZE = VOXEL_SIZE + EXTRA * 2.f;
+constexpr float OCC_SIZE_P1 = OCC_SIZE + 1;
+constexpr float OCC_SIZE_M1 = OCC_SIZE - 1;
 
 /*
 #define EXTRA 4.f
@@ -49,6 +48,7 @@ using namespace DirectX;
 #define CAM_DELTA .1f
 
 constexpr UINT COUNTER_SIZE = sizeof(UINT64);
+constexpr float speed = 5.f;
 
 class Graphics : public Manager
 {
@@ -272,9 +272,8 @@ private:
 	// view params
 	XMMATRIX world, view, projection, worldViewProjection;
 
-	const XMVECTOR origEye{ 0.0f, 0.0f, 0.0f };
-	XMVECTOR eye = origEye;
-	XMVECTOR at{ 0.0f, 0.0f, 20.0f };
+	XMVECTOR eye = { -500.0f, 0.0f, -100.0f };
+	XMVECTOR at{ 12.5f, 12.5f, 12.5f };
 	XMVECTOR up{ 0.0f, 1.f, 0.0f };
 
 	float yAngle = 0, xAngle = 0;

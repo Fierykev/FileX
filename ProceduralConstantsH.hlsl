@@ -7,64 +7,35 @@ cbuffer VOXEL_POS : register(b1)
 	float4 voxelPosF;
 };
 
-static const float chunkSize = 25.f;
-/*
+static const float chunkSize = 20.f;
+
 static const float extra = 4.f;
-static const float voxelExpansion = 65.f;
-static const float voxelM1 = 64.f;
-static const float voxelP1 = 66.f;
+static const float voxelExpansion = 66.f;
+static const float voxelM1 = voxelExpansion - 1.f;
+static const float voxelP1 = voxelExpansion + 1.f;
 
 static const float2 voxelInv = float2(
-	1.f / 65.f, 0
+	1.f / voxelExpansion, 0
 	);
 static const float2 voxelInvVecP1 = float2(
-	1.f / 66.f, 0
+	1.f / voxelP1, 0
 	);
 static const float2 voxelInvVecM1 = float2(
-	1.f / 64.f, 0
+	1.f / voxelM1, 0
 	);
 
-static const float occExpansion = 73.f;
-static const float occM1 = 72.f;
-static const float occP1 = 74.f;
-
-static const float2 occInv = float2(
-	1.f / 73.f, 0
-	);
-static const float2 occInvVecP1 = float2(
-	1.f / 74.f, 0
-	);
-static const float2 occInvVecM1 = float2(
-	1.f / 72.f, 0
-	);
-*/
-static const float extra = 4.f;
-static const float voxelExpansion = 33.f;
-static const float voxelM1 = 32.f;
-static const float voxelP1 = 34.f;
-
-static const float2 voxelInv = float2(
-	1.f / 33.f, 0
-	);
-static const float2 voxelInvVecP1 = float2(
-	1.f / 34.f, 0
-	);
-static const float2 voxelInvVecM1 = float2(
-	1.f / 32.f, 0
-	);
-
-static const float occExpansion = 41;
-static const float occM1 = 40.f;
-static const float occP1 = 42.f;
+static const float occExpansion = voxelExpansion + extra * 2.f;
+static const float occM1 = occExpansion - 1.f;
+static const float occP1 = occExpansion + 1.f;
 
 static const float2 occInv = float2(
-	1.f / 41.f, 0
+	1.f / occExpansion, 0
 	);
 static const float2 occInvVecP1 = float2(
-	1.f / 42.f, 0
+	1.f / occP1, 0
 	);
 static const float2 occInvVecM1 = float2(
-	1.f / 40.f, 0
+	1.f / occM1, 0
 	);
 	
 static const float densStep = 100.f;

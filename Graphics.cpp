@@ -179,9 +179,9 @@ void Graphics::phase4(UINT index)
 
 void Graphics::drawPhase()
 {
-	float y = findY();
-	eye.m128_f32[1] = y;
-	at.m128_f32[1] = y;
+	//float y = findY();
+	//eye.m128_f32[1] = y;
+	//at.m128_f32[1] = y;
 
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -891,7 +891,7 @@ void Graphics::loadAssets()
 	psoDesc.RasterizerState = 
 	{
 		D3D12_FILL_MODE_SOLID,
-		D3D12_CULL_MODE_BACK,
+		D3D12_CULL_MODE_FRONT,
 		FALSE,
 		D3D12_DEFAULT_DEPTH_BIAS,
 		D3D12_DEFAULT_DEPTH_BIAS_CLAMP,
@@ -1035,6 +1035,8 @@ void Graphics::loadAssets()
 	// record the render commands
 	XMUINT4 voxelPos;
 
+	clock_t startGen = 0;
+
 	UINT index = 0;
 	for (UINT z = 0; z < NUM_VOXELS_Z; z++)
 	{
@@ -1059,6 +1061,9 @@ void Graphics::loadAssets()
 			}
 		}
 	}
+
+	double delta = (std::clock() - startGen) / (double)CLOCKS_PER_SEC;
+	cout << "CREATION TIME: " << delta << endl;
 }
 
 void Graphics::setupProceduralDescriptors()
@@ -1364,6 +1369,8 @@ void Graphics::getVertIndexData(UINT index)
 	vertexCount->Map(0, &readRange, (void**)&readData);
 	vertCount[index] = *readData / sizeof(VERT_OUT);
 	vertexCount->Unmap(0, nullptr);
+
+	cout << "VERT " << vertCount[index] << endl;
 	
 	// read in the index count
 	indexCount->Map(0, &readRange, (void**)&readData);
@@ -1474,38 +1481,38 @@ void Graphics::onKeyDown(UINT8 key)
 	{
 	case VK_LEFT:
 
-		eye.m128_f32[0] -= 1.f;
-		at.m128_f32[0] -= 1.f;
+		eye.m128_f32[0] -= speed;
+		//at.m128_f32[0] -= speed;
 
 		break;
 	case VK_RIGHT:
 
-		eye.m128_f32[0] += 1.f;
-		at.m128_f32[0] += 1.f;
+		eye.m128_f32[0] += speed;
+		//at.m128_f32[0] += speed;
 
 		break;
 	case VK_UP:
 
-		eye.m128_f32[1] += 1.f;
-		at.m128_f32[1] += 1.f;
+		eye.m128_f32[1] += speed;
+		//at.m128_f32[1] += speed;
 
 		break;
 	case VK_DOWN:
 
-		eye.m128_f32[1] -= 1.f;
-		at.m128_f32[1] -= 1.f;
+		eye.m128_f32[1] -= speed;
+		//at.m128_f32[1] -= speed;
 
 		break;
 	case VK_SHIFT:
 
-		eye.m128_f32[2] += 1.f;
-		at.m128_f32[2] += 1.f;
+		eye.m128_f32[2] += speed;
+		//at.m128_f32[2] += speed;
 
 		break;
 	case VK_CONTROL:
 
-		eye.m128_f32[2] -= 1.f;
-		at.m128_f32[2] -= 1.f;
+		eye.m128_f32[2] -= speed;
+		//at.m128_f32[2] -= speed;
 
 		break;
 	case VK_TAB:
