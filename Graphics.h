@@ -1,9 +1,9 @@
 #ifndef GRPAHICS_H
 #define GRAPHICS_H
 
-#define NUM_VOXELS_X 2
-#define NUM_VOXELS_Y 1
-#define NUM_VOXELS_Z 1
+#define NUM_VOXELS_X 5
+#define NUM_VOXELS_Y 5
+#define NUM_VOXELS_Z 5
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 #include <d3d12.h>
@@ -16,10 +16,10 @@ using namespace Microsoft::WRL;
 using namespace DirectX;
 
 constexpr float PERSON_HEIGHT = 0.f;
-constexpr float CHUNK_SIZE = 20.f;
+constexpr float CHUNK_SIZE = 10.f;
 
 constexpr float EXTRA = 4.f;
-constexpr float VOXEL_SIZE = 66.f;
+constexpr float VOXEL_SIZE = 33.f;
 constexpr float VOXEL_SIZE_M1 = VOXEL_SIZE - 1.f;
 constexpr float VOXEL_SIZE_P1 = VOXEL_SIZE + 1.f;
 constexpr float OCC_SIZE = VOXEL_SIZE + EXTRA * 2.f;
@@ -44,6 +44,7 @@ constexpr float OCC_SIZE_M1 = OCC_SIZE - 1;
 
 #define DENSITY_FORMAT DXGI_FORMAT_R32_FLOAT
 #define INDEX_FORMAT DXGI_FORMAT_R32_UINT
+#define DSV_FORMAT DXGI_FORMAT_D32_FLOAT
 
 #define CAM_DELTA .1f
 
@@ -131,6 +132,12 @@ private:
 		UAV_COUNT
 	};
 
+	enum BVDSV : UINT32
+	{
+		DSV_TEX = 0,
+		DSV_COUNT
+	};
+
 	enum BVSAMPLER :UINT32
 	{
 		NEAREST_SAMPLER = 0,
@@ -144,6 +151,7 @@ private:
 	ComPtr<ID3D12Resource> bufferCB[CBV_COUNT],
 		bufferSRV[SRV_COUNT],
 		bufferUAV[UAV_COUNT],
+		bufferDSV[DSV_COUNT],
 		zeroBuffer, plainVCB, pointVCB,
 		vertexBuffer[NUM_VOXELS], vertexBackBuffer,
 		indexBuffer[NUM_VOXELS],
@@ -238,9 +246,11 @@ private:
 
 	// heaps
 	ComPtr<ID3D12DescriptorHeap> rtvHeap;
+	ComPtr<ID3D12DescriptorHeap> dsvHeap;
 	ComPtr<ID3D12DescriptorHeap> csuHeap;
 	ComPtr<ID3D12DescriptorHeap> samplerHeap;
 	UINT rtvDescriptorSize;
+	UINT dsvDescriptorSize;
 	UINT csuDescriptorSize;
 	UINT samplerDescriptorSize;
 
@@ -275,6 +285,7 @@ private:
 	XMVECTOR eye = { -500.0f, 0.0f, -100.0f };
 	XMVECTOR at{ 12.5f, 12.5f, 12.5f };
 	XMVECTOR up{ 0.0f, 1.f, 0.0f };
+
 
 	float yAngle = 0, xAngle = 0;
 

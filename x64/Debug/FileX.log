@@ -1,20 +1,28 @@
-﻿  Graphics.cpp
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(66): warning C4244: 'initializing': conversion from 'float' to 'const UINT', possible loss of data
+﻿  main.cpp
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(67): warning C4244: 'initializing': conversion from 'float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\main.cpp(9): warning C4101: 'window': unreferenced local variable
+  FindY.cpp
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(67): warning C4244: 'initializing': conversion from 'float' to 'const UINT', possible loss of data
+  Generating Code...
+  Compiling...
+  Graphics.cpp
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(67): warning C4244: 'initializing': conversion from 'float' to 'const UINT', possible loss of data
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(40): warning C4244: '=': conversion from 'const float' to 'LONG', possible loss of data
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(41): warning C4244: '=': conversion from 'const float' to 'LONG', possible loss of data
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(43): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(44): warning C4244: '=': conversion from 'const float' to 'LONG', possible loss of data
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(47): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(63): warning C4305: 'argument': truncation from 'double' to 'float'
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(385): warning C4244: '=': conversion from 'const float' to 'UINT64', possible loss of data
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(386): warning C4244: '=': conversion from 'const float' to 'UINT', possible loss of data
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(388): warning C4244: '=': conversion from 'const float' to 'UINT16', possible loss of data
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(433): warning C4244: '=': conversion from 'float' to 'UINT64', possible loss of data
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(434): warning C4244: '=': conversion from 'const float' to 'UINT', possible loss of data
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(435): warning C4244: '=': conversion from 'const float' to 'UINT16', possible loss of data
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(464): warning C4244: '=': conversion from 'float' to 'UINT', possible loss of data
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(1103): warning C4244: 'argument': conversion from 'const float' to 'UINT', possible loss of data
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(1139): warning C4244: 'argument': conversion from 'const float' to 'UINT', possible loss of data
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(1280): warning C4244: 'argument': conversion from 'const float' to 'UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(395): warning C4244: '=': conversion from 'const float' to 'UINT64', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(396): warning C4244: '=': conversion from 'const float' to 'UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(398): warning C4244: '=': conversion from 'const float' to 'UINT16', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(443): warning C4244: '=': conversion from 'float' to 'UINT64', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(444): warning C4244: '=': conversion from 'const float' to 'UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(445): warning C4244: '=': conversion from 'const float' to 'UINT16', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(474): warning C4244: '=': conversion from 'float' to 'UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(1159): warning C4244: 'argument': conversion from 'const float' to 'UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(1195): warning C4244: 'argument': conversion from 'const float' to 'UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(1336): warning C4244: 'argument': conversion from 'const float' to 'UINT', possible loss of data
+  Generating Code...
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.exe
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.pdb (Partial PDB)

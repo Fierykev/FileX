@@ -333,6 +333,16 @@ void Graphics::loadPipeline()
 
 	rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
+	// DSV
+
+	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+	dsvHeapDesc.NumDescriptors = DSV_COUNT;
+	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	ThrowIfFailed(device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&dsvHeap)));
+
+	dsvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+
 	// CBV / SRV / UAV
 
 	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
@@ -486,7 +496,28 @@ void Graphics::loadPipeline()
 		intermediateTarget[FINDY_TEXTURE].Get(),
 		&srvDesc, srvHandle0);
 	srvHandle0.Offset(csuDescriptorSize);
+
+	// depth stencil
+	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(dsvHeap->GetCPUDescriptorHandleForHeapStart(),
+		0, dsvDescriptorSize);
+
+	CD3DX12_RESOURCE_DESC dsvTex(D3D12_RESOURCE_DIMENSION_TEXTURE2D, 0,
+		static_cast< UINT >(viewport.Width), static_cast< UINT >(viewport.Height), 1, 1,
+		DSV_FORMAT, 1, 0, D3D12_TEXTURE_LAYOUT_UNKNOWN,
+		D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
 	
+	ThrowIfFailed(device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&dsvTex,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		nullptr,
+		IID_PPV_ARGS(&bufferDSV[DSV_TEX])));
+
+	device->CreateDepthStencilView(bufferDSV[DSV_TEX].Get(),
+		nullptr, dsvHandle);
+	dsvHandle.Offset(dsvDescriptorSize);
+
 	// create sampler
 	CD3DX12_CPU_DESCRIPTOR_HANDLE samplerHandle0(samplerHeap->GetCPUDescriptorHandleForHeapStart(), 0, samplerDescriptorSize);
 	device->CreateSampler(&samplerDesc, samplerHandle0);
@@ -888,12 +919,37 @@ void Graphics::loadAssets()
 	psoDesc.VS = { reinterpret_cast<UINT8*>((void*)dataVS.c_str()), dataVS.length() };
 	psoDesc.PS = { reinterpret_cast<UINT8*>((void*)dataPS.c_str()), dataPS.length() };
 	psoDesc.GS = { 0, 0 };
+	
+	// enable depth buffer
+	psoDesc.DepthStencilState.DepthEnable = TRUE;
+	psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+
+	// add in stencil buffer
+	psoDesc.DepthStencilState.StencilEnable = TRUE;
+	psoDesc.DepthStencilState.StencilReadMask = 0xFF;
+	psoDesc.DepthStencilState.StencilWriteMask = 0xFF;
+
+	// front facing operations
+	psoDesc.DepthStencilState.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	psoDesc.DepthStencilState.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_INCR;
+	psoDesc.DepthStencilState.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	psoDesc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+
+	// back facing operations
+	psoDesc.DepthStencilState.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	psoDesc.DepthStencilState.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_DECR;
+	psoDesc.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	psoDesc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	
+	psoDesc.DSVFormat = DSV_FORMAT;
+	
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	psoDesc.RasterizerState = 
 	{
 		D3D12_FILL_MODE_SOLID,
-		D3D12_CULL_MODE_FRONT,
+		D3D12_CULL_MODE_NONE,
 		FALSE,
 		D3D12_DEFAULT_DEPTH_BIAS,
 		D3D12_DEFAULT_DEPTH_BIAS_CLAMP,
@@ -1397,11 +1453,19 @@ void Graphics::populateCommandList()
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTarget[frameIndex].Get(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+	
+	// setup stencil buffer
+	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(dsvHeap->GetCPUDescriptorHandleForHeapStart(), DSV_TEX, dsvDescriptorSize);
+	commandList->ClearDepthStencilView(
+		dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, nullptr);
 
 	// set the render target view
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(), frameIndex, rtvDescriptorSize);
-	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+
+	//commandList->OMSetStencilRef(0);
+	//commandList->ClearDepthStencilView();
 
 	// set the background
 
