@@ -69,6 +69,12 @@
     <Filter Include="Files\Shaders\Procedural\FindY">
       <UniqueIdentifier>{0b0ff91f-3b37-4f9d-820d-de2b87822180}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Files\Shaders\Rock">
+      <UniqueIdentifier>{283e1f04-cbe2-4c13-929a-e0b13079fab9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\Shaders\Rock\Marble">
+      <UniqueIdentifier>{0981c828-2f3c-4924-a213-4267dde6017e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -182,6 +188,12 @@
     </FxCompile>
     <FxCompile Include="SearchTerrainCS.hlsl">
       <Filter>Files\Shaders\Procedural\FindY</Filter>
+    </FxCompile>
+    <FxCompile Include="MarbleVS.hlsl">
+      <Filter>Files\Shaders\Rock\Marble</Filter>
+    </FxCompile>
+    <FxCompile Include="MarblePS.hlsl">
+      <Filter>Files\Shaders\Rock\Marble</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

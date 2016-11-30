@@ -23,7 +23,7 @@ VS_OUTPUT main(VS_INPUT input)
 	output.worldPosition = 
 		float4(
 			float3(input.texcoord.xy,
-				input.instanceID * voxelInv.x)
+				input.instanceID * occInvVecP1.x)
 			+ (float3)voxelPos
 			, 1);
 
