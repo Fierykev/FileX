@@ -1,9 +1,9 @@
 #ifndef GRPAHICS_H
 #define GRAPHICS_H
 
-#define NUM_VOXELS_X 5
-#define NUM_VOXELS_Y 5
-#define NUM_VOXELS_Z 5
+#define NUM_VOXELS_X 1
+#define NUM_VOXELS_Y 1
+#define NUM_VOXELS_Z 1
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 #include <d3d12.h>

@@ -22,7 +22,6 @@ void main(
 )
 {
 	GS_OUTPUT element[3];
-	bool valid[3];
 
 	// get the value to index into the lookup tables
 	uint edgeIndex = input[0].bitPos & 0x0FF;
@@ -35,10 +34,14 @@ void main(
 
 	// check that everything is whithin the cell
 	// NOTE: this will most likely use cmove so no branch
-	if ((uint)occM1 <= max(max(position.x, position.y), position.z))
+	if ((uint)voxelM1 <= max(max(position.x, position.y), position.z))
 		numPolygons = 0;
 
+	//if (position.z >= voxelM1 - 1)
+		//numPolygons = 0;
+
 	// generate the indices for each poly
+	[loop]
 	for (uint i = 0; i < numPolygons; i++)
 	{
 		// get the edge number
@@ -53,26 +56,22 @@ void main(
 		for (uint i = 0; i < 3; i++)
 		{
 			// get the starting edge
-			edgeTMP = position + edgeStartLoc[triEdges[i]].xyz;
+			edgeTMP = position + (int3)edgeStartLoc[triEdges[i]].xyz;
 
 			// expand x
 			edgeTMP.x = edgeTMP.x * 3 + edgeAlignment[triEdges[i]];
-
-			// check if runs off texture
-			valid[i] = edgeTMP.x < voxelExpansion * 3
-				&& edgeTMP.y < voxelExpansion
-				&& edgeTMP.z < voxelExpansion;
 			
+			if (edgeTMP.y > 32)
+				return;
+
 			// load and output the index
 			element[i].index = indexTex.Load(int4(edgeTMP, 0)).x;
 		}
-
-		if (valid[0] &&
-			valid[1] &&
-			valid[2] &&
+		
+		/*if (
 			element[0].index != MAX_INT &&
 			element[1].index != MAX_INT &&
-			element[2].index != MAX_INT)
+			element[2].index != MAX_INT)*/
 		{
 			[unroll(3)]
 			for (uint i = 0; i < 3; i++)

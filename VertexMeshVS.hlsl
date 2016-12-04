@@ -24,6 +24,7 @@ SamplerState nearestSample : register(s0);
 
 float ambientOcclusion(float3 position)
 {
+	return snoise(position);
 	float vis = 0;
 
 	const float skipCells = 1.53;
@@ -120,7 +121,7 @@ VS_OUTPUT main(VS_INPUT input)
 	float3 sampleArea =
 		((float3)position + extra) * occInvVecM1.xxx;
 
-	//sampleArea += occInvVecM1.xxx * .25f;
+	sampleArea += occInvVecM1.xxx * .25f;
 	//sampleArea.xyz *= (occExpansion.x - 1.f) * occInv.x;
 
 	float3 worldPos = voxelPos
