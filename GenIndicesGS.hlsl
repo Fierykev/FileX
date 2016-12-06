@@ -60,9 +60,6 @@ void main(
 
 			// expand x
 			edgeTMP.x = edgeTMP.x * 3 + edgeAlignment[triEdges[i]];
-			
-			if (edgeTMP.y > 32)
-				return;
 
 			// load and output the index
 			element[i].index = indexTex.Load(int4(edgeTMP, 0)).x;

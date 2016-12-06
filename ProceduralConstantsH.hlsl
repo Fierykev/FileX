@@ -10,6 +10,7 @@ static const float chunkSize = 10.f;
 
 static const float extra = 4.f;
 static const float voxelExpansion = 33.f;
+static const float voxelM2 = voxelExpansion - 2.f;
 static const float voxelM1 = voxelExpansion - 1.f;
 static const float voxelP1 = voxelExpansion + 1.f;
 
@@ -21,6 +22,10 @@ static const float2 voxelInvVecP1 = float2(
 	);
 static const float2 voxelInvVecM1 = float2(
 	1.f / voxelM1, 0
+	);
+
+static const float2 voxelInvVecM2 = float2(
+	1.f / voxelM2, 0
 	);
 
 static const float occExpansion = voxelExpansion + extra * 2.f;

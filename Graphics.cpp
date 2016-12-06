@@ -477,12 +477,17 @@ void Graphics::loadPipeline()
 	rtvDesc.Format = DENSITY_FORMAT;
 	rtvDesc.Texture3D.WSize = voxelTextureDesc.DepthOrArraySize;
 
+	D3D12_CLEAR_VALUE clear;
+	clear.Format = DENSITY_FORMAT;
+	clear.DepthStencil.Depth = 1.0f;
+	clear.DepthStencil.Stencil = 0;
+
 	ThrowIfFailed(device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
 		&voxelTextureDesc,
 		D3D12_RESOURCE_STATE_RENDER_TARGET,
-		nullptr,
+		&clear,
 		IID_PPV_ARGS(&intermediateTarget[FINDY_TEXTURE])
 	));
 
@@ -1455,6 +1460,7 @@ void Graphics::populateCommandList()
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 	
 	// setup stencil buffer
+
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(dsvHeap->GetCPUDescriptorHandleForHeapStart(), DSV_TEX, dsvDescriptorSize);
 	commandList->ClearDepthStencilView(
 		dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, nullptr);
@@ -1463,10 +1469,6 @@ void Graphics::populateCommandList()
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(), frameIndex, rtvDescriptorSize);
 	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
-
-	//commandList->OMSetStencilRef(0);
-	//commandList->ClearDepthStencilView();
-
 	// set the background
 
 	const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
