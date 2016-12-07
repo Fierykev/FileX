@@ -75,6 +75,9 @@
     <Filter Include="Files\Shaders\Rock\Marble">
       <UniqueIdentifier>{0981c828-2f3c-4924-a213-4267dde6017e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Files\Image">
+      <UniqueIdentifier>{2c5214ea-2d68-4d8f-846e-20a654b4ae12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -97,6 +100,9 @@
     </ClCompile>
     <ClCompile Include="FindY.cpp">
       <Filter>Files\FindY</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>Files\Image</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -123,6 +129,9 @@
     </ClInclude>
     <ClInclude Include="HLSL_CPU.h">
       <Filter>Files\HLSL CPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Files\Image</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

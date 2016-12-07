@@ -30,6 +30,9 @@ float4 main(PS_INPUT input) : SV_TARGET
 	float3 diff = color.xyz * max(dot(normal, light), 0.0);
 
 	diff = clamp(diff, 0.0, 1.0);
+
+	//float4 tmp = noiseTex.SampleLevel(nearestSample, float4(input.texcoord.xy, 0, 0), 0);
+
 	//return saturate(color);
 	return float4(diff, 1);
 	//return float4(abs(normal), 1);//float4(diff.xyz, 1);

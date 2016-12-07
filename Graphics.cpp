@@ -6,6 +6,7 @@
 #include "Window.h"
 #include "Shader.h"
 #include "Parser.h"
+#include "Image.h"
 
 #include <ctime>
 
@@ -391,17 +392,6 @@ void Graphics::loadPipeline()
 	samplerHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ThrowIfFailed(device->CreateDescriptorHeap(&samplerHeapDesc, IID_PPV_ARGS(&samplerHeap)));
 
-	// create sampler
-	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-
 	samplerDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 
 	// frame resource
@@ -532,6 +522,10 @@ void Graphics::loadPipeline()
 		&srvDesc, srvHandle0);
 	srvHandle0.Offset(csuDescriptorSize);
 
+	// setup the image loader
+	Image::initDevil();
+	Image::setSRVBase(srvHandle0, csuDescriptorSize);
+
 	// depth stencil
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(dsvHeap->GetCPUDescriptorHandleForHeapStart(),
 		0, dsvDescriptorSize);
@@ -555,7 +549,28 @@ void Graphics::loadPipeline()
 
 	// create sampler
 	CD3DX12_CPU_DESCRIPTOR_HANDLE samplerHandle0(samplerHeap->GetCPUDescriptorHandleForHeapStart(), 0, samplerDescriptorSize);
+	
+	// create sampler
+	D3D12_SAMPLER_DESC samplerDesc;
+	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+
 	device->CreateSampler(&samplerDesc, samplerHandle0);
+	samplerHandle0.Offset(samplerDescriptorSize);
+
+	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+
+	device->CreateSampler(&samplerDesc, samplerHandle0);
+	samplerHandle0.Offset(samplerDescriptorSize);
 
 	// create constant buffer
 
@@ -1096,6 +1111,19 @@ void Graphics::loadAssets()
 	// create command list
 
 	ThrowIfFailed(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator[frameIndex].Get(), nullptr, IID_PPV_ARGS(&commandList)));
+
+	// load in the images
+	Image noise0;
+	noise0.loadImage(device.Get(), L"Noise/noise0.dds");
+	noise0.uploadTexture(commandList.Get());
+	
+	Image noise1;
+	noise1.loadImage(device.Get(), L"Noise/noise1.dds");
+	noise1.uploadTexture(commandList.Get());
+
+	Image noise2;
+	noise2.loadImage(device.Get(), L"Noise/noise2.dds");
+	noise2.uploadTexture(commandList.Get());
 
 	// close the command list until things are added
 

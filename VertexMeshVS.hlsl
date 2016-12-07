@@ -24,7 +24,9 @@ SamplerState nearestSample : register(s0);
 
 float ambientOcclusion(float3 position)
 {
-	return snoise(position);
+	return noise0.SampleLevel(nearestSample, float3(position.xy, 0), 0);
+
+	//return snoise(position);
 	float vis = 0;
 
 	const float skipCells = 1.53;

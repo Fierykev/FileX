@@ -127,6 +127,9 @@ private:
 		DENSITY_TEXTURE = 0,
 		INDEX_TEXTURE,
 		FINDY_TEXTURE,
+		NOISE_0,
+		NOISE_1,
+		NOISE_2,
 		SRV_COUNT
 	};
 
@@ -146,6 +149,7 @@ private:
 	enum BVSAMPLER :UINT32
 	{
 		NEAREST_SAMPLER = 0,
+		REPEATE_SAMPLER,
 		SAMPLER_COUNT
 	};
 
@@ -263,8 +267,6 @@ private:
 	ComPtr<ID3D12Fence> fence;
 	HANDLE fenceEvent;
 	HANDLE swapChainEvent;
-
-	D3D12_SAMPLER_DESC samplerDesc = {};
 
 	struct WORLD_POS
 	{
