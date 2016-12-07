@@ -37,9 +37,6 @@ void main(
 	if ((uint)voxelM1 <= max(max(position.x, position.y), position.z))
 		numPolygons = 0;
 
-	//if (position.z == 0 && position.y > 30)
-		//numPolygons = 0;
-
 	// generate the indices for each poly
 	[loop]
 	for (uint i = 0; i < numPolygons; i++)
@@ -63,18 +60,8 @@ void main(
 
 			// load and output the index
 			element[i].index = indexTex.Load(int4(edgeTMP, 0)).x;
-		}
-		/*
-		if (
-			element[0].index != 0 &&
-			element[1].index != 0 &&
-			element[2].index != 0)*/
-		{
-			[unroll(3)]
-			for (uint i = 0; i < 3; i++)
-			{
-				output.Append(element[i]);
-			}
+
+			output.Append(element[i]);
 		}
 
 		// reset the strip

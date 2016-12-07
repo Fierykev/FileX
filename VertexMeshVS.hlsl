@@ -81,7 +81,7 @@ VS_OUTPUT locateVertFromEdge(float3 position, float3 sampleArea, uint edgeNum)
 		0).x;
 
 	// saturate is needed for div 0
-	float ratio = 1.f;// saturate(samplePT0 / (samplePT0 - samplePT1));
+	float ratio = saturate(samplePT0 / (samplePT0 - samplePT1));
 	float3 relPos = edgeStartLoc[edgeNum] + edgeDir[edgeNum] * ratio;
 	
 	// calculate normal gradient
@@ -119,13 +119,13 @@ VS_OUTPUT main(VS_INPUT input)
 	uint3 position = getPos(input.bitPos);
 
 	float3 sampleArea =
-		((float3)position + extra) * occInvVecM1.xxx;
+		((float3)position + extra) * occInvVecM2.xxx;
 
-	sampleArea += occInvVecM1.xxx * .25f;
+	sampleArea += occInvVecM2.xxx * .25f;
 	sampleArea.xyz *= (occExpansion.x - 1.f) * occInv.x;
 
 	float3 worldPos = voxelPos
-		+ (float3)position * voxelInvVecM1.xxx * chunkSize;
+		+ (float3)position * voxelInvVecM2.xxx * chunkSize;
 	
 	// get the edgenum
 	uint edgeNum = input.bitPos & 0x0F;
