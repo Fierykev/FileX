@@ -1,0 +1,11 @@
+﻿  main.cpp
+main.obj : error LNK2019: unresolved external symbol __imp__ilBindImage@4 referenced in function "void __cdecl savePng(wchar_t *,signed char *,unsigned int,unsigned int,unsigned int)" (?savePng@@YAXPA_WPACIII@Z)
+main.obj : error LNK2019: unresolved external symbol __imp__ilCopyPixels@36 referenced in function "void __cdecl savePng(wchar_t *,signed char *,unsigned int,unsigned int,unsigned int)" (?savePng@@YAXPA_WPACIII@Z)
+main.obj : error LNK2019: unresolved external symbol __imp__ilDeleteImages@8 referenced in function "void __cdecl savePng(wchar_t *,signed char *,unsigned int,unsigned int,unsigned int)" (?savePng@@YAXPA_WPACIII@Z)
+main.obj : error LNK2019: unresolved external symbol __imp__ilEnable@4 referenced in function "void __cdecl savePng(wchar_t *,signed char *,unsigned int,unsigned int,unsigned int)" (?savePng@@YAXPA_WPACIII@Z)
+main.obj : error LNK2019: unresolved external symbol __imp__ilGenImages@8 referenced in function "void __cdecl savePng(wchar_t *,signed char *,unsigned int,unsigned int,unsigned int)" (?savePng@@YAXPA_WPACIII@Z)
+main.obj : error LNK2019: unresolved external symbol __imp__ilSaveImage@4 referenced in function "void __cdecl savePng(wchar_t *,signed char *,unsigned int,unsigned int,unsigned int)" (?savePng@@YAXPA_WPACIII@Z)
+C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\DevIL-SDK-x64-1.7.8\unicode\DevIL.lib : warning LNK4272: library machine type 'x64' conflicts with target machine type 'X86'
+C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\DevIL-SDK-x64-1.7.8\unicode\ILU.lib : warning LNK4272: library machine type 'x64' conflicts with target machine type 'X86'
+C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\DevIL-SDK-x64-1.7.8\unicode\ILUT.lib : warning LNK4272: library machine type 'x64' conflicts with target machine type 'X86'
+C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\NoiseGen\NoiseGen\Debug\NoiseGen.exe : fatal error LNK1120: 6 unresolved externals
