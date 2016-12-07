@@ -22,12 +22,12 @@ Graphics::Graphics(std::wstring title, unsigned int width, unsigned int height)
 	viewport.Height = static_cast<float>(height);
 	viewport.MaxDepth = 1.0f;
 
-	voxelViewport.Width = OCC_SIZE_P1;
-	voxelViewport.Height = OCC_SIZE_P1;
+	voxelViewport.Width = DENSITY_SIZE;
+	voxelViewport.Height = DENSITY_SIZE;
 	voxelViewport.MaxDepth = 1.0f;
 
-	vertSplatViewport.Width = VOXEL_SIZE * 3;
-	vertSplatViewport.Height = VOXEL_SIZE;
+	vertSplatViewport.Width = SPLAT_SIZE * 3;
+	vertSplatViewport.Height = SPLAT_SIZE;
 	vertSplatViewport.MaxDepth = 1.0f;
 
 	viewYViewport.Width = 2;
@@ -37,11 +37,11 @@ Graphics::Graphics(std::wstring title, unsigned int width, unsigned int height)
 	scissorRect.right = static_cast<LONG>(width);
 	scissorRect.bottom = static_cast<LONG>(height);
 
-	voxelScissorRect.right = OCC_SIZE_P1;
-	voxelScissorRect.bottom = OCC_SIZE_P1;
+	voxelScissorRect.right = DENSITY_SIZE;
+	voxelScissorRect.bottom = DENSITY_SIZE;
 
-	vertSplatScissorRect.right = VOXEL_SIZE * 3;
-	vertSplatScissorRect.bottom = VOXEL_SIZE;
+	vertSplatScissorRect.right = SPLAT_SIZE * 3;
+	vertSplatScissorRect.bottom = SPLAT_SIZE;
 
 	viewYScissorRect.right = 2;
 	viewYScissorRect.bottom = FINDY_SIZE_P1;
@@ -182,6 +182,36 @@ void Graphics::drawPhase()
 	//float y = findY();
 	//eye.m128_f32[1] = y;
 	//at.m128_f32[1] = y;
+
+	XMFLOAT4 voxelPos;
+
+	clock_t startGen = 0;
+
+	UINT index = 0;
+	/*
+	for (UINT z = 0; z < NUM_VOXELS_Z; z++)
+	{
+		for (UINT y = 0; y < NUM_VOXELS_Y; y++)
+		{
+			for (UINT x = 0; x < NUM_VOXELS_X; x++)
+			{
+				voxelPos = { x * CHUNK_SIZE, y * CHUNK_SIZE, z * CHUNK_SIZE, 1 };
+				voxelPosData->voxelPos = voxelPos;
+
+				// run phase 1
+				phase1(index);
+				if (!phase2(index)) // no verts
+				{
+					cout << "NO VERTS" << endl;
+					continue;
+				}
+				phase3(index);
+				phase4(index);
+
+				index++;
+			}
+		}
+	}*/
 
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -365,7 +395,7 @@ void Graphics::loadPipeline()
 	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
 	samplerDesc.MipLODBias = 0.0f;
@@ -392,10 +422,10 @@ void Graphics::loadPipeline()
 	D3D12_RESOURCE_DESC voxelTextureDesc = {};
 	voxelTextureDesc.MipLevels = 1;
 	voxelTextureDesc.Format = DENSITY_FORMAT;
-	voxelTextureDesc.Width = OCC_SIZE_P1;
-	voxelTextureDesc.Height = OCC_SIZE_P1;
+	voxelTextureDesc.Width = DENSITY_SIZE;
+	voxelTextureDesc.Height = DENSITY_SIZE;
 	voxelTextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-	voxelTextureDesc.DepthOrArraySize = OCC_SIZE_P1;
+	voxelTextureDesc.DepthOrArraySize = OCC_SIZE;
 	voxelTextureDesc.SampleDesc.Count = 1;
 	voxelTextureDesc.SampleDesc.Quality = 0;
 	voxelTextureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE3D;
@@ -440,9 +470,9 @@ void Graphics::loadPipeline()
 	// SRV 2
 	
 	voxelTextureDesc.Format = INDEX_FORMAT;
-	voxelTextureDesc.Width = VOXEL_SIZE * 3;
-	voxelTextureDesc.Height = VOXEL_SIZE;
-	voxelTextureDesc.DepthOrArraySize = VOXEL_SIZE;
+	voxelTextureDesc.Width = SPLAT_SIZE * 3;
+	voxelTextureDesc.Height = SPLAT_SIZE;
+	voxelTextureDesc.DepthOrArraySize = SPLAT_SIZE;
 
 	rtvDesc.Format = INDEX_FORMAT;
 	rtvDesc.Texture3D.WSize = voxelTextureDesc.DepthOrArraySize;
@@ -851,7 +881,7 @@ void Graphics::loadAssets()
 	const D3D12_INPUT_ELEMENT_DESC occupiedLayout[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "UVPOSITION", 0, DXGI_FORMAT_R32G32_FLOAT , 0, 8, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA , 0 }
+		{ "UVPOSITION", 0, DXGI_FORMAT_R32G32_UINT, 0, 8, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA , 0 }
 	};
 
 	const D3D12_SO_DECLARATION_ENTRY occupiedOut[] =
@@ -1041,18 +1071,17 @@ void Graphics::loadAssets()
 	OCCUPIED_POINT* pointBufferData;
 	pointVCB->Map(0, &readRange, (void**)&pointBufferData);
 
-	for (UINT j = 0; j < VOXEL_SIZE; j++)
+	for (UINT j = 0; j < OCCUPIED_SIZE; j++)
 	{
-		for (UINT k = 0; k < VOXEL_SIZE; k++)
+		for (UINT k = 0; k < OCCUPIED_SIZE; k++)
 		{
-			OCCUPIED_POINT* p = &pointBufferData[k + j * (UINT)VOXEL_SIZE];
+			OCCUPIED_POINT* p = &pointBufferData[k + j * (UINT)OCCUPIED_SIZE];
 			p->position = XMFLOAT2(
 				(k + EXTRA) / OCC_SIZE_M1,
 				(j + EXTRA) / OCC_SIZE_M1
 			);
-			p->uv = XMFLOAT2(
-				k / VOXEL_SIZE_M1,
-				j / VOXEL_SIZE_M1
+			p->uv = XMUINT2(
+				k, j
 			);
 		}
 	}
@@ -1096,6 +1125,7 @@ void Graphics::loadAssets()
 	// generate the terrain
 	
 	// record the render commands
+	
 	XMFLOAT4 voxelPos;
 
 	clock_t startGen = 0;
@@ -1161,7 +1191,7 @@ void Graphics::renderDensity(UINT index)
 	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, &plainVB);
-	commandList->DrawInstanced(_countof(plainVerts), OCC_SIZE_P1, 0, 0);
+	commandList->DrawInstanced(_countof(plainVerts), OCC_SIZE, 0, 0);
 
 	// TODO: CHECK IF THIS IS RIGHT
 	// wait for shader
@@ -1197,7 +1227,7 @@ void Graphics::renderOccupied(UINT index)
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	commandList->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
 	commandList->IASetVertexBuffers(0, 1, &pointVB);
-	commandList->DrawInstanced(NUM_POINTS, VOXEL_SIZE, 0, 0);
+	commandList->DrawInstanced(NUM_POINTS, OCCUPIED_SIZE, 0, 0);
 
 	// wait for the buffer to be written to
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
@@ -1338,7 +1368,7 @@ void Graphics::renderClearTex(UINT index)
 	commandList->IASetVertexBuffers(0, 1, &plainVB);
 	commandList->RSSetViewports(1, &vertSplatViewport);
 	commandList->RSSetScissorRects(1, &vertSplatScissorRect);
-	commandList->DrawInstanced(_countof(plainVerts), VOXEL_SIZE, 0, 0);
+	commandList->DrawInstanced(_countof(plainVerts), SPLAT_SIZE, 0, 0);
 
 	// TODO: CHECK IF THIS IS RIGHT
 	// wait for shader

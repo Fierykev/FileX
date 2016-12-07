@@ -30,6 +30,7 @@ static const float2 voxelInvVecM2 = float2(
 
 static const float occExpansion = voxelExpansion + extra * 2.f;
 static const float occM1 = occExpansion - 1.f;
+static const float occM2 = occM1 - 1.f;
 static const float occP1 = occExpansion + 1.f;
 
 static const float2 occInv = float2(
@@ -40,6 +41,10 @@ static const float2 occInvVecP1 = float2(
 	);
 static const float2 occInvVecM1 = float2(
 	1.f / occM1, 0
+	);
+
+static const float2 occInvVecM2 = float2(
+	1.f / occM2, 0
 	);
 	
 static const float densStep = 100.f;

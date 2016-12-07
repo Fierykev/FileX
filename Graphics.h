@@ -21,6 +21,7 @@ constexpr float CHUNK_SIZE = 10.f;
 constexpr float EXTRA = 4.f;
 constexpr float VOXEL_SIZE = 33.f;
 constexpr float VOXEL_SIZE_M1 = VOXEL_SIZE - 1.f;
+constexpr float VOXEL_SIZE_M2 = VOXEL_SIZE_M1 - 1.f;
 constexpr float VOXEL_SIZE_P1 = VOXEL_SIZE + 1.f;
 constexpr float OCC_SIZE = VOXEL_SIZE + EXTRA * 2.f;
 constexpr float OCC_SIZE_P1 = OCC_SIZE + 1;
@@ -64,9 +65,13 @@ public:
 	virtual void onKeyDown(UINT8 key);
 	virtual void onKeyUp(UINT8 key);
 
-	const UINT NUM_POINTS = VOXEL_SIZE * VOXEL_SIZE;
+	const UINT DENSITY_SIZE = OCC_SIZE;
 
+	const UINT OCCUPIED_SIZE = VOXEL_SIZE_P1;
+	const UINT NUM_POINTS = OCCUPIED_SIZE * OCCUPIED_SIZE;
 	const UINT BYTES_POINTS = sizeof(OCCUPIED_POINT) * sizeof(OCCUPIED_POINT) *	NUM_POINTS;
+
+	const UINT SPLAT_SIZE = VOXEL_SIZE_P1;
 
 	// TODO: check if need to throw more memory at gpu
 	const UINT MAX_BUFFER_SIZE =
@@ -169,7 +174,7 @@ private:
 	struct OCCUPIED_POINT
 	{
 		XMFLOAT2 position;
-		XMFLOAT2 uv;
+		XMUINT2 uv;
 	};
 
 	struct BITPOS

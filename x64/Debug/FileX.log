@@ -1,5 +1,28 @@
-﻿C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\OccupiedVS.hlsl(27,2-38): warning X3206: implicit truncation of vector type
-  
-  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\OccupiedVS.cso
+﻿  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\VertSplatVS.cso
+  main.cpp
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(68): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(70): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(74): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\main.cpp(9): warning C4101: 'window': unreferenced local variable
+  FindY.cpp
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(68): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(70): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(74): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+  Generating Code...
+  Compiling...
+  Graphics.cpp
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(68): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(70): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(74): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(25): warning C4244: '=': conversion from 'const UINT' to 'FLOAT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(26): warning C4244: '=': conversion from 'const UINT' to 'FLOAT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(29): warning C4244: '=': conversion from 'UINT' to 'FLOAT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(30): warning C4244: '=': conversion from 'const UINT' to 'FLOAT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(47): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(63): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(428): warning C4244: '=': conversion from 'const float' to 'UINT16', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(504): warning C4244: '=': conversion from 'float' to 'UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(1194): warning C4244: 'argument': conversion from 'const float' to 'UINT', possible loss of data
+  Generating Code...
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.exe
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.pdb (Partial PDB)

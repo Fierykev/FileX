@@ -3,7 +3,7 @@
 struct VS_INPUT
 {
 	float2 position : POSITION;
-	float2 uv : UVPOSITION;
+	uint2 uv : UVPOSITION;
 	uint instanceID : SV_InstanceID;
 };
 
@@ -24,7 +24,8 @@ VS_OUTPUT main(VS_INPUT input)
 		(input.instanceID + extra) * occInvVecM1.x);
 
 	// for float error
-	position.xy += occInvVecM1.xxx * .125;
+	position += occInvVecM1.xxx * .125;
+	//position.xy *= (occM1.x * occInv.x).xx;
 
 	// sample the texture where needed
 	output.bitPos = 0;
@@ -38,7 +39,7 @@ VS_OUTPUT main(VS_INPUT input)
 	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + occInvVecM1.xxx, 0).x > 0) << 6;
 	output.bitPos |= (densityTexture.SampleLevel(nearestSample, position + occInvVecM1.xyx, 0).x > 0) << 7;
 	
-	uint3 coord = uint3(input.uv * voxelM1, input.instanceID);
+	uint3 coord = uint3(input.uv, input.instanceID);
 
 	output.bitPos |=
 		coord.x << 24
