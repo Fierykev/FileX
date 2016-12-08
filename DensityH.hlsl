@@ -8,29 +8,75 @@ Texture3D<float4> noise0 : register(t3);
 Texture3D<float4> noise1 : register(t4);
 Texture3D<float4> noise2 : register(t5);
 
-SamplerState repeateSampler : register(s1);
+SamplerState repeatSampler : register(s1);
 
-float sampleHQ(float3 uvw, Texture3D tex)
+static const float TEX_SIZE = 16.f;
+static const float2 INV_TEX_SIZE = float2(1.f / TEX_SIZE, 0);
+
+// shelf
+static const float SHELF_THICK = 3.f;
+static const float SHELF_UP = -1;
+static const float SHELF_STRENGTH = 8.f;
+
+float4 sampleType(int type, float3 pos)
 {
+	if (type == 0)
+		return noise0.SampleLevel(repeatSampler, pos, 0);
+	if (type == 1)
+		return noise1.SampleLevel(repeatSampler, pos, 0);
+	if (type == 2)
+		return noise2.SampleLevel(repeatSampler, pos, 0);
 
+	return float4(0, 0, 0, 0);
+}
+
+float sampleNoise(float3 uvw, int type, float soften = 1)
+{
+	float3 tmp1 = floor(uvw * TEX_SIZE) * INV_TEX_SIZE.x;
+	float3 delta = (uvw - tmp1) * TEX_SIZE;
+	delta = lerp(delta, delta * delta * (3.f - 2.f * delta), soften);
+
+	float4 sample1 = sampleType(type, tmp1).zxyw;
+	float4 sample2 = sampleType(type, tmp1 + INV_TEX_SIZE.xyy).zxyw;
+
+	float4 lerp1 = lerp(sample1, sample2, delta.xxxx);
+	float2 lerp2 = lerp(lerp1.xy, lerp1.zw, delta.yy);
+	float lerp3 = lerp(lerp2.x, lerp2.y, delta.z);
+
+	return lerp3;
+}
+
+float4 sampleNoiseMedium(float3 uvw, int type)
+{
+	float3 tmp1 = frac(uvw * TEX_SIZE + .5);
+	float3 delta = (4 - 2 * tmp1) * tmp1 * tmp1;
+	float3 sampleLoc = uvw + (delta - tmp1) / TEX_SIZE;
+
+	return sampleType(type, sampleLoc);
 }
 
 float density(float3 pos)
 {
+	// grab some rand values
+	//float ran1 = saturate(sampleNoise(pos * .00834, 1) * 2.f - .5);
+	float4 ran2 = sampleNoise(pos * .00742, 1).xxxx;
+	float4 ran3 = sampleNoiseMedium(pos * .00543, 2);
 	
-	pos /= chunkSize;
-	
-	//pos.y *= -1;
-	float density = pos.y -.5;
-	density += snoise(pos * 4.03) * .25;
-	density += snoise(pos * 1.96) * .5;
-	density += snoise(pos * 1.01);
+	float density = -pos.y + chunkSize;
 
-	//float density = pos.y - .5;
+	// shelves
+	density += ran2.x > .5 ? 100.f : 0.f;
+		
+		/*+= 
+		lerp(
+		density, SHELF_STRENGTH,
+		.78 * saturate(SHELF_THICK - abs(pos.y - SHELF_UP))
+		* saturate(ran2.z * 1.5 - .5f)
+		);*/
 
-	//density += noise0.SampleLevel(repeateSampler, pos * 4.03, 0).x * .25;
-	//density += noise0.SampleLevel(repeateSampler, pos * 1.96, 0).x * .5;
-	//density += noise0.SampleLevel(repeateSampler, pos * 1.01, 0).x;
+	//density += sampleNoise(pos * 4.03, 0).x * .25;
+	//density += sampleNoise(pos * 1.96, 1).x * .5;
+	//density += sampleNoise(pos * 1.01, 2).x;
 
 	//density += pos.z % 2;
 

@@ -73,8 +73,8 @@
     <LibraryPath>..\..\..\DevIL-SDK-x64-1.7.8\unicode;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>..\..\..\DevIL-SDK-x64-1.7.8\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\..\DevIL-SDK-x64-1.7.8\unicode;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\..\..\DevIL-SDK-x64-1.7.8\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\..\..\DevIL-SDK-x64-1.7.8\unicode;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -4,11 +4,11 @@
 
 #include "Graphics.h"
 
-#define TEX_FORMAT DXGI_FORMAT_R32G32B32A32_FLOAT
-
 // declare static vars
-UINT Image::descriptorSize;
+UINT Image::csuDescriptorSize;
+UINT Image::rtvDescriptorSize;
 CD3DX12_CPU_DESCRIPTOR_HANDLE Image::srvTexStart;
+CD3DX12_CPU_DESCRIPTOR_HANDLE Image::rtvTexStart;
 UINT Image::numResources;
 
 Image::Image()
@@ -36,8 +36,8 @@ bool Image::loadImage(ID3D12Device* device, const wchar_t* filename)
 
 	ilGenImages(1, &imageID);
 	ilBindImage(imageID);
-
-	if (!ilLoadImage(filename))
+	
+	if (!ilLoad(IL_RAW, filename))
 		return false;
 
 	width = ilGetInteger(IL_IMAGE_WIDTH);
@@ -45,13 +45,30 @@ bool Image::loadImage(ID3D12Device* device, const wchar_t* filename)
 	depth = ilGetInteger(IL_IMAGE_DEPTH);
 
 	// convert the image to a usable format
-	data = new float[width * height * depth * 4];
-	ilCopyPixels(0, 0, 0, width, height, 1, IL_RGBA,
-		IL_FLOAT, data);
+	half4* tmpData = new half4[width * height * depth];
+	bool pass = ilCopyPixels(0, 0, 0, width, height, depth,
+		IL_RGBA,
+		ilGetInteger(IL_IMAGE_TYPE), tmpData);
 
+	if (!pass)
+		cout << "Could not copy" << endl;
+	
 	// unbind the image and delete it
 	ilBindImage(0);
 	ilDeleteImage(imageID);
+
+	data = new XMFLOAT4[width * height * depth];
+
+	// transfer the halfs to full floats
+	for (int i = 0; i < width * height * depth; i++)
+	{
+		data[i].x = XMConvertHalfToFloat(tmpData[i][0]);
+		data[i].y = XMConvertHalfToFloat(tmpData[i][1]);
+		data[i].z = XMConvertHalfToFloat(tmpData[i][2]);
+		data[i].w = XMConvertHalfToFloat(tmpData[i][3]);
+	}
+
+	delete[] tmpData;
 
 	// create the texture
 	createTexture(device);
@@ -64,7 +81,7 @@ void Image::createTexture(ID3D12Device* device)
 	// create image
 	D3D12_RESOURCE_DESC textureDesc = {};
 	textureDesc.MipLevels = 1;
-	textureDesc.Format = INDEX_FORMAT;
+	textureDesc.Format = TEX_FORMAT;
 	textureDesc.Width = width;
 	textureDesc.Height = height;
 	textureDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
@@ -77,7 +94,7 @@ void Image::createTexture(ID3D12Device* device)
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
 		&textureDesc,
-		D3D12_RESOURCE_STATE_COPY_DEST,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&texture3D)
 	));
@@ -107,7 +124,7 @@ void Image::createTexture(ID3D12Device* device)
 	// set resource location
 	prevResourceNum = numResources;
 
-	CD3DX12_CPU_DESCRIPTOR_HANDLE srvPos(srvTexStart, prevResourceNum, descriptorSize);
+	CD3DX12_CPU_DESCRIPTOR_HANDLE srvPos(srvTexStart, prevResourceNum, csuDescriptorSize);
 	device->CreateShaderResourceView(texture3D.Get(), &matDesc, srvPos);
 
 	// update num of resources
@@ -118,8 +135,8 @@ void Image::uploadTexture(ID3D12GraphicsCommandList* commandList)
 {
 	D3D12_SUBRESOURCE_DATA textureData = {};
 	textureData.pData = data;
-	textureData.RowPitch = width * 16;
-	textureData.SlicePitch = textureData.RowPitch * height;
+	textureData.RowPitch = width;
+	textureData.SlicePitch = textureData.RowPitch * height * sizeof(XMFLOAT4);
 	
 	UpdateSubresources(commandList, texture3D.Get(),
 		texture3DUpload.Get(), 0, 0, subresourceNum, &textureData);
@@ -127,11 +144,16 @@ void Image::uploadTexture(ID3D12GraphicsCommandList* commandList)
 	// transition phase of texture
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texture3D.Get(),
 		D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
-}
 
-ILfloat* Image::getData()
-{
-	return data;
+	for (UINT i = 0; i < depth; i++)
+	{
+		commandList->CopyTextureRegion(
+			&CD3DX12_TEXTURE_COPY_LOCATION(texture3D.Get(), 0),
+			0, 0, i,
+			&CD3DX12_TEXTURE_COPY_LOCATION(texture3DUpload.Get(), 0),
+			nullptr
+		);
+	}
 }
 
 void Image::initDevil()
@@ -139,12 +161,21 @@ void Image::initDevil()
 	ilInit();
 }
 
-void Image::setSRVBase(CD3DX12_CPU_DESCRIPTOR_HANDLE srvTexStartPass, UINT descriptorSizePass)
+void Image::setBase(CD3DX12_CPU_DESCRIPTOR_HANDLE srvTexStartPass, UINT csuDescriptorSizePass,
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvTexStartPass, UINT rtvDescriptorSizePass)
 {
 	// copy over the start pos for the texture base
 	srvTexStart = srvTexStartPass;
-	descriptorSize = descriptorSizePass;
+	csuDescriptorSize = csuDescriptorSizePass;
+
+	rtvTexStart = srvTexStartPass;
+	rtvDescriptorSize = rtvDescriptorSizePass;
 
 	// reset number of resources
 	numResources = 0;
+}
+
+void Image::setPipeline(ComPtr<ID3D12PipelineState> pipeline)
+{
+	pipelineState = pipeline;
 }

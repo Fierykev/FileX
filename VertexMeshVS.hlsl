@@ -24,8 +24,6 @@ SamplerState nearestSample : register(s0);
 
 float ambientOcclusion(float3 position)
 {
-	return noise0.SampleLevel(nearestSample, float3(position.xy, 0), 0);
-
 	//return snoise(position);
 	float vis = 0;
 
@@ -126,7 +124,7 @@ VS_OUTPUT main(VS_INPUT input)
 	sampleArea += occInvVecM2.xxx * .25f;
 	sampleArea.xyz *= (occExpansion.x - 1.f) * occInv.x;
 
-	float3 worldPos = voxelPos
+	float3 worldPos = voxelPos.xyz
 		+ (float3)position * voxelInvVecM2.xxx * chunkSize;
 	
 	// get the edgenum

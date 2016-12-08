@@ -20,7 +20,7 @@ float4 main(PS_INPUT input) : SV_TARGET
 	return !debug[0] ? float4(1, 0, 0, 1) : float4(0, 1, 0, 1);
 #endif
 
-	float3 light = normalize(float3(0, 1000, 0) - input.position.xyz);
+	float3 light = normalize(float3(0, -1000, 0) - input.position.xyz);
 
 	float3 normal = input.normal;
 	float4 color = float4(1, 1, 1, 1);

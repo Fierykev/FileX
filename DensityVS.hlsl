@@ -20,7 +20,7 @@ VS_OUTPUT main(VS_INPUT input)
 	output.position = float4(
 		input.position.xy, 0, 1
 		);
-	
+
 	float3 samplePos = float3(input.texcoord.xy,
 		input.instanceID * occInv.x);
 

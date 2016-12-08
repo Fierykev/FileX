@@ -1,22 +1,23 @@
 #ifndef GRPAHICS_H
 #define GRAPHICS_H
 
-#define NUM_VOXELS_X 5
-#define NUM_VOXELS_Y 1
-#define NUM_VOXELS_Z 5
-#define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
-
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <DirectXMath.h>
 #include <wrl.h>
 #include "Manager.h"
+#include "Image.h"
+
+#define NUM_VOXELS_X 5
+#define NUM_VOXELS_Y 1
+#define NUM_VOXELS_Z 5
+#define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
 constexpr float PERSON_HEIGHT = 0.f;
-constexpr float CHUNK_SIZE = 10.f;
+constexpr float CHUNK_SIZE = 4.f;
 
 constexpr float EXTRA = 4.f;
 constexpr float VOXEL_SIZE = 33.f;
@@ -130,6 +131,7 @@ private:
 		NOISE_0,
 		NOISE_1,
 		NOISE_2,
+		UPLOAD_TEX,
 		SRV_COUNT
 	};
 
@@ -242,7 +244,8 @@ private:
 		dataVertSplatPipelineState,
 		dataGenIndicesPipelineState,
 		dataClearTexPipelineState,
-		sampleDensityPipelineState;
+		sampleDensityPipelineState,
+		uploadTexPipelineState;
 	ComPtr<ID3D12PipelineState> computeStatePR;
 	ComPtr<ID3D12PipelineState> computeStateMC;
 	ComPtr<ID3D12PipelineState> computeStateCS[CS_COUNT];
@@ -267,6 +270,9 @@ private:
 	ComPtr<ID3D12Fence> fence;
 	HANDLE fenceEvent;
 	HANDLE swapChainEvent;
+
+	// Images
+	Image noise0, noise1, noise2;
 
 	struct WORLD_POS
 	{

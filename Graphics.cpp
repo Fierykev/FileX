@@ -524,7 +524,7 @@ void Graphics::loadPipeline()
 
 	// setup the image loader
 	Image::initDevil();
-	Image::setSRVBase(srvHandle0, csuDescriptorSize);
+	Image::setBase(srvHandle0, csuDescriptorSize, rtvHandle, rtvDescriptorSize);
 
 	// depth stencil
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(dsvHeap->GetCPUDescriptorHandleForHeapStart(),
@@ -741,7 +741,8 @@ void Graphics::loadPipeline()
 void Graphics::loadAssets()
 {
 	// load the shaders
-	string sampleDataDensityVS,
+	string uploadVS, uploadPS, uploadGS,
+		sampleDataDensityVS,
 		dataDensityVS, dataDensityPS, dataDensityGS,
 		dataOccupiedVS, dataOccupiedGS,
 		dataGenVertsVS, dataGenVertsGS,
@@ -781,6 +782,10 @@ void Graphics::loadAssets()
 
 	ThrowIfFailed(ReadCSO("../x64/Debug/RenderVS.cso", dataVS));
 	ThrowIfFailed(ReadCSO("../x64/Debug/RenderPS.cso", dataPS));
+
+	ThrowIfFailed(ReadCSO("../x64/Debug/UploadVS.cso", uploadVS));
+	ThrowIfFailed(ReadCSO("../x64/Debug/UploadPS.cso", uploadPS));
+	ThrowIfFailed(ReadCSO("../x64/Debug/UploadGS.cso", uploadGS));
 
 	ThrowIfFailed(ReadCSO("../x64/Debug/SearchTerrainCS.cso", dataCS[CS_SEARCH_TERRAIN]));
 #else
@@ -879,6 +884,12 @@ void Graphics::loadAssets()
 	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataClearTexGS.c_str()), dataClearTexGS.length() };
 	psoDesc.RTVFormats[0] = INDEX_FORMAT;
 	ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&dataClearTexPipelineState)));
+
+	psoDesc.VS = { reinterpret_cast<UINT8*>((void*)uploadVS.c_str()), uploadVS.length() };
+	psoDesc.PS = { reinterpret_cast<UINT8*>((void*)uploadPS.c_str()), uploadPS.length() };
+	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)uploadGS.c_str()), uploadGS.length() };
+	psoDesc.RTVFormats[0] = Image::TEX_FORMAT;
+	ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&uploadTexPipelineState)));
 
 	const D3D12_INPUT_ELEMENT_DESC vertSplatLayout[] =
 	{
@@ -1111,18 +1122,21 @@ void Graphics::loadAssets()
 	// create command list
 
 	ThrowIfFailed(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator[frameIndex].Get(), nullptr, IID_PPV_ARGS(&commandList)));
-
+		
 	// load in the images
-	Image noise0;
-	noise0.loadImage(device.Get(), L"Noise/noise0.dds");
+	noise0.setPipeline(uploadTexPipelineState.Get());
+
+	noise0.loadImage(device.Get(), L"Noise/noise0.raw");
 	noise0.uploadTexture(commandList.Get());
+
+	noise1.setPipeline(uploadTexPipelineState.Get());
 	
-	Image noise1;
-	noise1.loadImage(device.Get(), L"Noise/noise1.dds");
+	noise1.loadImage(device.Get(), L"Noise/noise1.raw");
 	noise1.uploadTexture(commandList.Get());
 
-	Image noise2;
-	noise2.loadImage(device.Get(), L"Noise/noise2.dds");
+	noise2.setPipeline(uploadTexPipelineState.Get());
+
+	noise2.loadImage(device.Get(), L"Noise/noise2.raw");
 	noise2.uploadTexture(commandList.Get());
 
 	// close the command list until things are added
@@ -1155,6 +1169,7 @@ void Graphics::loadAssets()
 	// record the render commands
 	
 	XMFLOAT4 voxelPos;
+	XMFLOAT3 startLoc = { 0.f, 0.f, 0.f };
 
 	clock_t startGen = 0;
 
@@ -1165,7 +1180,7 @@ void Graphics::loadAssets()
 		{
 			for (UINT x = 0; x < NUM_VOXELS_X; x++)
 			{
-				voxelPos = { x * CHUNK_SIZE, y * CHUNK_SIZE, z * CHUNK_SIZE, 1 };
+				voxelPos = { x * CHUNK_SIZE - startLoc.x, y * CHUNK_SIZE - startLoc.y, z * CHUNK_SIZE - startLoc.z, 1 };
 				voxelPosData->voxelPos = voxelPos;
 
 				// run phase 1

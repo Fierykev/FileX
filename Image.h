@@ -1,19 +1,48 @@
-#ifndef IMAGE_H
-#define IMAGE_H
+#ifndef _IMAGE_H_
+#define _IMAGE_H_
 
+#include "d3dx12.h"
 #include <d3d12.h>
+#include <DirectXPackedVector.h>
 #include <dxgi1_4.h>
+#include <DirectXMath.h>
 #include <wrl.h>
 #include <IL/il.h>
 
 #include <iostream>
 
+using namespace DirectX;
+using namespace DirectX::PackedVector;
 using namespace Microsoft::WRL;
 using namespace std;
+
+struct ID3D12PipelineState;
+
+struct half4
+{
+	HALF x = 0, y = 0, z = 0, w = 0;
+
+	HALF& operator[] (unsigned int i)
+	{
+		switch (i)
+		{
+		case 0:
+			return x;
+		case 1:
+			return y;
+		case 2:
+			return z;
+		case 3:
+			return w;
+		}
+	}
+};
 
 class Image
 {
 public:
+
+	const static DXGI_FORMAT TEX_FORMAT = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
 	Image();
 
@@ -25,15 +54,16 @@ public:
 
 	void uploadTexture(ID3D12GraphicsCommandList* commandList);
 
-	ILfloat* getData();
-
 	static void initDevil();
 
-	static void setSRVBase(
-		CD3DX12_CPU_DESCRIPTOR_HANDLE srvTexStartPass,
-		UINT descriptorSizePass);
+	static void setBase(CD3DX12_CPU_DESCRIPTOR_HANDLE srvTexStartPass, UINT csuDescriptorSizePass,
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvTexStartPass, UINT rtvDescriptorSizePass);
+
+	void setPipeline(ComPtr<ID3D12PipelineState> pipeline);
 
 private:
+
+	ComPtr<ID3D12PipelineState> pipelineState;
 
 	ComPtr<ID3D12Resource> texture3D, texture3DUpload;
 
@@ -43,10 +73,10 @@ private:
 
 	unsigned int prevResourceNum, subresourceNum;
 
-	float* data = nullptr;
+	XMFLOAT4* data = nullptr;
 
-	static UINT descriptorSize;
-	static CD3DX12_CPU_DESCRIPTOR_HANDLE srvTexStart;
+	static UINT csuDescriptorSize, rtvDescriptorSize;
+	static CD3DX12_CPU_DESCRIPTOR_HANDLE srvTexStart, rtvTexStart;
 	static UINT numResources;
 };
 

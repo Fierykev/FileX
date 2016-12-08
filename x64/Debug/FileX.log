@@ -1,6 +1,26 @@
-﻿C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\FileX\VertexMeshVS.hlsl(27,2-69): warning X3206: implicit truncation of vector type
-C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\FileX\VertexMeshVS.hlsl(129,20): warning X3206: implicit truncation of vector type
-  
-  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Debug\VertexMeshVS.cso
-  FileX.vcxproj -> C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Debug\FileX.exe
-  FileX.vcxproj -> C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Debug\FileX.pdb (Partial PDB)
+﻿  Image.cpp
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(69): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(71): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(75): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\image.cpp(51): warning C4800: 'ILuint': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\image.cpp(127): error C2065: 'descriptorSize': undeclared identifier
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\image.cpp(148): warning C4018: '<': signed/unsigned mismatch
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\image.cpp(169): error C2065: 'descriptorSizePass': undeclared identifier
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\image.cpp(172): error C2065: 'descriptorSizePass': undeclared identifier
+  Graphics.cpp
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(69): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(71): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(75): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(26): warning C4244: '=': conversion from 'const UINT' to 'FLOAT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(27): warning C4244: '=': conversion from 'const UINT' to 'FLOAT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(30): warning C4244: '=': conversion from 'UINT' to 'FLOAT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(31): warning C4244: '=': conversion from 'const UINT' to 'FLOAT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(48): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(64): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(418): warning C4244: '=': conversion from 'const float' to 'UINT16', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(494): warning C4244: '=': conversion from 'float' to 'UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(527): error C2039: 'setSRVBase': is not a member of 'Image'
+  c:\users\cyber\documents\visual studio 2015\projects\filex\filex\image.h(42): note: see declaration of 'Image'
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(527): error C3861: 'setSRVBase': identifier not found
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(1237): warning C4244: 'argument': conversion from 'const float' to 'UINT', possible loss of data
+  Generating Code...

@@ -78,6 +78,9 @@
     <Filter Include="Files\Image">
       <UniqueIdentifier>{2c5214ea-2d68-4d8f-846e-20a654b4ae12}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Files\Shaders\Upload3D">
+      <UniqueIdentifier>{3cddcf21-d073-409a-ba10-efc97ac82d5f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -189,9 +192,6 @@
     <FxCompile Include="ClearTexPS.hlsl">
       <Filter>Files\Shaders\Procedural\ClearTex</Filter>
     </FxCompile>
-    <FxCompile Include="ClearTexVS.hlsl">
-      <Filter>Files\Shaders\Procedural\ClearTex</Filter>
-    </FxCompile>
     <FxCompile Include="SampleDensityVS.hlsl">
       <Filter>Files\Shaders\Procedural\FindY</Filter>
     </FxCompile>
@@ -203,6 +203,18 @@
     </FxCompile>
     <FxCompile Include="MarblePS.hlsl">
       <Filter>Files\Shaders\Rock\Marble</Filter>
+    </FxCompile>
+    <FxCompile Include="UploadVS.hlsl">
+      <Filter>Files\Shaders\Upload3D</Filter>
+    </FxCompile>
+    <FxCompile Include="ClearTexVS.hlsl">
+      <Filter>Files\Shaders\Procedural\ClearTex</Filter>
+    </FxCompile>
+    <FxCompile Include="UploadGS.hlsl">
+      <Filter>Files\Shaders\Upload3D</Filter>
+    </FxCompile>
+    <FxCompile Include="UploadPS.hlsl">
+      <Filter>Files\Shaders\Upload3D</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
