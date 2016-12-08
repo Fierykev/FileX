@@ -1,6 +1,7 @@
 #ifndef GRPAHICS_H
 #define GRAPHICS_H
 
+#include <unordered_map>
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <DirectXMath.h>
@@ -17,7 +18,7 @@ using namespace Microsoft::WRL;
 using namespace DirectX;
 
 constexpr float PERSON_HEIGHT = 0.f;
-constexpr float CHUNK_SIZE = 30.f;
+constexpr float CHUNK_SIZE = 80.f;
 
 constexpr float EXTRA = 4.f;
 constexpr float VOXEL_SIZE = 33.f;
@@ -49,6 +50,24 @@ constexpr float SAMP_EXPANSION = VOXEL_SIZE / CHUNK_SIZE;
 #define DSV_FORMAT DXGI_FORMAT_D32_FLOAT
 
 #define CAM_DELTA .1f
+
+namespace std
+{
+	template <> struct hash<XMINT3>
+	{
+		size_t operator()(const XMINT3& data) const
+		{
+			return std::hash<INT>{}(data.x)
+				^ std::hash<INT>{}(data.y)
+				^ std::hash<INT>{}(data.z);
+		}
+	};
+
+	inline bool operator== (const XMINT3& a, const XMINT3& b)
+	{
+		return a.x == b.x && a.y == b.y && a.z == b.z;
+	}
+}
 
 constexpr UINT COUNTER_SIZE = sizeof(UINT64);
 constexpr float speed = 5.f;
@@ -103,11 +122,12 @@ public:
 	void findYRender();
 	void searchTerrain();
 	void sampleDensity();
-	void genVoxel(UINT index);
+	void genVoxel(XMFLOAT3 pos, UINT index);
 	void phase1(UINT index);
 	bool phase2(UINT index);
 	void phase3(UINT index);
 	void phase4(UINT index);
+	void updateTerrain();
 	void drawPhase();
 
 	enum ComputeShader : UINT32
@@ -171,7 +191,9 @@ public:
 		vertexCount,
 		indexCount, yposMap;
 
-	pair<XMFLOAT4, UINT> computedPos[NUM_VOXELS_X][NUM_VOXELS_Y][NUM_VOXELS_Z];
+	unordered_map<XMINT3, UINT> computedPos;
+	XMFLOAT3 startLoc;
+	XMINT3 currentMid;
 
 	D3D12_VERTEX_BUFFER_VIEW plainVB, pointVB;
 
@@ -299,7 +321,7 @@ public:
 	// view params
 	XMMATRIX world, view, projection, worldViewProjection;
 
-	XMFLOAT3 eyeDelta{ 0.0f, 10.0f, -110.0f };
+	XMFLOAT3 eyeDelta{ 0.0f, 10.0f, -60.0f };
 	XMVECTOR at{ eyeDelta.x, eyeDelta.y, eyeDelta.z };
 	XMVECTOR eye = { 0, 0, 0 };
 	XMVECTOR up{ 0.0f, 1.f, 0.0f };

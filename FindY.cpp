@@ -135,13 +135,13 @@ float Graphics::findY()
 
 		//break;
 	}
-
+	/*
 	// fetch the data
 	cout << ypos << " "
 		<< pos.m128_f32[0] << " "
 		<< pos.m128_f32[1] << " "
 		<< pos.m128_f32[2]
-		<< endl;
+		<< endl;*/
 
 	return pos.m128_f32[1] + ypos * SAMP_EXPANSION / 2.f + PERSON_HEIGHT;
 }

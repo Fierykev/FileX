@@ -37,6 +37,8 @@ struct half4
 		case 3:
 			return w;
 		}
+
+		return x;
 	}
 };
 

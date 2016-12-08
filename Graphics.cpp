@@ -61,7 +61,7 @@ void Graphics::onUpdate()
 	world = XMMatrixIdentity();
 	view = XMMatrixLookAtLH(eye, at, up);
 	projection = XMMatrixPerspectiveFovLH(XM_PI / 16,
-		(float)height / width, .1, 800.0);
+		(float)height / width, .1, 1000.0);
 	worldViewProjection = world * view * projection;
 
 	worldPosCB->world = XMMatrixTranspose(world);
@@ -75,14 +75,18 @@ void Graphics::onUpdate()
 	WaitForSingleObjectEx(swapChainEvent, 100, FALSE);
 }
 
-void Graphics::genVoxel(UINT index)
+void Graphics::genVoxel(XMFLOAT3 pos, UINT index)
 {
+	// set the voxel pos
+	voxelPosData->voxelPos =
+		XMFLOAT4(pos.x, pos.y, pos.z, 1);
+
 	// run phase 1
 	phase1(index);
 
 	if (!phase2(index)) // no verts
 	{
-		cout << "NO VERTS" << endl;
+		//cout << "NO VERTS" << endl;
 		return;
 	}
 
@@ -193,6 +197,342 @@ void Graphics::phase4(UINT index)
 	waitForGpu();
 }
 
+void Graphics::updateTerrain()
+{
+	// check if need to generate terrain
+	XMFLOAT3 curPos{
+		eye.m128_f32[0],
+		eye.m128_f32[1],
+		eye.m128_f32[2]
+	};
+
+	XMFLOAT3 voxelPos;
+	
+	// neg x
+	if (curPos.x < currentMid.x * CHUNK_SIZE - startLoc.x)
+	{
+		XMINT3 curEdge{
+			currentMid.x + NUM_VOXELS_X / 2 - 1,
+			currentMid.y - NUM_VOXELS_Y / 2,
+			currentMid.z - NUM_VOXELS_Z / 2
+		};
+
+		XMINT3 newEdge{
+			currentMid.x - NUM_VOXELS_X / 2 - 1,
+			currentMid.y - NUM_VOXELS_Y / 2,
+			currentMid.z - NUM_VOXELS_Z / 2
+		};
+
+		// remake terrain
+		for (INT y = 0; y < NUM_VOXELS_Y; y++)
+		{
+			for (INT z = 0; z < NUM_VOXELS_Z; z++)
+			{
+				XMINT3 oldLoc{
+					curEdge.x,
+					curEdge.y + y,
+					curEdge.z + z
+				};
+
+				XMINT3 newLoc{
+					newEdge.x,
+					newEdge.y + y,
+					newEdge.z + z
+				};
+
+				if (computedPos.find(oldLoc) == computedPos.end())
+					cout << "ERR ERASING -X" << endl;
+
+				UINT index = computedPos[oldLoc];
+				computedPos.erase(oldLoc);
+
+				computedPos[newLoc] = index;
+
+				voxelPos = {
+					newLoc.x * CHUNK_SIZE - startLoc.x,
+					newLoc.y * CHUNK_SIZE - startLoc.y,
+					newLoc.z * CHUNK_SIZE - startLoc.z
+				};
+
+				genVoxel(voxelPos, index);
+			}
+		}
+
+		// set new mid
+		currentMid.x--;
+	}
+	
+	// neg y
+	if (curPos.y < currentMid.y * CHUNK_SIZE - startLoc.y)
+	{
+		XMINT3 curEdge{
+			currentMid.x - NUM_VOXELS_X / 2,
+			currentMid.y + NUM_VOXELS_Y / 2 - 1,
+			currentMid.z - NUM_VOXELS_Z / 2
+		};
+
+		XMINT3 newEdge{
+			currentMid.x - NUM_VOXELS_X / 2,
+			currentMid.y - NUM_VOXELS_Y / 2 - 1,
+			currentMid.z - NUM_VOXELS_Z / 2
+		};
+
+		// remake terrain
+		for (INT x = 0; x < NUM_VOXELS_X; x++)
+		{
+			for (INT z = 0; z < NUM_VOXELS_Z; z++)
+			{
+				XMINT3 oldLoc{
+					curEdge.x + x,
+					curEdge.y,
+					curEdge.z + z
+				};
+
+				XMINT3 newLoc{
+					newEdge.x + x,
+					newEdge.y,
+					newEdge.z + z
+				};
+
+				if (computedPos.find(oldLoc) == computedPos.end())
+					cout << "ERR ERASING -Y" << endl;
+
+				UINT index = computedPos[oldLoc];
+				computedPos.erase(oldLoc);
+
+				computedPos[newLoc] = index;
+
+				voxelPos = {
+					newLoc.x * CHUNK_SIZE - startLoc.x,
+					newLoc.y * CHUNK_SIZE - startLoc.y,
+					newLoc.z * CHUNK_SIZE - startLoc.z
+				};
+
+				genVoxel(voxelPos, index);
+			}
+		}
+
+		// set new mid
+		currentMid.y--;
+	}
+	
+	// neg z
+	if (curPos.z < currentMid.z * CHUNK_SIZE - startLoc.z)
+	{
+		XMINT3 curEdge{
+			currentMid.x - NUM_VOXELS_X / 2,
+			currentMid.y - NUM_VOXELS_Y / 2,
+			currentMid.z + NUM_VOXELS_Z / 2 - 1
+		};
+
+		XMINT3 newEdge{
+			currentMid.x - NUM_VOXELS_X / 2,
+			currentMid.y - NUM_VOXELS_Y / 2,
+			currentMid.z - NUM_VOXELS_Z / 2 - 1
+		};
+
+		// remake terrain
+		for (INT y = 0; y < NUM_VOXELS_Y; y++)
+		{
+			for (INT x = 0; x < NUM_VOXELS_X; x++)
+			{
+				XMINT3 oldLoc{
+					curEdge.x + x,
+					curEdge.y + y,
+					curEdge.z
+				};
+
+				XMINT3 newLoc{
+					newEdge.x + x,
+					newEdge.y + y,
+					newEdge.z
+				};
+
+				if (computedPos.find(oldLoc) == computedPos.end())
+					cout << "ERR ERASING -Z" << endl;
+
+				UINT index = computedPos[oldLoc];
+				computedPos.erase(oldLoc);
+
+				computedPos[newLoc] = index;
+
+				voxelPos = {
+					newLoc.x * CHUNK_SIZE - startLoc.x,
+					newLoc.y * CHUNK_SIZE - startLoc.y,
+					newLoc.z * CHUNK_SIZE - startLoc.z
+				};
+
+				genVoxel(voxelPos, index);
+			}
+		}
+
+		// set new mid
+		currentMid.z--;
+	}
+	
+	// pos x
+	if ((currentMid.x + 1) * CHUNK_SIZE - startLoc.x < curPos.x)
+	{
+		XMINT3 curEdge{
+			currentMid.x - NUM_VOXELS_X / 2,
+			currentMid.y - NUM_VOXELS_Y / 2,
+			currentMid.z - NUM_VOXELS_Z / 2
+		};
+
+		XMINT3 newEdge{
+			currentMid.x + NUM_VOXELS_X / 2,
+			currentMid.y - NUM_VOXELS_Y / 2,
+			currentMid.z - NUM_VOXELS_Z / 2
+		};
+
+		// remake terrain
+		for (INT y = 0; y < NUM_VOXELS_Y; y++)
+		{
+			for (INT z = 0; z < NUM_VOXELS_Z; z++)
+			{
+				XMINT3 oldLoc{
+					curEdge.x,
+					curEdge.y + y,
+					curEdge.z + z
+				};
+
+				XMINT3 newLoc{
+					newEdge.x,
+					newEdge.y + y,
+					newEdge.z + z
+				};
+
+				if (computedPos.find(oldLoc) == computedPos.end())
+					cout << "ERR ERASING +X" << endl;
+
+				UINT index = computedPos[oldLoc];
+				computedPos.erase(oldLoc);
+
+				computedPos[newLoc] = index;
+
+				voxelPos = {
+					newLoc.x * CHUNK_SIZE - startLoc.x,
+					newLoc.y * CHUNK_SIZE - startLoc.y,
+					newLoc.z * CHUNK_SIZE - startLoc.z
+				};
+
+				genVoxel(voxelPos, index);
+			}
+		}
+
+		// set new mid
+		currentMid.x++;
+	}
+
+	// pos y
+	if ((currentMid.y + 1) * CHUNK_SIZE - startLoc.y < curPos.y)
+	{
+		XMINT3 curEdge{
+			currentMid.x - NUM_VOXELS_X / 2,
+			currentMid.y - NUM_VOXELS_Y / 2,
+			currentMid.z - NUM_VOXELS_Z / 2
+		};
+
+		XMINT3 newEdge{
+			currentMid.x - NUM_VOXELS_X / 2,
+			currentMid.y + NUM_VOXELS_Y / 2,
+			currentMid.z - NUM_VOXELS_Z / 2
+		};
+
+		// remake terrain
+		for (INT x = 0; x < NUM_VOXELS_X; x++)
+		{
+			for (INT z = 0; z < NUM_VOXELS_Z; z++)
+			{
+				XMINT3 oldLoc{
+					curEdge.x + x,
+					curEdge.y,
+					curEdge.z + z
+				};
+
+				XMINT3 newLoc{
+					newEdge.x + x,
+					newEdge.y,
+					newEdge.z + z
+				};
+
+				if (computedPos.find(oldLoc) == computedPos.end())
+					cout << "ERR ERASING +Y" << endl;
+
+				UINT index = computedPos[oldLoc];
+				computedPos.erase(oldLoc);
+
+				computedPos[newLoc] = index;
+
+				voxelPos = {
+					newLoc.x * CHUNK_SIZE - startLoc.x,
+					newLoc.y * CHUNK_SIZE - startLoc.y,
+					newLoc.z * CHUNK_SIZE - startLoc.z
+				};
+
+				genVoxel(voxelPos, index);
+			}
+		}
+
+		// set new mid
+		currentMid.y++;
+	}
+
+	// pos y
+	if ((currentMid.z + 1) * CHUNK_SIZE - startLoc.z < curPos.z)
+	{
+		XMINT3 curEdge{
+			currentMid.x - NUM_VOXELS_X / 2,
+			currentMid.y - NUM_VOXELS_Y / 2,
+			currentMid.z - NUM_VOXELS_Z / 2
+		};
+
+		XMINT3 newEdge{
+			currentMid.x - NUM_VOXELS_X / 2,
+			currentMid.y - NUM_VOXELS_Y / 2,
+			currentMid.z + NUM_VOXELS_Z / 2
+		};
+
+		// remake terrain
+		for (INT y = 0; y < NUM_VOXELS_Y; y++)
+		{
+			for (INT x = 0; x < NUM_VOXELS_X; x++)
+			{
+				XMINT3 oldLoc{
+					curEdge.x + x,
+					curEdge.y + y,
+					curEdge.z
+				};
+
+				XMINT3 newLoc{
+					newEdge.x + x,
+					newEdge.y + y,
+					newEdge.z
+				};
+
+				if (computedPos.find(oldLoc) == computedPos.end())
+					cout << "ERR ERASING +Z" << endl;
+
+				UINT index = computedPos[oldLoc];
+				computedPos.erase(oldLoc);
+
+				computedPos[newLoc] = index;
+
+				voxelPos = {
+					newLoc.x * CHUNK_SIZE - startLoc.x,
+					newLoc.y * CHUNK_SIZE - startLoc.y,
+					newLoc.z * CHUNK_SIZE - startLoc.z
+				};
+
+				genVoxel(voxelPos, index);
+			}
+		}
+
+		// set new mid
+		currentMid.z++;
+	}
+}
+
 void Graphics::drawPhase()
 {
 	float y = findY();
@@ -201,11 +541,7 @@ void Graphics::drawPhase()
 
 	eye.m128_f32[1] += eyeDelta.y;
 
-	XMFLOAT4 voxelPos;
-
-	clock_t startGen = 0;
-
-	UINT index = 0;
+	updateTerrain();
 
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -215,9 +551,6 @@ void Graphics::drawPhase()
 		renderPipelineSolidState.Get()));
 
 	setupProceduralDescriptors();
-
-	// check if any terrain needs to be added / deleted
-
 
 	populateCommandList();
 
@@ -1186,11 +1519,11 @@ void Graphics::loadAssets()
 	
 	// record the render commands
 	
-	XMFLOAT4 voxelPos;
-	XMFLOAT3 startLoc =
-		{ eye.m128_f32[0] + NUM_VOXELS_X * CHUNK_SIZE / 2.f,
-		eye.m128_f32[1] + NUM_VOXELS_Y * CHUNK_SIZE / 2.f,
-		eye.m128_f32[2] + NUM_VOXELS_Z *  CHUNK_SIZE / 2.f };
+	XMFLOAT3 voxelPos;
+	startLoc =
+		{ at.m128_f32[0] + NUM_VOXELS_X * CHUNK_SIZE / 2.f,
+		at.m128_f32[1] + NUM_VOXELS_Y * CHUNK_SIZE / 2.f,
+		at.m128_f32[2] + NUM_VOXELS_Z *  CHUNK_SIZE / 2.f };
 
 	clock_t startGen = 0;
 
@@ -1201,17 +1534,26 @@ void Graphics::loadAssets()
 		{
 			for (UINT x = 0; x < NUM_VOXELS_X; x++)
 			{
-				voxelPos = { x * CHUNK_SIZE - startLoc.x, y * CHUNK_SIZE - startLoc.y, z * CHUNK_SIZE - startLoc.z, 1 };
-				voxelPosData->voxelPos = voxelPos;
+				computedPos[XMINT3(
+					(INT)x,
+					(INT)y,
+					(INT)z)
+				] = index;
 
-				computedPos[x][y][z] = make_pair(voxelPos, index);
+				voxelPos = { x * CHUNK_SIZE - startLoc.x, y * CHUNK_SIZE - startLoc.y, z * CHUNK_SIZE - startLoc.z };
 
-				genVoxel(index);
+				genVoxel(voxelPos, index);
 				
 				index ++;
 			}
 		}
 	}
+
+	currentMid = XMINT3(
+		NUM_VOXELS_X / 2,
+		NUM_VOXELS_Y / 2,
+		NUM_VOXELS_Z / 2
+	);
 
 	double delta = (std::clock() - startGen) / (double)CLOCKS_PER_SEC;
 	cout << "CREATION TIME: " << delta << endl;
@@ -1454,7 +1796,7 @@ void Graphics::renderVertSplat(UINT index)
 	vertexCount->Map(0, &readRange, (void**)&readVert);
 	vertCount[index] = *readVert / sizeof(BITPOS);
 	vertexCount->Unmap(0, nullptr);
-	cout << "2 " << vertCount[0] << endl;
+	//cout << "2 " << vertCount[0] << endl;
 
 	commandList->DrawInstanced(vertCount[index], 1, 0, 0);
 
@@ -1521,14 +1863,14 @@ void Graphics::getVertIndexData(UINT index)
 	vertCount[index] = *readData / sizeof(VERT_OUT);
 	vertexCount->Unmap(0, nullptr);
 
-	cout << "VERT " << vertCount[index] << endl;
+	//cout << "VERT " << vertCount[index] << endl;
 	
 	// read in the index count
 	indexCount->Map(0, &readRange, (void**)&readData);
 	indCount[index] = *readData / sizeof(UINT);
 	indexCount->Unmap(0, nullptr);
 
-	cout << "IND " << indCount[index] << endl;
+	//cout << "IND " << indCount[index] << endl;
 }
 
 void Graphics::populateCommandList()
