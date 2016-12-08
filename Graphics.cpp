@@ -522,6 +522,29 @@ void Graphics::loadPipeline()
 		&srvDesc, srvHandle0);
 	srvHandle0.Offset(csuDescriptorSize);
 
+	// Instance SRV
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	srvDesc.Buffer.FirstElement = 0;
+	srvDesc.Buffer.NumElements = 1;
+	srvDesc.Buffer.StructureByteStride = sizeof(UINT);
+	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+
+	ThrowIfFailed(device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(UINT) + 255) & ~255),
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr,
+		IID_PPV_ARGS(&bufferSRV[INSTANCE])));
+
+	// bind texture to srv
+	device->CreateShaderResourceView(
+		bufferSRV[INSTANCE].Get(),
+		&srvDesc, srvHandle0);
+	srvHandle0.Offset(csuDescriptorSize);
+
 	// setup the image loader
 	Image::initDevil();
 	Image::setBase(srvHandle0, csuDescriptorSize, rtvHandle, rtvDescriptorSize);
@@ -1125,19 +1148,12 @@ void Graphics::loadAssets()
 		
 	// load in the images
 	noise0.setPipeline(uploadTexPipelineState.Get());
-
-	noise0.loadImage(device.Get(), L"Noise/noise0.raw");
-	noise0.uploadTexture(commandList.Get());
-
 	noise1.setPipeline(uploadTexPipelineState.Get());
-	
-	noise1.loadImage(device.Get(), L"Noise/noise1.raw");
-	noise1.uploadTexture(commandList.Get());
-
 	noise2.setPipeline(uploadTexPipelineState.Get());
 
+	noise0.loadImage(device.Get(), L"Noise/noise0.raw");
+	noise1.loadImage(device.Get(), L"Noise/noise1.raw");
 	noise2.loadImage(device.Get(), L"Noise/noise2.raw");
-	noise2.uploadTexture(commandList.Get());
 
 	// close the command list until things are added
 
@@ -1164,6 +1180,11 @@ void Graphics::loadAssets()
 	// wait for the command list to finish being run on the GPU
 	waitForGpu();
 
+	// upload textures
+	noise0.uploadTexture(this, commandList.Get());
+	noise1.uploadTexture(this, commandList.Get());
+	noise2.uploadTexture(this, commandList.Get());
+
 	// generate the terrain
 	
 	// record the render commands
@@ -1172,6 +1193,7 @@ void Graphics::loadAssets()
 	XMFLOAT3 startLoc = { 0.f, 0.f, 0.f };
 
 	clock_t startGen = 0;
+
 
 	UINT index = 0;
 	for (UINT z = 0; z < NUM_VOXELS_Z; z++)

@@ -81,7 +81,7 @@ public:
 	const UINT MAX_INDEX_SIZE =
 		(((2 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1) >> 2) << 2) * sizeof(UINT);
 
-private:
+//private:
 	// methods
 	void loadPipeline();
 	void loadAssets();
@@ -128,6 +128,7 @@ private:
 		DENSITY_TEXTURE = 0,
 		INDEX_TEXTURE,
 		FINDY_TEXTURE,
+		INSTANCE,
 		NOISE_0,
 		NOISE_1,
 		NOISE_2,

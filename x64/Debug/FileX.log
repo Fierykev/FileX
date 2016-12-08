@@ -2,11 +2,8 @@
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(69): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(71): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(75): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\image.cpp(51): warning C4800: 'ILuint': forcing value to bool 'true' or 'false' (performance warning)
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\image.cpp(127): error C2065: 'descriptorSize': undeclared identifier
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\image.cpp(148): warning C4018: '<': signed/unsigned mismatch
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\image.cpp(169): error C2065: 'descriptorSizePass': undeclared identifier
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\image.cpp(172): error C2065: 'descriptorSizePass': undeclared identifier
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\image.cpp(56): warning C4800: 'ILuint': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\image.cpp(205): warning C4018: '<': signed/unsigned mismatch
   Graphics.cpp
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(69): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(71): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
@@ -19,8 +16,8 @@ c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(48
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(64): warning C4305: 'argument': truncation from 'double' to 'float'
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(418): warning C4244: '=': conversion from 'const float' to 'UINT16', possible loss of data
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(494): warning C4244: '=': conversion from 'float' to 'UINT', possible loss of data
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(527): error C2039: 'setSRVBase': is not a member of 'Image'
-  c:\users\cyber\documents\visual studio 2015\projects\filex\filex\image.h(42): note: see declaration of 'Image'
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(527): error C3861: 'setSRVBase': identifier not found
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(1237): warning C4244: 'argument': conversion from 'const float' to 'UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.cpp(1259): warning C4244: 'argument': conversion from 'const float' to 'UINT', possible loss of data
   Generating Code...
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\image.h(40): warning C4715: 'half4::operator[]': not all control paths return a value
+  FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.exe
+  FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.pdb (Partial PDB)

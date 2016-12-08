@@ -18,6 +18,8 @@ using namespace std;
 
 struct ID3D12PipelineState;
 
+class Graphics;
+
 struct half4
 {
 	HALF x = 0, y = 0, z = 0, w = 0;
@@ -52,7 +54,7 @@ public:
 
 	void createTexture(ID3D12Device* device);
 
-	void uploadTexture(ID3D12GraphicsCommandList* commandList);
+	void uploadTexture(Graphics* g, ID3D12GraphicsCommandList* commandList);
 
 	static void initDevil();
 
@@ -65,19 +67,25 @@ private:
 
 	ComPtr<ID3D12PipelineState> pipelineState;
 
-	ComPtr<ID3D12Resource> texture3D, texture3DUpload;
+	ComPtr<ID3D12Resource> texture3D, texture2DUpload;
+
+	static ComPtr<ID3D12Resource> texture2D, instanceBuffer;
 
 	int width;
 	int height;
 	int depth;
 
-	unsigned int prevResourceNum, subresourceNum;
+	unsigned int subresourceNum;
 
 	XMFLOAT4* data = nullptr;
 
 	static UINT csuDescriptorSize, rtvDescriptorSize;
 	static CD3DX12_CPU_DESCRIPTOR_HANDLE srvTexStart, rtvTexStart;
-	static UINT numResources;
+	static UINT numResources, numUploadedResources;
+	static bool startup;
+
+	// TMP (should be in graphics)
+	const static UINT uploadOffset = 3;
 };
 
 #endif
