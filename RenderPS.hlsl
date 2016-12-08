@@ -23,7 +23,7 @@ float4 main(PS_INPUT input) : SV_TARGET
 	float3 light = normalize(float3(0, -1000, 0) - input.position.xyz);
 
 	float3 normal = input.normal;
-	float4 color = float4(1, 1, 1, 1);
+	float4 color = float4(.5, .5, .5, 1);
 
 	color = saturate(lerp(.8, input.ambient, .1) * 2.1 - .1);
 

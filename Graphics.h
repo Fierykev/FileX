@@ -17,7 +17,7 @@ using namespace Microsoft::WRL;
 using namespace DirectX;
 
 constexpr float PERSON_HEIGHT = 0.f;
-constexpr float CHUNK_SIZE = 4.f;
+constexpr float CHUNK_SIZE = 30.f;
 
 constexpr float EXTRA = 4.f;
 constexpr float VOXEL_SIZE = 33.f;
@@ -103,6 +103,7 @@ public:
 	void findYRender();
 	void searchTerrain();
 	void sampleDensity();
+	void genVoxel(UINT index);
 	void phase1(UINT index);
 	bool phase2(UINT index);
 	void phase3(UINT index);
@@ -169,6 +170,8 @@ public:
 		indexBuffer[NUM_VOXELS],
 		vertexCount,
 		indexCount, yposMap;
+
+	pair<XMFLOAT4, UINT> computedPos[NUM_VOXELS_X][NUM_VOXELS_Y][NUM_VOXELS_Z];
 
 	D3D12_VERTEX_BUFFER_VIEW plainVB, pointVB;
 
@@ -296,10 +299,10 @@ public:
 	// view params
 	XMMATRIX world, view, projection, worldViewProjection;
 
-	XMVECTOR eye = { -500.0f, 0.0f, -100.0f };
-	XMVECTOR at{ 12.5f, 12.5f, 12.5f };
+	XMFLOAT3 eyeDelta{ 0.0f, 10.0f, -110.0f };
+	XMVECTOR at{ eyeDelta.x, eyeDelta.y, eyeDelta.z };
+	XMVECTOR eye = { 0, 0, 0 };
 	XMVECTOR up{ 0.0f, 1.f, 0.0f };
-
 
 	float yAngle = 0, xAngle = 0;
 

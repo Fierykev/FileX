@@ -1,6 +1,3 @@
-﻿  FindY.cpp
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(69): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(71): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(75): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+﻿  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\RenderPS.cso
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.exe
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.pdb (Partial PDB)

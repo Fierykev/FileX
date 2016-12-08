@@ -61,7 +61,7 @@ void Graphics::onUpdate()
 	world = XMMatrixIdentity();
 	view = XMMatrixLookAtLH(eye, at, up);
 	projection = XMMatrixPerspectiveFovLH(XM_PI / 16,
-		(float)height / width, .1, 1000.0);
+		(float)height / width, .1, 800.0);
 	worldViewProjection = world * view * projection;
 
 	worldPosCB->world = XMMatrixTranspose(world);
@@ -73,6 +73,21 @@ void Graphics::onUpdate()
 	// wait for the last present
 
 	WaitForSingleObjectEx(swapChainEvent, 100, FALSE);
+}
+
+void Graphics::genVoxel(UINT index)
+{
+	// run phase 1
+	phase1(index);
+
+	if (!phase2(index)) // no verts
+	{
+		cout << "NO VERTS" << endl;
+		return;
+	}
+
+	phase3(index);
+	phase4(index);
 }
 
 void Graphics::phase1(UINT index)
@@ -184,35 +199,13 @@ void Graphics::drawPhase()
 	eye.m128_f32[1] = y;
 	at.m128_f32[1] = y;
 
+	eye.m128_f32[1] += eyeDelta.y;
+
 	XMFLOAT4 voxelPos;
 
 	clock_t startGen = 0;
 
 	UINT index = 0;
-	/*
-	for (UINT z = 0; z < NUM_VOXELS_Z; z++)
-	{
-		for (UINT y = 0; y < NUM_VOXELS_Y; y++)
-		{
-			for (UINT x = 0; x < NUM_VOXELS_X; x++)
-			{
-				voxelPos = { x * CHUNK_SIZE, y * CHUNK_SIZE, z * CHUNK_SIZE, 1 };
-				voxelPosData->voxelPos = voxelPos;
-
-				// run phase 1
-				phase1(index);
-				if (!phase2(index)) // no verts
-				{
-					cout << "NO VERTS" << endl;
-					continue;
-				}
-				phase3(index);
-				phase4(index);
-
-				index++;
-			}
-		}
-	}*/
 
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -222,6 +215,10 @@ void Graphics::drawPhase()
 		renderPipelineSolidState.Get()));
 
 	setupProceduralDescriptors();
+
+	// check if any terrain needs to be added / deleted
+
+
 	populateCommandList();
 
 	// run the commands
@@ -1033,7 +1030,7 @@ void Graphics::loadAssets()
 	psoDesc.RasterizerState = 
 	{
 		D3D12_FILL_MODE_SOLID,
-		D3D12_CULL_MODE_BACK,
+		D3D12_CULL_MODE_NONE,
 		FALSE,
 		D3D12_DEFAULT_DEPTH_BIAS,
 		D3D12_DEFAULT_DEPTH_BIAS_CLAMP,
@@ -1190,10 +1187,12 @@ void Graphics::loadAssets()
 	// record the render commands
 	
 	XMFLOAT4 voxelPos;
-	XMFLOAT3 startLoc = { 5.f, 5.f, 0.f };
+	XMFLOAT3 startLoc =
+		{ eye.m128_f32[0] + NUM_VOXELS_X * CHUNK_SIZE / 2.f,
+		eye.m128_f32[1] + NUM_VOXELS_Y * CHUNK_SIZE / 2.f,
+		eye.m128_f32[2] + NUM_VOXELS_Z *  CHUNK_SIZE / 2.f };
 
 	clock_t startGen = 0;
-
 
 	UINT index = 0;
 	for (UINT z = 0; z < NUM_VOXELS_Z; z++)
@@ -1205,15 +1204,9 @@ void Graphics::loadAssets()
 				voxelPos = { x * CHUNK_SIZE - startLoc.x, y * CHUNK_SIZE - startLoc.y, z * CHUNK_SIZE - startLoc.z, 1 };
 				voxelPosData->voxelPos = voxelPos;
 
-				// run phase 1
-				phase1(index);
-				if (!phase2(index)) // no verts
-				{
-					cout << "NO VERTS" << endl;
-					continue;
-				}
-				phase3(index);
-				phase4(index);
+				computedPos[x][y][z] = make_pair(voxelPos, index);
+
+				genVoxel(index);
 				
 				index ++;
 			}
@@ -1644,38 +1637,38 @@ void Graphics::onKeyDown(UINT8 key)
 	{
 	case VK_LEFT:
 
-		eye.m128_f32[0] -= speed;
-		//at.m128_f32[0] -= speed;
+		eye.m128_f32[0] += speed;
+		at.m128_f32[0] += speed;
 
 		break;
 	case VK_RIGHT:
 
-		eye.m128_f32[0] += speed;
-		//at.m128_f32[0] += speed;
+		eye.m128_f32[0] -= speed;
+		at.m128_f32[0] -= speed;
 
 		break;
 	case VK_UP:
 
-		eye.m128_f32[1] += speed;
-		//at.m128_f32[1] += speed;
+		eye.m128_f32[1] -= speed;
+		at.m128_f32[1] -= speed;
 
 		break;
 	case VK_DOWN:
 
-		eye.m128_f32[1] -= speed;
-		//at.m128_f32[1] -= speed;
+		eye.m128_f32[1] += speed;
+		at.m128_f32[1] += speed;
 
 		break;
 	case VK_SHIFT:
 
-		eye.m128_f32[2] += speed;
-		//at.m128_f32[2] += speed;
+		eye.m128_f32[2] -= speed;
+		at.m128_f32[2] -= speed;
 
 		break;
 	case VK_CONTROL:
 
-		eye.m128_f32[2] -= speed;
-		//at.m128_f32[2] -= speed;
+		eye.m128_f32[2] += speed;
+		at.m128_f32[2] += speed;
 
 		break;
 	case VK_TAB:

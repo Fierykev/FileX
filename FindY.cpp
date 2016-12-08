@@ -85,7 +85,7 @@ float Graphics::findY()
 {
 	UINT* tmpPos;
 	UINT ypos;
-	XMVECTOR pos = eye;
+	XMVECTOR pos = at;
 	int type = 0;
 
 	while (true)
@@ -115,7 +115,7 @@ float Graphics::findY()
 					break;
 				}
 
-				pos.m128_f32[1] -= SAMP_EXPANSION / 2.f;
+				pos.m128_f32[1] -= SAMP_EXPANSION;
 				type = 1;
 			}
 			else
@@ -126,7 +126,7 @@ float Graphics::findY()
 					break;
 				}
 
-				pos.m128_f32[1] += SAMP_EXPANSION / 2.f;
+				pos.m128_f32[1] += SAMP_EXPANSION;
 				type = 2;
 			}
 		}
@@ -143,5 +143,5 @@ float Graphics::findY()
 		<< pos.m128_f32[2]
 		<< endl;
 
-	return pos.m128_f32[1] + ypos * 1 / SAMP_EXPANSION + PERSON_HEIGHT;
+	return pos.m128_f32[1] + ypos * SAMP_EXPANSION / 2.f + PERSON_HEIGHT;
 }

@@ -76,7 +76,7 @@ float density(float3 pos)
 	//density +=
 		//sampleNoise(pos.xyz * float3(2.f, 32.f, 2.f) * .043, 0) * 2.f;
 
-	density += ran3.x * 2.f;
+	density += ran3.x * 5.f;
 
 	return density;
 

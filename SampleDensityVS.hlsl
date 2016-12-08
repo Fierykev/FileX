@@ -32,7 +32,7 @@ VS_OUTPUT main(VS_INPUT input)
 		float4(
 			tmpPos +
 			float3(
-				float2(input.texcoord.x, input.texcoord.y - .5) * Y_EXPANSION,
+				float2(input.texcoord.x, input.texcoord.y - .5) * Y_EXPANSION / 2.f,
 				input.instanceID * Z_EXPANSION)
 			, 1);
 
