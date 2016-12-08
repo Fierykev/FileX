@@ -4,9 +4,9 @@
 #include <ProceduralConstantsH.hlsl>
 #include "NoiseH.hlsl"
 
-Texture3D<float4> noise0 : register(t3);
-Texture3D<float4> noise1 : register(t4);
-Texture3D<float4> noise2 : register(t5);
+Texture3D<float4> noise0 : register(t4);
+Texture3D<float4> noise1 : register(t5);
+Texture3D<float4> noise2 : register(t6);
 
 SamplerState repeatSampler : register(s1);
 
@@ -16,7 +16,7 @@ static const float2 INV_TEX_SIZE = float2(1.f / TEX_SIZE, 0);
 // shelf
 static const float SHELF_THICK = 3.f;
 static const float SHELF_UP = -1;
-static const float SHELF_STRENGTH = 8.f;
+static const float SHELF_STRENGTH = 80.f;
 
 float4 sampleType(int type, float3 pos)
 {
@@ -57,28 +57,26 @@ float4 sampleNoiseMedium(float3 uvw, int type)
 
 float density(float3 pos)
 {
-	// grab some rand values
-	//float ran1 = saturate(sampleNoise(pos * .00834, 1) * 2.f - .5);
-	float4 ran2 = sampleNoise(pos * .00742, 1).xxxx;
-	float4 ran3 = sampleNoiseMedium(pos * .00543, 2);
-	
-	float density = -pos.y + chunkSize;
+	pos /= chunkSize;
 
+	// grab some rand values
+	float ran1 = saturate(sampleNoise(pos * .00834, 0) * 2.f - .5);
+	float ran2 = sampleNoise(pos * .00742, 1);
+	float ran3 = sampleNoise(pos * .00543, 2);
+	
+	float density = -pos.y;// +chunkSize - .5f;
+	
 	// shelves
-	density += ran2.x > .5 ? 100.f : 0.f;
-		
-		/*+= 
-		lerp(
+	density += lerp(
 		density, SHELF_STRENGTH,
 		.78 * saturate(SHELF_THICK - abs(pos.y - SHELF_UP))
-		* saturate(ran2.z * 1.5 - .5f)
-		);*/
+		* saturate(abs(ran2) * 1.5));
+	
+	// ridges
+	//density +=
+		//sampleNoise(pos.xyz * float3(2.f, 32.f, 2.f) * .043, 0) * 2.f;
 
-	//density += sampleNoise(pos * 4.03, 0).x * .25;
-	//density += sampleNoise(pos * 1.96, 1).x * .5;
-	//density += sampleNoise(pos * 1.01, 2).x;
-
-	//density += pos.z % 2;
+	density += ran3.x * 2.f;
 
 	return density;
 

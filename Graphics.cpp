@@ -180,9 +180,9 @@ void Graphics::phase4(UINT index)
 
 void Graphics::drawPhase()
 {
-	//float y = findY();
-	//eye.m128_f32[1] = y;
-	//at.m128_f32[1] = y;
+	float y = findY();
+	eye.m128_f32[1] = y;
+	at.m128_f32[1] = y;
 
 	XMFLOAT4 voxelPos;
 
@@ -588,9 +588,9 @@ void Graphics::loadPipeline()
 	device->CreateSampler(&samplerDesc, samplerHandle0);
 	samplerHandle0.Offset(samplerDescriptorSize);
 
-	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
 
 	device->CreateSampler(&samplerDesc, samplerHandle0);
 	samplerHandle0.Offset(samplerDescriptorSize);
@@ -1033,7 +1033,7 @@ void Graphics::loadAssets()
 	psoDesc.RasterizerState = 
 	{
 		D3D12_FILL_MODE_SOLID,
-		D3D12_CULL_MODE_NONE,
+		D3D12_CULL_MODE_BACK,
 		FALSE,
 		D3D12_DEFAULT_DEPTH_BIAS,
 		D3D12_DEFAULT_DEPTH_BIAS_CLAMP,
@@ -1190,7 +1190,7 @@ void Graphics::loadAssets()
 	// record the render commands
 	
 	XMFLOAT4 voxelPos;
-	XMFLOAT3 startLoc = { 0.f, 0.f, 0.f };
+	XMFLOAT3 startLoc = { 5.f, 5.f, 0.f };
 
 	clock_t startGen = 0;
 

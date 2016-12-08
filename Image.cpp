@@ -221,7 +221,6 @@ void Image::uploadTexture(Graphics* g, ID3D12GraphicsCommandList* commandList)
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		commandList->IASetVertexBuffers(0, 1, &g->plainVB);
 	
-		cout << data[STANDARD_SIZE * STANDARD_SIZE * i].x << endl;
 		D3D12_SUBRESOURCE_DATA textureData = {};
 		textureData.pData = &data[STANDARD_SIZE * STANDARD_SIZE * i];
 		textureData.RowPitch = STANDARD_SIZE * sizeof(XMFLOAT4);

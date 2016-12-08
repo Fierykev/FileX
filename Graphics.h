@@ -8,9 +8,9 @@
 #include "Manager.h"
 #include "Image.h"
 
-#define NUM_VOXELS_X 5
-#define NUM_VOXELS_Y 1
-#define NUM_VOXELS_Z 5
+#define NUM_VOXELS_X 10
+#define NUM_VOXELS_Y 10
+#define NUM_VOXELS_Z 10
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 using namespace Microsoft::WRL;
@@ -38,9 +38,9 @@ constexpr float OCC_SIZE_M1 = OCC_SIZE - 1;
 #define OCC_SIZE_P1 74.f
 #define OCC_SIZE_M1 72.f*/
 
-#define FINDY_SIZE 256.f
-#define FINDY_SIZE_P1 257.f
-#define SAMP_EXPANSION 5
+constexpr float FINDY_SIZE = 256.f;
+constexpr float FINDY_SIZE_P1 = 257.f;
+constexpr float SAMP_EXPANSION = VOXEL_SIZE / CHUNK_SIZE;
 
 #define SRVS_PER_FRAME 2
 
@@ -76,10 +76,10 @@ public:
 
 	// TODO: check if need to throw more memory at gpu
 	const UINT MAX_BUFFER_SIZE =
-		(((2 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1) >> 2) << 2) * sizeof(VERT_OUT);
+		((((UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1) >> 2) << 2) * sizeof(VERT_OUT);
 
 	const UINT MAX_INDEX_SIZE =
-		(((2 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1) >> 2) << 2) * sizeof(UINT);
+		((((UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1 * (UINT)VOXEL_SIZE_P1) >> 2) << 2) * sizeof(UINT);
 
 //private:
 	// methods

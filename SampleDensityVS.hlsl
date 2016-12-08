@@ -1,10 +1,9 @@
 #include <ProceduralConstantsH.hlsl>
 
 static const float TEX_Y = 257;
-static const float SAMP_EXPANSION = 5.f;
-static const float SAMP_EXPANSION_P1 = SAMP_EXPANSION + 1;
-static const float Y_EXPANSION = SAMP_EXPANSION_P1 / TEX_Y;
-static const float Z_EXPANSION = SAMP_EXPANSION_P1 / 2.f;
+static const float SAMP_EXPANSION = voxelInv * chunkSize;
+static const float Y_EXPANSION = TEX_Y * SAMP_EXPANSION;
+static const float Z_EXPANSION = Y_EXPANSION;
 
 struct VS_INPUT
 {
@@ -26,10 +25,12 @@ VS_OUTPUT main(VS_INPUT input)
 	output.position = float4(
 		input.position.xy, 0, 1
 		);
-	
+
+	float3 tmpPos = float3(voxelPos.x, -voxelPos.y, voxelPos.z);
+
 	output.worldPosition =
 		float4(
-			voxelPos.xyz +
+			tmpPos +
 			float3(
 				float2(input.texcoord.x, input.texcoord.y - .5) * Y_EXPANSION,
 				input.instanceID * Z_EXPANSION)

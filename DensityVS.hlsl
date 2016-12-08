@@ -30,9 +30,11 @@ VS_OUTPUT main(VS_INPUT input)
 	samplePos = (samplePos * occExpansion.x
 		- extra) * voxelInv.x;
 
+	//float3 tmpChunk = float3(chunkSize, -chunkSize, chunkSize);
 	samplePos *= chunkSize;
 	
-	samplePos += voxelPos;
+	float3 tmpPos = float3(voxelPos.x, -voxelPos.y, voxelPos.z);
+	samplePos += tmpPos;
 
 	output.worldPosition = 
 		float4(samplePos, 1);

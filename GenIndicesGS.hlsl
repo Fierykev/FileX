@@ -61,6 +61,16 @@ void main(
 			// load and output the index
 			element[i].index = indexTex.Load(int4(edgeTMP, 0)).x;
 
+			
+		}
+
+		if (element[0].index == MAX_INT ||
+			element[1].index == MAX_INT ||
+			element[2].index == MAX_INT)
+			continue;
+
+		for (uint i = 0; i < 3; i++)
+		{
 			output.Append(element[i]);
 		}
 

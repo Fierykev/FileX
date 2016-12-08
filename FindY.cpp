@@ -84,8 +84,8 @@ void Graphics::findYRender()
 float Graphics::findY()
 {
 	UINT* tmpPos;
-	UINT ypos;	
-	XMVECTOR pos = at;
+	UINT ypos;
+	XMVECTOR pos = eye;
 	int type = 0;
 
 	while (true)
@@ -132,6 +132,8 @@ float Graphics::findY()
 		}
 		else // done
 			break;
+
+		//break;
 	}
 
 	// fetch the data
@@ -141,5 +143,5 @@ float Graphics::findY()
 		<< pos.m128_f32[2]
 		<< endl;
 
-	return pos.m128_f32[1] + (((int)ypos - FINDY_SIZE / 2.f) / FINDY_SIZE / 2.f) * SAMP_EXPANSION / 2.f + PERSON_HEIGHT;
+	return pos.m128_f32[1] + ypos * 1 / SAMP_EXPANSION + PERSON_HEIGHT;
 }
