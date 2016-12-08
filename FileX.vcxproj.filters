@@ -198,12 +198,6 @@
     <FxCompile Include="SearchTerrainCS.hlsl">
       <Filter>Files\Shaders\Procedural\FindY</Filter>
     </FxCompile>
-    <FxCompile Include="MarbleVS.hlsl">
-      <Filter>Files\Shaders\Rock\Marble</Filter>
-    </FxCompile>
-    <FxCompile Include="MarblePS.hlsl">
-      <Filter>Files\Shaders\Rock\Marble</Filter>
-    </FxCompile>
     <FxCompile Include="UploadVS.hlsl">
       <Filter>Files\Shaders\Upload3D</Filter>
     </FxCompile>
@@ -244,6 +238,9 @@
     </None>
     <None Include="NoiseH.hlsl">
       <Filter>Files\Shaders\Procedural</Filter>
+    </None>
+    <None Include="MarbleH.hlsl">
+      <Filter>Files\Shaders\Rock\Marble</Filter>
     </None>
   </ItemGroup>
 </Project>

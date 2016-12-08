@@ -1363,7 +1363,7 @@ void Graphics::loadAssets()
 	psoDesc.RasterizerState = 
 	{
 		D3D12_FILL_MODE_SOLID,
-		D3D12_CULL_MODE_NONE,
+		D3D12_CULL_MODE_FRONT,
 		FALSE,
 		D3D12_DEFAULT_DEPTH_BIAS,
 		D3D12_DEFAULT_DEPTH_BIAS_CLAMP,
@@ -1904,8 +1904,11 @@ void Graphics::populateCommandList()
 	const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
 	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
-	for (UINT index = 0; index < NUM_VOXELS; index++)
+	//for (UINT index = 0; index < NUM_VOXELS; index++)
+	for (auto p : computedPos)
 	{
+		UINT index = p.second;
+
 		if (vertCount[index] == 0)
 			continue;
 

@@ -321,7 +321,7 @@ public:
 	// view params
 	XMMATRIX world, view, projection, worldViewProjection;
 
-	XMFLOAT3 eyeDelta{ 0.0f, 10.0f, -60.0f };
+	XMFLOAT3 eyeDelta{ 0.0f, 60.0f, -90.0f };
 	XMVECTOR at{ eyeDelta.x, eyeDelta.y, eyeDelta.z };
 	XMVECTOR eye = { 0, 0, 0 };
 	XMVECTOR up{ 0.0f, 1.f, 0.0f };

@@ -1,3 +1,5 @@
+#include "ProceduralConstantsH.hlsl"
+
 struct VS_INPUT
 {
 	float4 position : SV_POSITION;
@@ -11,6 +13,7 @@ struct VS_OUTPUT
 	float ambient : AMBIENT;
 	float3 texcoord : TEXCOORD;
 	float3 normal : TEXCOORD1;
+	float3 worldPos : TEXCOORD2;
 };
 
 cbuffer WORLD_POS : register(b0)
@@ -28,6 +31,7 @@ VS_OUTPUT main(VS_INPUT input)
 	output.position = mul(input.position, worldViewProjection);
 	output.texcoord = input.texcoord;
 	output.normal = input.normal;
+	output.worldPos = input.position;
 
 	return output;
 }
