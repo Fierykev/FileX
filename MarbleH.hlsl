@@ -3,12 +3,6 @@
 
 const static float freq = .032;
 
-Texture3D<float4> noise0 : register(t4);
-Texture3D<float4> noise1 : register(t5);
-Texture3D<float4> noise2 : register(t6);
-
-SamplerState repeatSampler : register(s1);
-
 float3 genMarble(float3 origCol, float3 pos)
 {
 	float3 tmp = float3(0, 0, 0);
@@ -23,7 +17,7 @@ float3 genMarble(float3 origCol, float3 pos)
 	isMarb = saturate(isMarb * 24.f - 22.f);
 	isMarb = pow(isMarb, 4);
 
-	float3 marble_col = float3(.6, .3, .6);
+	float3 marble_col = 1;// float3(.6, .3, .6);
 	float3 col = lerp(origCol, marble_col, isMarb);
 
 	return col;

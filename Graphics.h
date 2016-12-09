@@ -8,6 +8,7 @@
 #include <wrl.h>
 #include "Manager.h"
 #include "Image.h"
+#include "Image2D.h"
 
 #define NUM_VOXELS_X 10
 #define NUM_VOXELS_Y 10
@@ -154,6 +155,8 @@ public:
 		NOISE_1,
 		NOISE_2,
 		UPLOAD_TEX,
+		ALTITUDE,
+		BUMPMAP,
 		SRV_COUNT
 	};
 
@@ -299,6 +302,7 @@ public:
 
 	// Images
 	Image noise0, noise1, noise2;
+	Image2D altitude, bumpMap;
 
 	struct WORLD_POS
 	{
@@ -321,7 +325,7 @@ public:
 	// view params
 	XMMATRIX world, view, projection, worldViewProjection;
 
-	XMFLOAT3 eyeDelta{ 0.0f, 60.0f, -90.0f };
+	XMFLOAT3 eyeDelta{ 0.0f, 100.0f, -200.0f };
 	XMVECTOR at{ eyeDelta.x, eyeDelta.y, eyeDelta.z };
 	XMVECTOR eye = { 0, 0, 0 };
 	XMVECTOR up{ 0.0f, 1.f, 0.0f };

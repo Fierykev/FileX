@@ -31,7 +31,7 @@ VS_OUTPUT main(VS_INPUT input)
 	output.position = mul(input.position, worldViewProjection);
 	output.texcoord = input.texcoord;
 	output.normal = input.normal;
-	output.worldPos = input.position;
+	output.worldPos = input.position.xyz;
 
 	return output;
 }

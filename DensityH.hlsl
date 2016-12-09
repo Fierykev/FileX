@@ -32,6 +32,7 @@ float4 sampleType(int type, float3 pos)
 
 float sampleNoise(float3 uvw, int type, float soften = 1)
 {
+	//return snoise(uvw);
 	float3 tmp1 = floor(uvw * TEX_SIZE) * INV_TEX_SIZE.x;
 	float3 delta = (uvw - tmp1) * TEX_SIZE;
 	delta = lerp(delta, delta * delta * (3.f - 2.f * delta), soften);
@@ -77,6 +78,8 @@ float density(float3 pos)
 		sampleNoise(pos.xyz * float3(2.f, 32.f, 2.f) * .043, 0) * 2.f;
 
 	density += ran3.x * 5.f;
+
+	density *= 3.f;
 
 	return density;
 

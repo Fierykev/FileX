@@ -2,6 +2,7 @@
 #include <EdgesConstantsH.hlsl>
 #include <RaysH.hlsl>
 #include <DensityH.hlsl>
+#include "Debug.hlsl"
 
 #define NUM_STEPS 16
 #define FAR_SAMPLES 6
@@ -47,10 +48,11 @@ float ambientOcclusion(float3 position)
 
 			float den = densityTexture.SampleLevel(nearestSample,
 				rays, 0);
-			isVis *= lerp(isVis, 0, saturate(den * 7.f)
-				* occWeigths[j].z);
+
+			isVis = lerp(isVis, 0, saturate(den * 7.f));
+				//* occWeigths[j].z);
 		}
-		/*
+		
 		for (uint k = 0; k < FAR_SAMPLES; k++)
 		{
 			float range = 10.f * k + 1.f;
@@ -60,8 +62,8 @@ float ambientOcclusion(float3 position)
 			float den = density(position + direction * range);
 			isVis *=
 				.08 + .92 * saturate(-den * .21 + 24);
-		}*/
-
+		}
+		
 		vis += isVis;
 	}
 

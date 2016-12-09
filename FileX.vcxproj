@@ -126,6 +126,7 @@
     <ClCompile Include="FindY.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Image.cpp" />
+    <ClCompile Include="Image2D.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Manager.cpp" />
     <ClCompile Include="Parser.cpp" />
@@ -138,6 +139,7 @@
     <ClInclude Include="Helper.h" />
     <ClInclude Include="HLSL_CPU.h" />
     <ClInclude Include="Image.h" />
+    <ClInclude Include="Image2D.h" />
     <ClInclude Include="Manager.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Shader.h" />
@@ -145,6 +147,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Debug.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="AltitudeH.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <FileType>Document</FileType>
     </None>
     <FxCompile Include="ClearTexGS.hlsl">

@@ -7,6 +7,7 @@
 #include "Shader.h"
 #include "Parser.h"
 #include "Image.h"
+#include "Image2D.h"
 
 #include <ctime>
 
@@ -879,6 +880,11 @@ void Graphics::loadPipeline()
 	Image::initDevil();
 	Image::setBase(srvHandle0, csuDescriptorSize, rtvHandle, rtvDescriptorSize);
 
+	CD3DX12_CPU_DESCRIPTOR_HANDLE srvHandleALT(
+		csuHeap->GetCPUDescriptorHandleForHeapStart(),
+		CBV_COUNT + ALTITUDE, csuDescriptorSize);
+	Image2D::setSRVBase(srvHandleALT, csuDescriptorSize);
+
 	// depth stencil
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(dsvHeap->GetCPUDescriptorHandleForHeapStart(),
 		0, dsvDescriptorSize);
@@ -1475,15 +1481,13 @@ void Graphics::loadAssets()
 	// create command list
 
 	ThrowIfFailed(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator[frameIndex].Get(), nullptr, IID_PPV_ARGS(&commandList)));
-		
-	// load in the images
-	noise0.setPipeline(uploadTexPipelineState.Get());
-	noise1.setPipeline(uploadTexPipelineState.Get());
-	noise2.setPipeline(uploadTexPipelineState.Get());
 
-	noise0.loadImage(device.Get(), L"Noise/noise0.raw");
-	noise1.loadImage(device.Get(), L"Noise/noise1.raw");
-	noise2.loadImage(device.Get(), L"Noise/noise2.raw");
+	// load in the 2D images
+	altitude.loadImage(device.Get(), L"Altitude/Mountain Texture 4.bmp");
+	altitude.uploadTexture(commandList.Get());
+
+	bumpMap.loadImage(device.Get(), L"Altitude/Mountain Texture 3.bmp");
+	bumpMap.uploadTexture(commandList.Get());
 
 	// close the command list until things are added
 
@@ -1509,6 +1513,15 @@ void Graphics::loadAssets()
 
 	// wait for the command list to finish being run on the GPU
 	waitForGpu();
+
+	// load in the volume images
+	noise0.setPipeline(uploadTexPipelineState.Get());
+	noise1.setPipeline(uploadTexPipelineState.Get());
+	noise2.setPipeline(uploadTexPipelineState.Get());
+
+	noise0.loadImage(device.Get(), L"Noise/noise0.raw");
+	noise1.loadImage(device.Get(), L"Noise/noise1.raw");
+	noise2.loadImage(device.Get(), L"Noise/noise2.raw");
 
 	// upload textures
 	noise0.uploadTexture(this, commandList.Get());
