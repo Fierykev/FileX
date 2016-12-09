@@ -202,9 +202,9 @@ void Graphics::updateTerrain()
 {
 	// check if need to generate terrain
 	XMFLOAT3 curPos{
-		eye.m128_f32[0],
-		eye.m128_f32[1],
-		eye.m128_f32[2]
+		at.m128_f32[0],
+		at.m128_f32[1],
+		at.m128_f32[2]
 	};
 
 	XMFLOAT3 voxelPos;
@@ -537,10 +537,18 @@ void Graphics::updateTerrain()
 void Graphics::drawPhase()
 {
 	float y = findY();
-	eye.m128_f32[1] = y;
+
+	eyeDelta.x = origDelta.x * cos(yAngle)
+		- origDelta.z * sin(yAngle);
+
+	eyeDelta.z = origDelta.z * cos(yAngle)
+		+ origDelta.x * sin(yAngle);
+
 	at.m128_f32[1] = y;
 
-	eye.m128_f32[1] += eyeDelta.y;
+	eye.m128_f32[0] = at.m128_f32[0] + eyeDelta.x;
+	eye.m128_f32[1] = at.m128_f32[1] + eyeDelta.y;
+	eye.m128_f32[2] = at.m128_f32[2] + eyeDelta.z;
 
 	updateTerrain();
 
@@ -1995,38 +2003,24 @@ void Graphics::onKeyDown(UINT8 key)
 	{
 	case VK_LEFT:
 
-		eye.m128_f32[0] += speed;
-		at.m128_f32[0] += speed;
+		yAngle += angleSpeed;
 
 		break;
 	case VK_RIGHT:
 
-		eye.m128_f32[0] -= speed;
-		at.m128_f32[0] -= speed;
+		yAngle -= angleSpeed;
 
 		break;
 	case VK_UP:
 
-		eye.m128_f32[1] -= speed;
-		at.m128_f32[1] -= speed;
+		at.m128_f32[0] -= sin(yAngle) * speed;
+		at.m128_f32[2] += cos(yAngle) * speed;
 
 		break;
 	case VK_DOWN:
 
-		eye.m128_f32[1] += speed;
-		at.m128_f32[1] += speed;
-
-		break;
-	case VK_SHIFT:
-
-		eye.m128_f32[2] -= speed;
-		at.m128_f32[2] -= speed;
-
-		break;
-	case VK_CONTROL:
-
-		eye.m128_f32[2] += speed;
-		at.m128_f32[2] += speed;
+		at.m128_f32[0] += sin(yAngle) * speed;
+		at.m128_f32[2] -= cos(yAngle) * speed;
 
 		break;
 	case VK_TAB:

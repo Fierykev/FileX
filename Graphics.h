@@ -71,7 +71,7 @@ namespace std
 }
 
 constexpr UINT COUNTER_SIZE = sizeof(UINT64);
-constexpr float speed = 5.f;
+constexpr float speed = 4.f, angleSpeed = .03f;
 
 class Graphics : public Manager
 {
@@ -325,7 +325,8 @@ public:
 	// view params
 	XMMATRIX world, view, projection, worldViewProjection;
 
-	XMFLOAT3 eyeDelta{ 0.0f, 100.0f, -200.0f };
+	XMFLOAT3 origDelta{ 0.0f, 100.0f, -200.0f };
+	XMFLOAT3 eyeDelta = origDelta;
 	XMVECTOR at{ eyeDelta.x, eyeDelta.y, eyeDelta.z };
 	XMVECTOR eye = { 0, 0, 0 };
 	XMVECTOR up{ 0.0f, 1.f, 0.0f };
