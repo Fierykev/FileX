@@ -122,6 +122,9 @@ float littleBigPlanet(float3 pos)
 
 float density(float3 pos)
 {
+	if (densityType == 1)
+		return littleBigPlanet(pos);
+
 	return shelfDensity(pos);
 }
 

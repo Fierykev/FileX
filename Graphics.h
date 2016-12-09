@@ -110,6 +110,7 @@ public:
 	void waitForGpu();
 
 	// added methods
+	void regenTerrain();
 	void setupProceduralDescriptors();
 	void renderDensity(UINT index);
 	void renderOccupied(UINT index);

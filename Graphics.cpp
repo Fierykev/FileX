@@ -1539,13 +1539,26 @@ void Graphics::loadAssets()
 	noise1.uploadTexture(this, commandList.Get());
 	noise2.uploadTexture(this, commandList.Get());
 
+	regenTerrain();
+}
+
+void Graphics::regenTerrain()
+{
+	// reset camera
+	yAngle = 0;
+	eyeDelta = origDelta;
+	at = { eyeDelta.x, eyeDelta.y, eyeDelta.z };
+
+	// clear the hashmap
+	computedPos.clear();
+
 	// generate the terrain
-	
+
 	// record the render commands
-	
+
 	XMFLOAT3 voxelPos;
 	startLoc =
-		{ at.m128_f32[0] + NUM_VOXELS_X * CHUNK_SIZE / 2.f,
+	{ at.m128_f32[0] + NUM_VOXELS_X * CHUNK_SIZE / 2.f,
 		at.m128_f32[1] + NUM_VOXELS_Y * CHUNK_SIZE / 2.f,
 		at.m128_f32[2] + NUM_VOXELS_Z *  CHUNK_SIZE / 2.f };
 
@@ -1567,8 +1580,8 @@ void Graphics::loadAssets()
 				voxelPos = { x * CHUNK_SIZE - startLoc.x, y * CHUNK_SIZE - startLoc.y, z * CHUNK_SIZE - startLoc.z };
 
 				genVoxel(voxelPos, index);
-				
-				index ++;
+
+				index++;
 			}
 		}
 	}
@@ -2026,8 +2039,14 @@ void Graphics::onKeyDown(UINT8 key)
 		at.m128_f32[2] -= cos(yAngle) * speed;
 
 		break;
-	case 'A':
+	case 'R':
 		voxelPosData->renderType = (voxelPosData->renderType + 1) % 4;
+		break;
+	case 'T':
+
+		voxelPosData->densityType = (voxelPosData->densityType + 1) % 2;
+		regenTerrain();
+
 		break;
 	case VK_TAB:
 
