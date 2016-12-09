@@ -314,6 +314,8 @@ public:
 	struct VOXEL_POS
 	{
 		XMFLOAT4 voxelPos;
+		UINT densityType;
+		UINT renderType;
 	};
 
 	bool isSolid = false;

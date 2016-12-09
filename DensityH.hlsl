@@ -56,37 +56,79 @@ float4 sampleNoiseMedium(float3 uvw, int type)
 	return sampleType(type, sampleLoc);
 }
 
-float density(float3 pos)
+float snap(float a, float b)
 {
+	float tmp = (.5 < a) ? 1 : 0;
+	float tmp2 = 1.f - tmp * 2.f;
+
+	return tmp * tmp2 * pow((tmp + tmp2 * a) * 2, b) * .5;
+}
+
+float shelfDensity(float3 pos)
+{
+	// scale down
 	pos /= chunkSize;
 
 	// grab some rand values
 	float ran1 = saturate(sampleNoise(pos * .00834, 0) * 2.f - .5);
 	float ran2 = sampleNoise(pos * .00742, 1);
 	float ran3 = sampleNoise(pos * .00543, 2);
-	
+
 	float density = -pos.y;// +chunkSize - .5f;
-	
-	// shelves
+
+						   // shelves
 	density += lerp(
 		density, SHELF_STRENGTH,
 		.78 * saturate(SHELF_THICK - abs(pos.y - SHELF_UP))
-		* saturate(abs(ran2) * 1.5));
-	
-	// ridges
-	//density +=
-		//sampleNoise(pos.xyz * float3(2.f, 32.f, 2.f) * .043, 0) * 2.f;
+		* saturate(ran2 * 1.5));
 
 	density +=
-		sampleNoiseMedium(pos.xyz, 0);
+		sampleNoiseMedium(pos.xyz, 0).x;
 
 	density += ran3.x * 5.f;
 
 	density *= 3.f;
 
 	return density;
-
-	//return pos.y - .5;//noise(8);
 }
+
+float littleBigPlanet(float3 pos)
+{
+	// scale down
+	pos /= chunkSize;
+
+	// grab some rand values
+	float ran1 = saturate(sampleNoise(pos * .00834, 0) * 2.f - .5);
+	float ran2 = sampleNoise(pos * .00742, 1);
+	float ran3 = sampleNoise(pos * .00543, 2);
+
+	float3 medRan1 = sampleNoiseMedium(pos * .02303, 0);
+
+	float density = -pos.y;
+
+	float3 rpos = 
+		pos + float3(ran1, ran2, ran3) * 25.f * saturate(medRan1.y * 1.4 - .3);
+	float rad = length(pos);
+	float rrad = length(rpos);
+
+	float combo = -lerp(rad, rrad, .1) * .2;
+	float fCombo = frac(combo);
+	float snapCombo = snap(fCombo, 16);
+
+	density += (snapCombo - fCombo) * 10.f;
+
+	return density;
+}
+
+float density(float3 pos)
+{
+	return shelfDensity(pos);
+}
+
+
+// ridges
+//density +=
+//sampleNoise(pos.xyz * float3(2.f, 32.f, 2.f) * .043, 0) * 2.f;
+
 
 #endif

@@ -41,5 +41,13 @@ float4 main(PS_INPUT input) : SV_TARGET
 
 	diff = clamp(diff, 0.0, 1.0);
 	
-	return float4(diff, 1);//float4(diff, 1);
+	if (renderType == 1)
+		return float4(ambient.xxx, 1);
+	else if (renderType == 2)
+		return float4(normal, 1);
+	else if (renderType == 3)
+		return float4(color, 1);
+	
+	// if no render type matches choose this
+	return float4(diff, 1);
 }

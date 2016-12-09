@@ -4,6 +4,8 @@
 cbuffer VOXEL_POS : register(b1)
 {
 	float4 voxelPos;
+	uint densityType;
+	uint renderType;
 };
 
 static const float chunkSize = 80.f;

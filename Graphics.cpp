@@ -976,6 +976,9 @@ void Graphics::loadPipeline()
 
 	bufferCB[CB_VOXEL_POS]->Map(0, &readRange, (void**)&voxelPosData);
 
+	voxelPosData->densityType = 0;
+	voxelPosData->renderType = 0;
+
 	// IS NOT UNMAPPED
 
 	cdesc.BufferLocation = bufferCB[CB_VOXEL_POS]->GetGPUVirtualAddress();
@@ -2022,6 +2025,9 @@ void Graphics::onKeyDown(UINT8 key)
 		at.m128_f32[0] += sin(yAngle) * speed;
 		at.m128_f32[2] -= cos(yAngle) * speed;
 
+		break;
+	case 'A':
+		voxelPosData->renderType = (voxelPosData->renderType + 1) % 4;
 		break;
 	case VK_TAB:
 
