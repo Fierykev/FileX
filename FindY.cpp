@@ -109,24 +109,26 @@ float Graphics::findY()
 		{
 			if ((ypos >> 31) & 0x1)
 			{
+				/*
 				if (type == 1)
 				{
 					ypos = 0;
 					break;
-				}
+				}*/
 
-				pos.m128_f32[1] -= SAMP_EXPANSION;
+				pos.m128_f32[1] -= SAMP_EXPANSION / 2.f;
 				type = 1;
 			}
 			else
 			{
+				/*
 				if (type == 1)
 				{
 					ypos = 128;
 					break;
-				}
+				}*/
 
-				pos.m128_f32[1] += SAMP_EXPANSION;
+				pos.m128_f32[1] += SAMP_EXPANSION / 2.f;
 				type = 2;
 			}
 		}

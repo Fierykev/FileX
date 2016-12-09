@@ -10,9 +10,9 @@
 #include "Image.h"
 #include "Image2D.h"
 
-#define NUM_VOXELS_X 10
-#define NUM_VOXELS_Y 10
-#define NUM_VOXELS_Z 10
+#define NUM_VOXELS_X 8
+#define NUM_VOXELS_Y 8
+#define NUM_VOXELS_Z 14
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 using namespace Microsoft::WRL;

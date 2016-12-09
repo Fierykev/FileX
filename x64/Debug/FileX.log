@@ -1,5 +1,6 @@
-﻿C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\GenIndicesGS.hlsl(72,13): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
-  
-  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\GenIndicesGS.cso
-  FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.exe
-  FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.pdb (Partial PDB)
+﻿  FindY.cpp
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(89): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(91): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(95): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+  FileX.vcxproj -> C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Debug\FileX.exe
+  FileX.vcxproj -> C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Debug\FileX.pdb (Partial PDB)
