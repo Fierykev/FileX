@@ -1,0 +1,68 @@
+USER CONTROLS:
+
+Left and Right Arrow Keys:
+
+Rotate the camera left and right respectively.
+
+Up and Down:
+
+Move forward and backwards in the direction the camera is facing.
+
+TAB:
+
+Change to wireframe mode.
+
+R:
+
+Switch render types (moves to next mode and wraps around):
+
+1). Default mode with ambient occlusion, bump mapping, normals, and texture planar projection.
+
+2). Ambient occlusion.
+
+3). Normals with bump mapping.
+
+4). Texture planar projection.
+
+T:
+
+Switch between worlds (moves to next world and wraps around):
+
+1). Shelf Demo
+
+2). Planet Demo
+
+3). Noise Combination Demo
+
+4). Unstable World Demo
+
+UNDERNEATH THE HOOD:
+
+Stages of Procedural Generation:
+
+1). Evaluate the density function.
+	- Density*.hlsl
+
+2). Find areas where terrain is present (density function transitions from + to - value).
+	- Occupied*.hlsl
+	
+3). Remove duplicate vertices by only caring about those on edges 0, 3, and 8.
+	- GenVerts*.hlsl
+
+4). Clear the 3D texture for indices.
+	- ClearTex*.hlsl
+	
+5). Perform a vertex splat to determine index ID numbers.
+	- VertSplat*.hlsl
+	
+6). Generate indices based on the results from the vertex splat.
+	- GenIndices*.hlsl
+
+7). Create the vertices and store them in a buffer for usage during the draw phase.
+	- VertexMesh*.hlsl
+	
+NOTE: DensityH.hlsl contains the density function code.
+
+DEPENDENCIES AT RUNTIME:
+
+D3DX12
