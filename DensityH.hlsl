@@ -120,10 +120,64 @@ float littleBigPlanet(float3 pos)
 	return density;
 }
 
+float twistedWorld(float3 pos)
+{
+	// scale down
+	pos /= chunkSize;
+
+	// grab some rand values
+	float ran1 = saturate(sampleNoise(pos * .00834, 0) * 2.f - .5);
+	float ran2 = sampleNoise(pos * .00742, 1);
+	float ran3 = sampleNoise(pos * .00543, 2);
+
+	float density = -pos.y;
+
+	density += ran1 * 25;
+	density += ran2 * 5;
+	density += ran3;
+
+	density += snoise(pos);
+
+	density *= 100.f;
+
+	return density;
+}
+
+float floatingWorld(float3 pos)
+{
+	// scale down
+	pos /= chunkSize;
+
+	float ran1 = snoise(pos * 4.03).x * .25;
+	float ran2 = snoise(pos * 1.96).x * .5;
+	float ran3 = snoise(pos * 1.01).x;
+
+	float3 medRan1 = snoise(pos * .02303);
+
+	float density = -pos.y;
+
+	float3 rpos =
+		pos + float3(ran1, ran2, ran3) * 25.f * saturate(medRan1.y * 1.4 - .3);
+	float rad = length(pos);
+	float rrad = length(rpos);
+
+	float combo = -lerp(rad, rrad, .1) * .2;
+	float fCombo = frac(combo);
+	float snapCombo = snap(fCombo, 16);
+
+	density += (snapCombo - fCombo) * 10.f;
+
+	return density;
+}
+
 float density(float3 pos)
 {
 	if (densityType == 1)
 		return littleBigPlanet(pos);
+	else if (densityType == 2)
+		return twistedWorld(pos);
+	else if (densityType == 3)
+		return floatingWorld(pos);
 
 	return shelfDensity(pos);
 }

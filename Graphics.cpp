@@ -1562,7 +1562,7 @@ void Graphics::regenTerrain()
 		at.m128_f32[1] + NUM_VOXELS_Y * CHUNK_SIZE / 2.f,
 		at.m128_f32[2] + NUM_VOXELS_Z *  CHUNK_SIZE / 2.f };
 
-	clock_t startGen = 0;
+	clock_t startGen = std::clock_t();
 
 	UINT index = 0;
 	for (UINT z = 0; z < NUM_VOXELS_Z; z++)
@@ -1593,7 +1593,7 @@ void Graphics::regenTerrain()
 	);
 
 	double delta = (std::clock() - startGen) / (double)CLOCKS_PER_SEC;
-	cout << "CREATION TIME: " << delta << endl;
+	//cout << "CREATION TIME: " << delta << endl;
 }
 
 void Graphics::setupProceduralDescriptors()
@@ -2027,24 +2027,24 @@ void Graphics::onKeyDown(UINT8 key)
 		yAngle -= angleSpeed;
 
 		break;
-	case VK_UP:
+	case VK_DOWN:
 
 		at.m128_f32[0] -= sin(yAngle) * speed;
 		at.m128_f32[2] += cos(yAngle) * speed;
 
 		break;
-	case VK_DOWN:
+	case VK_UP:
 
 		at.m128_f32[0] += sin(yAngle) * speed;
 		at.m128_f32[2] -= cos(yAngle) * speed;
 
 		break;
 	case 'R':
-		voxelPosData->renderType = (voxelPosData->renderType + 1) % 4;
+		voxelPosData->renderType = (voxelPosData->renderType + 1) % NUM_RENDER_TYPES;
 		break;
 	case 'T':
 
-		voxelPosData->densityType = (voxelPosData->densityType + 1) % 2;
+		voxelPosData->densityType = (voxelPosData->densityType + 1) % NUM_DENSITY_TYPES;
 		regenTerrain();
 
 		break;

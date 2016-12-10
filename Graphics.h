@@ -15,6 +15,9 @@
 #define NUM_VOXELS_Z 14
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
+#define NUM_RENDER_TYPES 4
+#define NUM_DENSITY_TYPES 4
+
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
@@ -328,7 +331,7 @@ public:
 	// view params
 	XMMATRIX world, view, projection, worldViewProjection;
 
-	XMFLOAT3 origDelta{ 0.0f, 100.0f, -200.0f };
+	XMFLOAT3 origDelta{ 0.0f, 100.0f, 200.0f };
 	XMFLOAT3 eyeDelta = origDelta;
 	XMVECTOR at{ eyeDelta.x, eyeDelta.y, eyeDelta.z };
 	XMVECTOR eye = { 0, 0, 0 };

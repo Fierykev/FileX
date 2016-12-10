@@ -54,9 +54,6 @@
     <Filter Include="Files\Shaders\Procedural\ClearTex">
       <UniqueIdentifier>{edc9bd65-743c-4327-b8b6-33ed0d883a02}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Files\Shaders\Simplex">
-      <UniqueIdentifier>{5c41b4ff-d76f-4b44-a2cd-b7374c0e4762}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Files\FindY">
       <UniqueIdentifier>{c4a59b31-2550-46cc-99f3-b16d25bb1b1c}</UniqueIdentifier>
     </Filter>
@@ -235,9 +232,6 @@
     </None>
     <None Include="PolyEdgeH.hlsl">
       <Filter>Files\Shaders\Procedural</Filter>
-    </None>
-    <None Include="SimplexH.hlsl">
-      <Filter>Files\Shaders\Simplex</Filter>
     </None>
     <None Include="RaysH.hlsl">
       <Filter>Files\Shaders\Procedural</Filter>
