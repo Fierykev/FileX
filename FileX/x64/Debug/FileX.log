@@ -1,4 +1,14 @@
-﻿  main.cpp
+﻿C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\DensityH.hlsl(105,9-52): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\DensityPS.cso
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\DensityH.hlsl(105,9-52): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\SearchTerrainCS.cso
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\OccupiedVS.cso
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\DensityH.hlsl(105,9-52): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\VertexMeshVS.cso
+  main.cpp
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(92): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(94): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(98): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
