@@ -76,11 +76,11 @@ void Graphics::onUpdate()
 	WaitForSingleObjectEx(swapChainEvent, 100, FALSE);
 }
 
-void Graphics::genVoxel(XMFLOAT3 pos, UINT index)
+bool Graphics::genVoxel(XMFLOAT3 pos, UINT index)
 {
 	// set the voxel pos
 	voxelPosData->voxelPos =
-		XMFLOAT4(pos.x, pos.y, pos.z, 1);
+		XMFLOAT3(pos.x, pos.y, pos.z);
 
 	// run phase 1
 	phase1(index);
@@ -88,11 +88,13 @@ void Graphics::genVoxel(XMFLOAT3 pos, UINT index)
 	if (!phase2(index)) // no verts
 	{
 		//cout << "NO VERTS" << endl;
-		return;
+		return false;
 	}
 
 	phase3(index);
 	phase4(index);
+
+	return true;
 }
 
 void Graphics::phase1(UINT index)
@@ -137,11 +139,6 @@ bool Graphics::phase2(UINT index)
 		return false;
 	}
 
-	// indices
-	renderClearTex(index);
-	renderVertSplat(index);
-	renderGenIndices(index);
-
 	// run the commands
 	ThrowIfFailed(commandList->Close());
 	ID3D12CommandList* commandLists[] = { commandList.Get() };
@@ -163,6 +160,11 @@ void Graphics::phase3(UINT index)
 		renderPipelineSolidState.Get()));
 
 	setupProceduralDescriptors();
+
+	// indices
+	renderClearTex(index);
+	renderVertSplat(index);
+	renderGenIndices(index);
 
 	// verts
 	renderVertexMesh(index);
@@ -1579,6 +1581,7 @@ void Graphics::regenTerrain()
 
 				voxelPos = { x * CHUNK_SIZE - startLoc.x, y * CHUNK_SIZE - startLoc.y, z * CHUNK_SIZE - startLoc.z };
 
+				// TODO: TMP
 				genVoxel(voxelPos, index);
 
 				index++;
@@ -1833,7 +1836,7 @@ void Graphics::renderVertSplat(UINT index)
 	vertexCount->Map(0, &readRange, (void**)&readVert);
 	vertCount[index] = *readVert / sizeof(BITPOS);
 	vertexCount->Unmap(0, nullptr);
-	//cout << "2 " << vertCount[0] << endl;
+	//cout << "2 " << vertCount[index] << endl;
 
 	commandList->DrawInstanced(vertCount[index], 1, 0, 0);
 

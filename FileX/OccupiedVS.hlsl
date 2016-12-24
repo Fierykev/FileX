@@ -21,7 +21,7 @@ VS_OUTPUT main(VS_INPUT input)
 	VS_OUTPUT output;
 
 	float3 position = float3(input.position,
-		(input.instanceID + extra) * occInvVecM1.x);
+		(input.instanceID + extra) * occInvVecM1.x); //occInvVecM1
 
 	// for float error
 	position += occInvVecM1.xxx * .125;

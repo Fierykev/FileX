@@ -3,7 +3,7 @@
 
 cbuffer VOXEL_POS : register(b1)
 {
-	float4 voxelPos;
+	float3 voxelPos;
 	uint densityType;
 	uint renderType;
 };

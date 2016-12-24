@@ -34,8 +34,11 @@ void main(
 
 	// check that everything is whithin the cell
 	// NOTE: this will most likely use cmove so no branch
-	if ((uint)voxelM1 < max(max(position.x, position.y), position.z))
+	if ((uint)voxelM1 <= max(max(position.x, position.y), position.z))
 		numPolygons = 0;
+
+	//if (2 >= min(min(position.x, position.y), position.z))
+		//numPolygons = 0;
 
 	// generate the indices for each poly
 	[loop]
@@ -62,11 +65,11 @@ void main(
 			element[i].index = indexTex.Load(int4(edgeTMP, 0)).x;			
 		}
 
-		if (element[0].index == MAX_INT ||
+		/*if (element[0].index == MAX_INT ||
 			element[1].index == MAX_INT ||
 			element[2].index == MAX_INT)
 			continue;
-
+			*/
 		for (uint i = 0; i < 3; i++)
 		{
 			output.Append(element[i]);

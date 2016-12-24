@@ -1,2 +1,40 @@
-﻿  FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Release\FileX.exe
-  FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Release\FileX.pdb (Full PDB)
+﻿  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\ClearTexGS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\ClearTexPS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\ClearTexVS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\DensityGS.cso
+C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\FileX\DensityH.hlsl(105,9-52): warning X3206: implicit truncation of vector type
+C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\FileX\DensityH.hlsl(64,22-49): warning X3571: pow(f, e) will not work for negative f, use abs(f) or conditionally handle negative values if you expect them
+C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\FileX\DensityH.hlsl(180,28): warning X4000: use of potentially uninitialized variable (density)
+  
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\DensityPS.cso
+C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\FileX\SampleDensityVS.hlsl(4,20-56): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\SampleDensityVS.cso
+C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\FileX\DensityH.hlsl(105,9-52): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\SearchTerrainCS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\UploadGS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\UploadPS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\UploadVS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\VertSplatPS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\VertSplatVS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\VertSplatGS.cso
+C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\FileX\GenIndicesGS.hlsl(70,13): warning X3078: 'i': loop control variable conflicts with a previous declaration in the outer scope; most recent declaration will be used
+  
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\GenIndicesGS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\GenIndicesVS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\GenVertsGS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\GenVertsVS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\OccupiedGS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\OccupiedVS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\RenderPS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\RenderVS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\VertexMeshGS.cso
+C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\FileX\DensityH.hlsl(105,9-52): warning X3206: implicit truncation of vector type
+C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\FileX\DensityH.hlsl(64,22-49): warning X3571: pow(f, e) will not work for negative f, use abs(f) or conditionally handle negative values if you expect them
+C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\FileX\DensityH.hlsl(180,28): warning X4000: use of potentially uninitialized variable (density)
+  
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\VertexMeshVS.cso
+  compilation object save succeeded; see C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\DensityVS.cso
+  FileX.vcxproj -> C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\FileX.exe
+  FileX.vcxproj -> C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\x64\Release\FileX.pdb (Full PDB)

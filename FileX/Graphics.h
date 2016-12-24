@@ -10,9 +10,9 @@
 #include "Image.h"
 #include "Image2D.h"
 
-#define NUM_VOXELS_X 8
-#define NUM_VOXELS_Y 8
-#define NUM_VOXELS_Z 14
+#define NUM_VOXELS_X 1//8
+#define NUM_VOXELS_Y 8//8
+#define NUM_VOXELS_Z 8//14
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 #define NUM_RENDER_TYPES 4
@@ -91,11 +91,11 @@ public:
 
 	const UINT DENSITY_SIZE = OCC_SIZE;
 
-	const UINT OCCUPIED_SIZE = VOXEL_SIZE_P1;
+	const UINT OCCUPIED_SIZE = VOXEL_SIZE;
 	const UINT NUM_POINTS = OCCUPIED_SIZE * OCCUPIED_SIZE;
-	const UINT BYTES_POINTS = sizeof(OCCUPIED_POINT) * sizeof(OCCUPIED_POINT) *	NUM_POINTS;
+	const UINT BYTES_POINTS = sizeof(OCCUPIED_POINT) *	NUM_POINTS;
 
-	const UINT SPLAT_SIZE = VOXEL_SIZE_P1;
+	const UINT SPLAT_SIZE = VOXEL_SIZE;
 
 	// TODO: check if need to throw more memory at gpu
 	const UINT MAX_BUFFER_SIZE =
@@ -127,7 +127,7 @@ public:
 	void findYRender();
 	void searchTerrain();
 	void sampleDensity();
-	void genVoxel(XMFLOAT3 pos, UINT index);
+	bool genVoxel(XMFLOAT3 pos, UINT index);
 	void phase1(UINT index);
 	bool phase2(UINT index);
 	void phase3(UINT index);
@@ -317,7 +317,7 @@ public:
 
 	struct VOXEL_POS
 	{
-		XMFLOAT4 voxelPos;
+		XMFLOAT3 voxelPos;
 		UINT densityType;
 		UINT renderType;
 	};
