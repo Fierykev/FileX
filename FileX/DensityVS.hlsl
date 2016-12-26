@@ -33,6 +33,7 @@ VS_OUTPUT main(VS_INPUT input)
 	//float3 tmpChunk = float3(chunkSize, -chunkSize, chunkSize);
 	samplePos *= chunkSize;
 	
+	//float3(-40, 20, 120);
 	float3 tmpPos = float3(voxelPos.x, -voxelPos.y, voxelPos.z);
 	samplePos += tmpPos;
 

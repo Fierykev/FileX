@@ -10,9 +10,9 @@
 #include "Image.h"
 #include "Image2D.h"
 
-#define NUM_VOXELS_X 1//8
-#define NUM_VOXELS_Y 8//8
-#define NUM_VOXELS_Z 8//14
+#define NUM_VOXELS_X 8
+#define NUM_VOXELS_Y 8
+#define NUM_VOXELS_Z 14
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 #define NUM_RENDER_TYPES 4
@@ -120,8 +120,8 @@ public:
 	bool renderGenVerts(UINT index);
 	void renderVertexMesh(UINT index);
 	void renderClearTex(UINT index);
-	void renderVertSplat(UINT index);
-	void renderGenIndices(UINT index);
+	UINT renderVertSplat(UINT index);
+	void renderGenIndices(UINT index, UINT numVerts);
 	void getVertIndexData(UINT index);
 	float findY();
 	void findYRender();

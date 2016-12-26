@@ -82,6 +82,8 @@ bool Graphics::genVoxel(XMFLOAT3 pos, UINT index)
 	voxelPosData->voxelPos =
 		XMFLOAT3(pos.x, pos.y, pos.z);
 
+	//cout << "POS " << pos.x << " " << pos.y << " " << pos.z << endl;
+
 	// run phase 1
 	phase1(index);
 
@@ -163,8 +165,8 @@ void Graphics::phase3(UINT index)
 
 	// indices
 	renderClearTex(index);
-	renderVertSplat(index);
-	renderGenIndices(index);
+	UINT numIndices = renderVertSplat(index);
+	renderGenIndices(index, numIndices);
 
 	// verts
 	renderVertexMesh(index);
@@ -553,6 +555,8 @@ void Graphics::drawPhase()
 	eye.m128_f32[2] = at.m128_f32[2] + eyeDelta.z;
 
 	updateTerrain();
+	
+	//regenTerrain();
 
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -1581,8 +1585,10 @@ void Graphics::regenTerrain()
 
 				voxelPos = { x * CHUNK_SIZE - startLoc.x, y * CHUNK_SIZE - startLoc.y, z * CHUNK_SIZE - startLoc.z };
 
-				// TODO: TMP
+				// TODO: TMP TESTING
 				genVoxel(voxelPos, index);
+				//if (genVoxel(voxelPos, index))
+					//return;
 
 				index++;
 			}
@@ -1815,7 +1821,7 @@ void Graphics::renderClearTex(UINT index)
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(NULL));
 }
 
-void Graphics::renderVertSplat(UINT index)
+UINT Graphics::renderVertSplat(UINT index)
 {
 	// set the pipeline
 	commandList->SetPipelineState(dataVertSplatPipelineState.Get());
@@ -1831,6 +1837,9 @@ void Graphics::renderVertSplat(UINT index)
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	commandList->IASetVertexBuffers(0, 1, &vertBuffer);
 
+	// store old verts
+	UINT oldVerts = vertCount[index];
+
 	UINT* readVert;
 	CD3DX12_RANGE readRange(0, sizeof(UINT));
 	vertexCount->Map(0, &readRange, (void**)&readVert);
@@ -1843,9 +1852,11 @@ void Graphics::renderVertSplat(UINT index)
 	// TODO: CHECK IF THIS IS RIGHT
 	// wait for shader
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(NULL));
+
+	return oldVerts;
 }
 
-void Graphics::renderGenIndices(UINT index)
+void Graphics::renderGenIndices(UINT index, UINT numIndices)
 {
 	// set the pipeline
 	commandList->SetPipelineState(dataGenIndicesPipelineState.Get());
@@ -1878,7 +1889,7 @@ void Graphics::renderGenIndices(UINT index)
 	commandList->OMSetRenderTargets(0, 0, FALSE, nullptr);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	commandList->IASetVertexBuffers(0, 1, &vertBuffer);
-	commandList->DrawInstanced(vertCount[index], 1, 0, 0);
+	commandList->DrawInstanced(numIndices, 1, 0, 0);
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer[index].Get(),
 		D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_COPY_SOURCE));
@@ -2054,6 +2065,11 @@ void Graphics::onKeyDown(UINT8 key)
 	case VK_TAB:
 
 		isSolid = !isSolid;
+
+		break;
+	case VK_SPACE:
+
+		system("PAUSE");
 
 		break;
 	}

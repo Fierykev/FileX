@@ -21,7 +21,7 @@ void main(
 	inout TriangleStream<GS_INPUT> output
 )
 {
-	GS_OUTPUT element[3];
+	GS_OUTPUT element;
 
 	// get the value to index into the lookup tables
 	uint edgeIndex = input[0].bitPos & 0x0FF;
@@ -37,9 +37,6 @@ void main(
 	if ((uint)voxelM1 <= max(max(position.x, position.y), position.z))
 		numPolygons = 0;
 
-	//if (2 >= min(min(position.x, position.y), position.z))
-		//numPolygons = 0;
-
 	// generate the indices for each poly
 	[loop]
 	for (uint i = 0; i < numPolygons; i++)
@@ -50,7 +47,7 @@ void main(
 		int3 edgeTMP;
 
 		int3 triIndices;
-
+		
 		// load in the data
 		[unroll(3)]
 		for (uint i = 0; i < 3; i++)
@@ -62,17 +59,9 @@ void main(
 			edgeTMP.x = edgeTMP.x * 3 + edgeAlignment[triEdges[i]];
 
 			// load and output the index
-			element[i].index = indexTex.Load(int4(edgeTMP, 0)).x;			
-		}
+			element.index = indexTex.Load(int4(edgeTMP, 0)).x;
 
-		/*if (element[0].index == MAX_INT ||
-			element[1].index == MAX_INT ||
-			element[2].index == MAX_INT)
-			continue;
-			*/
-		for (uint i = 0; i < 3; i++)
-		{
-			output.Append(element[i]);
+			output.Append(element);
 		}
 
 		// reset the strip

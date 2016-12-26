@@ -172,9 +172,9 @@ float floatingWorld(float3 pos)
 
 float density(float3 pos)
 {
-	pos /= chunkSize;
+	//pos /= chunkSize;
 
-	return -pos.y + pos.x;
+	//return -pos.y + pos.x;
 	
 	if (densityType == 1)
 		return littleBigPlanet(pos);

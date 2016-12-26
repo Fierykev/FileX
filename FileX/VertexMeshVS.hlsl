@@ -121,10 +121,10 @@ VS_OUTPUT main(VS_INPUT input)
 	uint3 position = getPos(input.bitPos);
 
 	float3 sampleArea =
-		((float3)position + extra) * occInvVecM2.xxx;
+		((float3)position + extra) * occInvVecM1.xxx;
 
 	sampleArea += occInvVecM1.xxx * .25f;
-	//sampleArea.xyz *= (occExpansion.x - 1.f) * occInv.x;
+	//sampleArea.xyz *= (occM1.x * occInv.x).xxx;
 
 	float3 worldPos = voxelPos.xyz
 		+ (float3)position * voxelInvVecM1.xxx * chunkSize;
