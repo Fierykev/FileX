@@ -174,7 +174,7 @@ float density(float3 pos)
 {
 	//pos /= chunkSize;
 
-	//return -pos.y + pos.x;
+	//return -pos.y + pos.x % 10;
 	
 	if (densityType == 1)
 		return littleBigPlanet(pos);

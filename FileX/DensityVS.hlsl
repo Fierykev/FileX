@@ -24,16 +24,12 @@ VS_OUTPUT main(VS_INPUT input)
 	float3 samplePos = float3(input.texcoord.xy,
 		input.instanceID * occInv.x);
 
-	//samplePos *= voxelExpansion * voxelInvVecM1.x;
+	samplePos *= voxelExpansion * voxelInvVecM1.x;
 	//samplePos.xy *= occExpansion.x * occInvVecM1.x;
 
-	samplePos = (samplePos * occExpansion.x
-		- extra) * voxelInv.x;
-
-	//float3 tmpChunk = float3(chunkSize, -chunkSize, chunkSize);
+	samplePos = (samplePos * occExpansion.xxx - extra) * voxelInv.x;
 	samplePos *= chunkSize;
 	
-	//float3(-40, 20, 120);
 	float3 tmpPos = float3(voxelPos.x, -voxelPos.y, voxelPos.z);
 	samplePos += tmpPos;
 

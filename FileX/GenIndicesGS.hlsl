@@ -37,6 +37,9 @@ void main(
 	if ((uint)voxelM1 <= max(max(position.x, position.y), position.z))
 		numPolygons = 0;
 
+	//if (voxelM2 <= position.z || voxelM2 <= position.x)
+		//numPolygons = 0;
+
 	// generate the indices for each poly
 	[loop]
 	for (uint i = 0; i < numPolygons; i++)

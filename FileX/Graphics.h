@@ -33,6 +33,8 @@ constexpr float OCC_SIZE = VOXEL_SIZE + EXTRA * 2.f;
 constexpr float OCC_SIZE_P1 = OCC_SIZE + 1;
 constexpr float OCC_SIZE_M1 = OCC_SIZE - 1;
 
+constexpr float INV_OCC_SIZE_M1 = 1.f / OCC_SIZE_M1;
+
 /*
 #define EXTRA 4.f
 #define VOXEL_SIZE_M2 63.f

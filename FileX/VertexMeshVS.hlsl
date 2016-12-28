@@ -124,7 +124,7 @@ VS_OUTPUT main(VS_INPUT input)
 		((float3)position + extra) * occInvVecM1.xxx;
 
 	sampleArea += occInvVecM1.xxx * .25f;
-	//sampleArea.xyz *= (occM1.x * occInv.x).xxx;
+	sampleArea.xyz *= (occM1.x * occInv.x).xxx;
 
 	float3 worldPos = voxelPos.xyz
 		+ (float3)position * voxelInvVecM1.xxx * chunkSize;

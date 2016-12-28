@@ -1479,8 +1479,8 @@ void Graphics::loadAssets()
 		{
 			OCCUPIED_POINT* p = &pointBufferData[k + j * (UINT)OCCUPIED_SIZE];
 			p->position = XMFLOAT2(
-				(k + EXTRA) / OCC_SIZE_M1,
-				(j + EXTRA) / OCC_SIZE_M1
+				(k + EXTRA) * INV_OCC_SIZE_M1,
+				(j + EXTRA) * INV_OCC_SIZE_M1
 			);
 			p->uv = XMUINT2(
 				k, j
