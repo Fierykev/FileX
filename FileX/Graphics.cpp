@@ -76,30 +76,35 @@ void Graphics::onUpdate()
 	WaitForSingleObjectEx(swapChainEvent, 100, FALSE);
 }
 
-bool Graphics::genVoxel(XMFLOAT3 pos, UINT index)
+void Graphics::genVoxel(XMINT3 pos)
 {
+	XMFLOAT3 realPos =
+		{ pos.x * CHUNK_SIZE - startLoc.x,
+		pos.y * CHUNK_SIZE - startLoc.y,
+		pos.z * CHUNK_SIZE - startLoc.z };
+
 	// set the voxel pos
 	voxelPosData->voxelPos =
-		XMFLOAT3(pos.x, pos.y, pos.z);
+		XMFLOAT3(realPos.x, realPos.y, realPos.z);
 
 	//cout << "POS " << pos.x << " " << pos.y << " " << pos.z << endl;
 
 	// run phase 1
-	phase1(index);
+	phase1();
 
-	if (!phase2(index)) // no verts
+	UINT numOldVerts;
+
+	if ((numOldVerts = phase2()) == 0) // no verts
 	{
 		//cout << "NO VERTS" << endl;
-		return false;
+		return;
 	}
 
-	phase3(index);
-	phase4(index);
-
-	return true;
+	phase3(pos, numOldVerts);
+	phase4(pos);
 }
 
-void Graphics::phase1(UINT index)
+void Graphics::phase1()
 {
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -110,8 +115,8 @@ void Graphics::phase1(UINT index)
 
 	setupProceduralDescriptors();
 
-	renderDensity(index); // NOTE: causes error
-	renderOccupied(index);
+	renderDensity(); // NOTE: causes error
+	renderOccupied();
 
 	// run the commands
 	ThrowIfFailed(commandList->Close());
@@ -122,8 +127,22 @@ void Graphics::phase1(UINT index)
 	waitForGpu();
 }
 
-bool Graphics::phase2(UINT index)
+UINT Graphics::phase2()
 {
+	// read in the vertex count
+	UINT* readVert;
+
+	// get the number of verts needed (if at all)
+	UINT vertApprox;
+	CD3DX12_RANGE readRange(0, sizeof(UINT));
+	vertexCount->Map(0, &readRange, (void**)&readVert);
+	vertApprox = *readVert / sizeof(BITPOS);
+	vertexCount->Unmap(0, nullptr);
+
+	// do not run the command list
+	if (vertApprox == 0)
+		return 0;
+
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
 
@@ -133,13 +152,9 @@ bool Graphics::phase2(UINT index)
 
 	setupProceduralDescriptors();
 
-	// verts
-	if (!renderGenVerts(index))
-	{
-		// close the command list
-		ThrowIfFailed(commandList->Close());
-		return false;
-	}
+	// return the number of approximate verts
+	// end early if no verts needed
+	renderGenVerts(vertApprox);
 
 	// run the commands
 	ThrowIfFailed(commandList->Close());
@@ -149,10 +164,10 @@ bool Graphics::phase2(UINT index)
 	// wait on the gpu
 	waitForGpu();
 
-	return true;
+	return vertApprox;
 }
 
-void Graphics::phase3(UINT index)
+void Graphics::phase3(XMINT3 pos, UINT numOldVerts)
 {
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -164,12 +179,12 @@ void Graphics::phase3(UINT index)
 	setupProceduralDescriptors();
 
 	// indices
-	renderClearTex(index);
-	UINT numIndices = renderVertSplat(index);
-	renderGenIndices(index, numIndices);
+	renderClearTex();
+	UINT numVerts = renderVertSplat();
+	renderGenIndices(pos, numOldVerts);
 
 	// verts
-	renderVertexMesh(index);
+	renderVertexMesh(pos, numVerts);
 
 	// run the commands
 	ThrowIfFailed(commandList->Close());
@@ -180,7 +195,7 @@ void Graphics::phase3(UINT index)
 	waitForGpu();
 }
 
-void Graphics::phase4(UINT index)
+void Graphics::phase4(XMINT3 pos)
 {
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -191,7 +206,7 @@ void Graphics::phase4(UINT index)
 
 	setupProceduralDescriptors();
 
-	getVertIndexData(index);
+	getIndexData(pos);
 
 	// run the commands
 	ThrowIfFailed(commandList->Close());
@@ -245,21 +260,11 @@ void Graphics::updateTerrain()
 					newEdge.z + z
 				};
 
-				if (computedPos.find(oldLoc) == computedPos.end())
-					cout << "ERR ERASING -X" << endl;
-
-				UINT index = computedPos[oldLoc];
+				// erase the old position
 				computedPos.erase(oldLoc);
 
-				computedPos[newLoc] = index;
-
-				voxelPos = {
-					newLoc.x * CHUNK_SIZE - startLoc.x,
-					newLoc.y * CHUNK_SIZE - startLoc.y,
-					newLoc.z * CHUNK_SIZE - startLoc.z
-				};
-
-				genVoxel(voxelPos, index);
+				// create the new position
+				genVoxel(newLoc);
 			}
 		}
 
@@ -299,21 +304,11 @@ void Graphics::updateTerrain()
 					newEdge.z + z
 				};
 
-				if (computedPos.find(oldLoc) == computedPos.end())
-					cout << "ERR ERASING -Y" << endl;
-
-				UINT index = computedPos[oldLoc];
+				// erase the old position
 				computedPos.erase(oldLoc);
 
-				computedPos[newLoc] = index;
-
-				voxelPos = {
-					newLoc.x * CHUNK_SIZE - startLoc.x,
-					newLoc.y * CHUNK_SIZE - startLoc.y,
-					newLoc.z * CHUNK_SIZE - startLoc.z
-				};
-
-				genVoxel(voxelPos, index);
+				// create the new position
+				genVoxel(newLoc);
 			}
 		}
 
@@ -353,21 +348,11 @@ void Graphics::updateTerrain()
 					newEdge.z
 				};
 
-				if (computedPos.find(oldLoc) == computedPos.end())
-					cout << "ERR ERASING -Z" << endl;
-
-				UINT index = computedPos[oldLoc];
+				// erase the old position
 				computedPos.erase(oldLoc);
 
-				computedPos[newLoc] = index;
-
-				voxelPos = {
-					newLoc.x * CHUNK_SIZE - startLoc.x,
-					newLoc.y * CHUNK_SIZE - startLoc.y,
-					newLoc.z * CHUNK_SIZE - startLoc.z
-				};
-
-				genVoxel(voxelPos, index);
+				// create the new position
+				genVoxel(newLoc);
 			}
 		}
 
@@ -407,21 +392,11 @@ void Graphics::updateTerrain()
 					newEdge.z + z
 				};
 
-				if (computedPos.find(oldLoc) == computedPos.end())
-					cout << "ERR ERASING +X" << endl;
-
-				UINT index = computedPos[oldLoc];
+				// erase the old position
 				computedPos.erase(oldLoc);
 
-				computedPos[newLoc] = index;
-
-				voxelPos = {
-					newLoc.x * CHUNK_SIZE - startLoc.x,
-					newLoc.y * CHUNK_SIZE - startLoc.y,
-					newLoc.z * CHUNK_SIZE - startLoc.z
-				};
-
-				genVoxel(voxelPos, index);
+				// create the new position
+				genVoxel(newLoc);
 			}
 		}
 
@@ -461,21 +436,11 @@ void Graphics::updateTerrain()
 					newEdge.z + z
 				};
 
-				if (computedPos.find(oldLoc) == computedPos.end())
-					cout << "ERR ERASING +Y" << endl;
-
-				UINT index = computedPos[oldLoc];
+				// erase the old position
 				computedPos.erase(oldLoc);
 
-				computedPos[newLoc] = index;
-
-				voxelPos = {
-					newLoc.x * CHUNK_SIZE - startLoc.x,
-					newLoc.y * CHUNK_SIZE - startLoc.y,
-					newLoc.z * CHUNK_SIZE - startLoc.z
-				};
-
-				genVoxel(voxelPos, index);
+				// create the new position
+				genVoxel(newLoc);
 			}
 		}
 
@@ -515,21 +480,11 @@ void Graphics::updateTerrain()
 					newEdge.z
 				};
 
-				if (computedPos.find(oldLoc) == computedPos.end())
-					cout << "ERR ERASING +Z" << endl;
-
-				UINT index = computedPos[oldLoc];
+				// erase the old position
 				computedPos.erase(oldLoc);
 
-				computedPos[newLoc] = index;
-
-				voxelPos = {
-					newLoc.x * CHUNK_SIZE - startLoc.x,
-					newLoc.y * CHUNK_SIZE - startLoc.y,
-					newLoc.z * CHUNK_SIZE - startLoc.z
-				};
-
-				genVoxel(voxelPos, index);
+				// create the new position
+				genVoxel(newLoc);
 			}
 		}
 
@@ -1044,19 +999,17 @@ void Graphics::loadPipeline()
 
 	device->CreateUnorderedAccessView(bufferUAV[DEBUG_VAR].Get(), nullptr, &uavDesc, uavHandle0);
 	uavHandle0.Offset(1, csuDescriptorSize);
-	
-	// create vertex buffer for each voxel
-	for (UINT i = 0; i < NUM_VOXELS; i++)
-	{
-		ThrowIfFailed(device->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(MAX_BUFFER_SIZE + COUNTER_SIZE),
-			D3D12_RESOURCE_STATE_STREAM_OUT,
-			nullptr,
-			IID_PPV_ARGS(&vertexBuffer[i])));
-	}
-	
+
+	// create tmp buffers for voxel generation
+
+	ThrowIfFailed(device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(MAX_BUFFER_SIZE + COUNTER_SIZE),
+		D3D12_RESOURCE_STATE_STREAM_OUT,
+		nullptr,
+		IID_PPV_ARGS(&vertexFrontBuffer)));
+
 	ThrowIfFailed(device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
@@ -1066,18 +1019,6 @@ void Graphics::loadPipeline()
 		IID_PPV_ARGS(&vertexBackBuffer)));
 
 	// setup index
-
-	for (UINT i = 0; i < NUM_VOXELS; i++)
-	{
-		ThrowIfFailed(device->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(MAX_INDEX_SIZE + COUNTER_SIZE),
-			D3D12_RESOURCE_STATE_STREAM_OUT,
-			nullptr,
-			IID_PPV_ARGS(&indexBuffer[i])));
-	}
-
 	ThrowIfFailed(device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
 		D3D12_HEAP_FLAG_NONE,
@@ -1570,27 +1511,13 @@ void Graphics::regenTerrain()
 
 	clock_t startGen = std::clock_t();
 
-	UINT index = 0;
 	for (UINT z = 0; z < NUM_VOXELS_Z; z++)
 	{
 		for (UINT y = 0; y < NUM_VOXELS_Y; y++)
 		{
 			for (UINT x = 0; x < NUM_VOXELS_X; x++)
 			{
-				computedPos[XMINT3(
-					(INT)x,
-					(INT)y,
-					(INT)z)
-				] = index;
-
-				voxelPos = { x * CHUNK_SIZE - startLoc.x, y * CHUNK_SIZE - startLoc.y, z * CHUNK_SIZE - startLoc.z };
-
-				// TODO: TMP TESTING
-				genVoxel(voxelPos, index);
-				//if (genVoxel(voxelPos, index))
-					//return;
-
-				index++;
+				genVoxel(XMINT3(x, y, z));
 			}
 		}
 	}
@@ -1628,7 +1555,7 @@ void Graphics::setupProceduralDescriptors()
 	commandList->RSSetScissorRects(1, &voxelScissorRect);
 }
 
-void Graphics::renderDensity(UINT index)
+void Graphics::renderDensity()
 {
 	// set the pipeline
 	commandList->SetPipelineState(densityPipelineState.Get());
@@ -1644,25 +1571,25 @@ void Graphics::renderDensity(UINT index)
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(NULL));
 }
 
-void Graphics::renderOccupied(UINT index)
+void Graphics::renderOccupied()
 {
 	// set the pipeline state
 	commandList->SetPipelineState(occupiedPipelineState.Get());
 
 	// clear out the filled size location
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexFrontBuffer.Get(),
 		D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_COPY_DEST));
 
-	commandList->CopyBufferRegion(vertexBuffer[index].Get(),
+	commandList->CopyBufferRegion(vertexFrontBuffer.Get(),
 		MAX_BUFFER_SIZE,
 		zeroBuffer.Get(),
 		0, sizeof(UINT));
 
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexFrontBuffer.Get(),
 		D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_STREAM_OUT));
 
 	D3D12_STREAM_OUTPUT_BUFFER_VIEW sobv;
-	sobv.BufferLocation = vertexBuffer[index]->GetGPUVirtualAddress();
+	sobv.BufferLocation = vertexFrontBuffer->GetGPUVirtualAddress();
 	sobv.SizeInBytes = MAX_BUFFER_SIZE;
 	sobv.BufferFilledSizeLocation = sobv.BufferLocation + MAX_BUFFER_SIZE;
 	
@@ -1676,19 +1603,19 @@ void Graphics::renderOccupied(UINT index)
 	commandList->DrawInstanced(NUM_POINTS, OCCUPIED_SIZE, 0, 0);
 
 	// wait for the buffer to be written to
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexFrontBuffer.Get(),
 		D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_COPY_SOURCE));
 
 	// copy the output data to a buffer
 	commandList->CopyBufferRegion(vertexCount.Get(), 0,
-		vertexBuffer[index].Get(),
+		vertexFrontBuffer.Get(),
 		MAX_BUFFER_SIZE, sizeof(UINT));
 
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexFrontBuffer.Get(),
 		D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 }
 
-bool Graphics::renderGenVerts(UINT index)
+void Graphics::renderGenVerts(UINT vertApprox)
 {
 	// set the pipeline state
 	commandList->SetPipelineState(genVertsPipelineState.Get());
@@ -1706,7 +1633,7 @@ bool Graphics::renderGenVerts(UINT index)
 		D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_STREAM_OUT));
 
 	D3D12_VERTEX_BUFFER_VIEW vertBuffer;
-	vertBuffer.BufferLocation = vertexBuffer[index]->GetGPUVirtualAddress();
+	vertBuffer.BufferLocation = vertexFrontBuffer->GetGPUVirtualAddress();
 	vertBuffer.StrideInBytes = sizeof(BITPOS);
 	vertBuffer.SizeInBytes = MAX_BUFFER_SIZE;
 
@@ -1721,18 +1648,8 @@ bool Graphics::renderGenVerts(UINT index)
 	// draw the object
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	commandList->IASetVertexBuffers(0, 1, &vertBuffer);
-	
-	// read in the vertex count
-	UINT* readVert;
-	CD3DX12_RANGE readRange(0, sizeof(UINT));
-	vertexCount->Map(0, &readRange, (void**)&readVert);
-	vertCount[index] = *readVert / sizeof(BITPOS);
-	vertexCount->Unmap(0, nullptr);
 
-	if (vertCount[index] == 0)
-		return false;
-
-	commandList->DrawInstanced(vertCount[index], 1, 0, 0);
+	commandList->DrawInstanced(vertApprox, 1, 0, 0);
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBackBuffer.Get(),
 		D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_COPY_SOURCE));
@@ -1747,36 +1664,34 @@ bool Graphics::renderGenVerts(UINT index)
 		D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 	//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
 		//D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_STREAM_OUT));
-
-	return true;
 }
 
-void Graphics::renderVertexMesh(UINT index)
+void Graphics::renderVertexMesh(XMINT3 pos, UINT numVerts)
 {
 	// set the pipeline state
 	commandList->SetPipelineState(vertexMeshPipelineState.Get());
-
-	// clear out the filled size location
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
-		D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_COPY_DEST));
-
-	commandList->CopyBufferRegion(vertexBuffer[index].Get(),
-		MAX_BUFFER_SIZE,
-		zeroBuffer.Get(),
-		0, sizeof(UINT));
-
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
-		D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_STREAM_OUT));
 
 	D3D12_VERTEX_BUFFER_VIEW vertBuffer;
 	vertBuffer.BufferLocation = vertexBackBuffer->GetGPUVirtualAddress();
 	vertBuffer.StrideInBytes = sizeof(BITPOS);
 	vertBuffer.SizeInBytes = MAX_BUFFER_SIZE;
 
+	// create out buffer
+	ThrowIfFailed(device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(numVerts * sizeof(VERT_OUT) + COUNTER_SIZE),
+		D3D12_RESOURCE_STATE_STREAM_OUT,
+		nullptr,
+		IID_PPV_ARGS(&computedPos[pos].vertices)));
+
+	// store the number of vertices that will be produced
+	computedPos[pos].numVertices = numVerts;
+
 	D3D12_STREAM_OUTPUT_BUFFER_VIEW sobv;
-	sobv.BufferLocation = vertexBuffer[index]->GetGPUVirtualAddress();
-	sobv.SizeInBytes = MAX_BUFFER_SIZE;
-	sobv.BufferFilledSizeLocation = sobv.BufferLocation + MAX_BUFFER_SIZE;
+	sobv.BufferLocation = computedPos[pos].vertices->GetGPUVirtualAddress();
+	sobv.SizeInBytes = numVerts * sizeof(VERT_OUT);
+	sobv.BufferFilledSizeLocation = sobv.BufferLocation + sobv.SizeInBytes;
 
 	// set the target
 	commandList->SOSetTargets(0, 1, &sobv);
@@ -1786,23 +1701,15 @@ void Graphics::renderVertexMesh(UINT index)
 	commandList->IASetVertexBuffers(0, 1, &vertBuffer);
 	
 	// read in the vertex count
-	commandList->DrawInstanced(vertCount[index], 1, 0, 0);
+	commandList->DrawInstanced(numVerts, 1, 0, 0);
 
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
-		D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_COPY_SOURCE));
-
-	// copy the output data to a buffer
-	commandList->CopyBufferRegion(vertexCount.Get(), 0,
-		vertexBuffer[index].Get(),
-		MAX_BUFFER_SIZE, sizeof(UINT));
-
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
-		D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexFrontBuffer.Get(),
+		D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBackBuffer.Get(),
 		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_STREAM_OUT));
 }
 
-void Graphics::renderClearTex(UINT index)
+void Graphics::renderClearTex()
 {
 	// set the pipeline
 	commandList->SetPipelineState(dataClearTexPipelineState.Get());
@@ -1821,7 +1728,7 @@ void Graphics::renderClearTex(UINT index)
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(NULL));
 }
 
-UINT Graphics::renderVertSplat(UINT index)
+UINT Graphics::renderVertSplat()
 {
 	// set the pipeline
 	commandList->SetPipelineState(dataVertSplatPipelineState.Get());
@@ -1838,48 +1745,45 @@ UINT Graphics::renderVertSplat(UINT index)
 	commandList->IASetVertexBuffers(0, 1, &vertBuffer);
 
 	// store old verts
-	UINT oldVerts = vertCount[index];
+	UINT numVerts;
 
 	UINT* readVert;
 	CD3DX12_RANGE readRange(0, sizeof(UINT));
 	vertexCount->Map(0, &readRange, (void**)&readVert);
-	vertCount[index] = *readVert / sizeof(BITPOS);
+	numVerts = *readVert / sizeof(BITPOS);
 	vertexCount->Unmap(0, nullptr);
 	//cout << "2 " << vertCount[index] << endl;
 
-	commandList->DrawInstanced(vertCount[index], 1, 0, 0);
+	commandList->DrawInstanced(numVerts, 1, 0, 0);
 
 	// TODO: CHECK IF THIS IS RIGHT
 	// wait for shader
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(NULL));
 
-	return oldVerts;
+	return numVerts;
 }
 
-void Graphics::renderGenIndices(UINT index, UINT numIndices)
+void Graphics::renderGenIndices(XMINT3 pos, UINT minIndices)
 {
 	// set the pipeline
 	commandList->SetPipelineState(dataGenIndicesPipelineState.Get());
 
-	// clear out the filled size location
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer[index].Get(),
-		D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_COPY_DEST));
-
-	commandList->CopyBufferRegion(indexBuffer[index].Get(),
-		MAX_INDEX_SIZE,
-		zeroBuffer.Get(),
-		0, sizeof(UINT));
-
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer[index].Get(),
-		D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_STREAM_OUT));
+	// create out buffer
+	ThrowIfFailed(device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(minIndices * 15 * sizeof(UINT) + COUNTER_SIZE),
+		D3D12_RESOURCE_STATE_STREAM_OUT,
+		nullptr,
+		IID_PPV_ARGS(&computedPos[pos].indices)));
 
 	D3D12_STREAM_OUTPUT_BUFFER_VIEW sobv;
-	sobv.BufferLocation = indexBuffer[index]->GetGPUVirtualAddress();
-	sobv.SizeInBytes = MAX_INDEX_SIZE;
-	sobv.BufferFilledSizeLocation = sobv.BufferLocation + MAX_INDEX_SIZE;
+	sobv.BufferLocation = computedPos[pos].indices->GetGPUVirtualAddress();
+	sobv.SizeInBytes = minIndices * 15 * sizeof(UINT);
+	sobv.BufferFilledSizeLocation = sobv.BufferLocation + sobv.SizeInBytes;
 
 	D3D12_VERTEX_BUFFER_VIEW vertBuffer;
-	vertBuffer.BufferLocation = vertexBuffer[index]->GetGPUVirtualAddress();
+	vertBuffer.BufferLocation = vertexFrontBuffer->GetGPUVirtualAddress();
 	vertBuffer.StrideInBytes = sizeof(BITPOS);
 	vertBuffer.SizeInBytes = MAX_BUFFER_SIZE;
 
@@ -1889,39 +1793,35 @@ void Graphics::renderGenIndices(UINT index, UINT numIndices)
 	commandList->OMSetRenderTargets(0, 0, FALSE, nullptr);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	commandList->IASetVertexBuffers(0, 1, &vertBuffer);
-	commandList->DrawInstanced(numIndices, 1, 0, 0);
+	commandList->DrawInstanced(minIndices, 1, 0, 0);
 
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer[index].Get(),
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(computedPos[pos].indices.Get(),
 		D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_COPY_SOURCE));
 
 	// copy the output data to a buffer
 	commandList->CopyBufferRegion(indexCount.Get(), 0,
-		indexBuffer[index].Get(),
-		MAX_INDEX_SIZE, sizeof(UINT));
+		computedPos[pos].indices.Get(),
+		sobv.SizeInBytes, sizeof(UINT));
 
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(indexBuffer[index].Get(),
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(computedPos[pos].indices.Get(),
 		D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_STREAM_OUT));
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexBuffer[index].Get(),
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexFrontBuffer.Get(),
 		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, D3D12_RESOURCE_STATE_STREAM_OUT));
 }
 
-void Graphics::getVertIndexData(UINT index)
+// TODO: remove :)
+void Graphics::getIndexData(XMINT3 pos)
 {
 	// read in the vertex count
 	UINT* readData;
 	CD3DX12_RANGE readRange(0, sizeof(UINT));
-	vertexCount->Map(0, &readRange, (void**)&readData);
-	vertCount[index] = *readData / sizeof(VERT_OUT);
-	vertexCount->Unmap(0, nullptr);
 
-	//cout << "VERT " << vertCount[index] << endl;
-	
 	// read in the index count
 	indexCount->Map(0, &readRange, (void**)&readData);
-	indCount[index] = *readData / sizeof(UINT);
+	computedPos[pos].numIndices = *readData / sizeof(UINT);
 	indexCount->Unmap(0, nullptr);
 
-	//cout << "IND " << indCount[index] << endl;
+	//cout << "IND " << computedPos[pos].numIndices << endl;
 }
 
 void Graphics::populateCommandList()
@@ -1955,30 +1855,24 @@ void Graphics::populateCommandList()
 	const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
 	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
-	//for (UINT index = 0; index < NUM_VOXELS; index++)
 	for (auto p : computedPos)
 	{
-		UINT index = p.second;
-
-		if (vertCount[index] == 0)
-			continue;
-
 		// draw the object
 		D3D12_VERTEX_BUFFER_VIEW vertBuffer;
-		vertBuffer.BufferLocation = vertexBuffer[index]->GetGPUVirtualAddress();
+		vertBuffer.BufferLocation = p.second.vertices->GetGPUVirtualAddress();
 		vertBuffer.StrideInBytes = sizeof(VERT_OUT);
-		vertBuffer.SizeInBytes = MAX_BUFFER_SIZE;
+		vertBuffer.SizeInBytes = p.second.numVertices * vertBuffer.StrideInBytes;
 
 		D3D12_INDEX_BUFFER_VIEW indexBufferView;
-		indexBufferView.BufferLocation = indexBuffer[index]->GetGPUVirtualAddress();
+		indexBufferView.BufferLocation = p.second.indices->GetGPUVirtualAddress();
 		indexBufferView.Format = DXGI_FORMAT_R32_UINT;
-		indexBufferView.SizeInBytes = MAX_INDEX_SIZE;
+		indexBufferView.SizeInBytes = p.second.numIndices * sizeof(UINT);
 
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		commandList->IASetVertexBuffers(0, 1, &vertBuffer);
 		commandList->IASetIndexBuffer(&indexBufferView);
 		commandList->SOSetTargets(0, 0, nullptr);
-		commandList->DrawIndexedInstanced(indCount[index], 1, 0, 0, 0);
+		commandList->DrawIndexedInstanced(p.second.numIndices, 1, 0, 0, 0);
 	}
 
 	// do not present the back buffer

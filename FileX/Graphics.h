@@ -10,8 +10,8 @@
 #include "Image.h"
 #include "Image2D.h"
 
-#define NUM_VOXELS_X 8
-#define NUM_VOXELS_Y 8
+#define NUM_VOXELS_X 14
+#define NUM_VOXELS_Y 14
 #define NUM_VOXELS_Z 14
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
@@ -117,23 +117,23 @@ public:
 	// added methods
 	void regenTerrain();
 	void setupProceduralDescriptors();
-	void renderDensity(UINT index);
-	void renderOccupied(UINT index);
-	bool renderGenVerts(UINT index);
-	void renderVertexMesh(UINT index);
-	void renderClearTex(UINT index);
-	UINT renderVertSplat(UINT index);
-	void renderGenIndices(UINT index, UINT numVerts);
-	void getVertIndexData(UINT index);
+	void renderDensity();
+	void renderOccupied();
+	void renderGenVerts(UINT vertApprox);
+	void renderVertexMesh(XMINT3 pos, UINT numVerts);
+	void renderClearTex();
+	UINT renderVertSplat();
+	void renderGenIndices(XMINT3 pos, UINT minIndices);
+	void getIndexData(XMINT3 pos);
 	float findY();
 	void findYRender();
 	void searchTerrain();
 	void sampleDensity();
-	bool genVoxel(XMFLOAT3 pos, UINT index);
-	void phase1(UINT index);
-	bool phase2(UINT index);
-	void phase3(UINT index);
-	void phase4(UINT index);
+	void genVoxel(XMINT3 pos);
+	void phase1();
+	UINT phase2();
+	void phase3(XMINT3 pos, UINT numOldVerts);
+	void phase4(XMINT3 pos);
 	void updateTerrain();
 	void drawPhase();
 
@@ -195,12 +195,19 @@ public:
 		bufferUAV[UAV_COUNT],
 		bufferDSV[DSV_COUNT],
 		zeroBuffer, plainVCB, pointVCB,
-		vertexBuffer[NUM_VOXELS], vertexBackBuffer,
-		indexBuffer[NUM_VOXELS],
+		vertexFrontBuffer, vertexBackBuffer,
 		vertexCount,
 		indexCount, yposMap;
 
-	unordered_map<XMINT3, UINT> computedPos;
+	struct DRAW_DATA
+	{
+		ComPtr<ID3D12Resource> vertices, indices;
+		UINT numIndices, numVertices;
+	};
+
+	unordered_map<XMINT3, DRAW_DATA> computedPos;
+
+
 	XMFLOAT3 startLoc;
 	XMINT3 currentMid;
 
@@ -254,10 +261,6 @@ public:
 		XMFLOAT4 position;
 		UINT bitPoints;
 	};
-
-	// verts
-	UINT vertCount[NUM_VOXELS],
-		indCount[NUM_VOXELS];
 
 	// fences
 	UINT frameIndex;
