@@ -10,9 +10,9 @@
 #include "Image.h"
 #include "Image2D.h"
 
-#define NUM_VOXELS_X 14
-#define NUM_VOXELS_Y 14
-#define NUM_VOXELS_Z 14
+#define NUM_VOXELS_X 8
+#define NUM_VOXELS_Y 8
+#define NUM_VOXELS_Z 8
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 #define NUM_RENDER_TYPES 4
@@ -24,8 +24,8 @@ using namespace DirectX;
 constexpr float PERSON_HEIGHT = 0.f;
 constexpr float CHUNK_SIZE = 80.f;
 
-constexpr float EXTRA = 4.f;
-constexpr float VOXEL_SIZE = 33.f;
+constexpr float EXTRA = 10.f;
+constexpr float VOXEL_SIZE = 65.f;
 constexpr float VOXEL_SIZE_M1 = VOXEL_SIZE - 1.f;
 constexpr float VOXEL_SIZE_M2 = VOXEL_SIZE_M1 - 1.f;
 constexpr float VOXEL_SIZE_P1 = VOXEL_SIZE + 1.f;
@@ -148,6 +148,7 @@ public:
 	{
 		CB_WORLD_POS = 0,
 		CB_VOXEL_POS,
+		CB_GENERATION_CONSTANTS,
 		CBV_COUNT
 	};
 
@@ -182,7 +183,7 @@ public:
 	enum BVSAMPLER :UINT32
 	{
 		NEAREST_SAMPLER = 0,
-		REPEATE_SAMPLER,
+		REPEAT_SAMPLER,
 		SAMPLER_COUNT
 	};
 
@@ -313,6 +314,7 @@ public:
 	Image noise0, noise1, noise2;
 	Image2D altitude, bumpMap;
 
+#pragma pack(push, 1)
 	struct WORLD_POS
 	{
 		XMMATRIX world;
@@ -326,6 +328,41 @@ public:
 		UINT densityType;
 		UINT renderType;
 	};
+
+	struct GENERATION_CONSTANTS
+	{
+		float chunkSize = CHUNK_SIZE;
+		float extra = EXTRA;
+
+		float voxelExpansion = VOXEL_SIZE;
+		float voxelM1 = voxelExpansion - 1.f;
+		float voxelP1 = voxelExpansion + 1.f;
+
+		float occExpansion = voxelExpansion + extra * 2.f;
+		float occM1 = occExpansion - 1.f;
+		float occP1 = occExpansion + 1.f;
+
+		XMFLOAT2 voxelInv = XMFLOAT2(
+			1.f / voxelExpansion, 0
+		);
+		XMFLOAT2 voxelInvVecM1 = XMFLOAT2(
+			1.f / voxelM1, 0
+		);
+		XMFLOAT2 voxelInvVecP1 = XMFLOAT2(
+			1.f / voxelP1, 0
+		);
+
+		XMFLOAT2 occInv = XMFLOAT2(
+			1.f / occExpansion, 0
+		);
+		XMFLOAT2 occInvVecM1 = XMFLOAT2(
+			1.f / occM1, 0
+		);
+		XMFLOAT2 occInvVecP1 = XMFLOAT2(
+			1.f / occP1, 0
+		);
+	};
+#pragma pack(pop)
 
 	bool isSolid = false;
 

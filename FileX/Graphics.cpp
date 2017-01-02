@@ -510,7 +510,7 @@ void Graphics::drawPhase()
 	eye.m128_f32[2] = at.m128_f32[2] + eyeDelta.z;
 
 	updateTerrain();
-	
+
 	//regenTerrain();
 
 	// reset the command allocator
@@ -880,7 +880,7 @@ void Graphics::loadPipeline()
 	
 	// create sampler
 	D3D12_SAMPLER_DESC samplerDesc;
-	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
 	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
@@ -893,6 +893,7 @@ void Graphics::loadPipeline()
 	device->CreateSampler(&samplerDesc, samplerHandle0);
 	samplerHandle0.Offset(samplerDescriptorSize);
 
+	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
 	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
 	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
@@ -918,6 +919,14 @@ void Graphics::loadPipeline()
 		nullptr,
 		IID_PPV_ARGS(&bufferCB[CB_VOXEL_POS])));
 
+	ThrowIfFailed(device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(GENERATION_CONSTANTS) + 255) & ~255),
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&bufferCB[CB_GENERATION_CONSTANTS])));
+
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cdesc;
 	CD3DX12_CPU_DESCRIPTOR_HANDLE cbvHandle0(
 		csuHeap->GetCPUDescriptorHandleForHeapStart(),
@@ -939,17 +948,30 @@ void Graphics::loadPipeline()
 
 	voxelPosData->densityType = 0;
 	voxelPosData->renderType = 0;
-
+	
 	// IS NOT UNMAPPED
 
 	cdesc.BufferLocation = bufferCB[CB_VOXEL_POS]->GetGPUVirtualAddress();
 	cdesc.SizeInBytes = (sizeof(VOXEL_POS) + 255) & ~255;
+	
+	device->CreateConstantBufferView(&cdesc, cbvHandle0);
+	cbvHandle0.Offset(csuDescriptorSize);
+	
+	// set generation to default
+	GENERATION_CONSTANTS* gc;
+	bufferCB[CB_GENERATION_CONSTANTS]->Map(0, &readRange, (void**)&gc);
+
+	*gc = GENERATION_CONSTANTS();
+
+	bufferCB[CB_GENERATION_CONSTANTS]->Unmap(0, nullptr);
+	
+	cdesc.BufferLocation = bufferCB[CB_GENERATION_CONSTANTS]->GetGPUVirtualAddress();
+	cdesc.SizeInBytes = (sizeof(GENERATION_CONSTANTS) + 255) & ~255;
 
 	device->CreateConstantBufferView(&cdesc, cbvHandle0);
 	cbvHandle0.Offset(csuDescriptorSize);
-
+	
 	// setup YPOS var for UAV
-
 	ThrowIfFailed(device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
 		D3D12_HEAP_FLAG_NONE,

@@ -8,47 +8,28 @@ cbuffer VOXEL_POS : register(b1)
 	uint renderType;
 };
 
-static const float chunkSize = 80.f;
+cbuffer GENERATION_CONSTANTS : register(b2)
+{
+	float chunkSize : packoffset(c0);
+	float extra : packoffset(c0.y);
+	float voxelExpansion : packoffset(c0.z);
+	float voxelM1 : packoffset(c0.w);
 
-static const float extra = 4.f;
-static const float voxelExpansion = 33.f;
-static const float voxelM2 = voxelExpansion - 2.f;
-static const float voxelM1 = voxelExpansion - 1.f;
-static const float voxelP1 = voxelExpansion + 1.f;
+	float voxelP1 : packoffset(c1);
+	float occExpansion : packoffset(c1.y);
+	float occM1 : packoffset(c1.z);
+	float occP1 : packoffset(c1.w);
 
-static const float2 voxelInv = float2(
-	1.f / voxelExpansion, 0
-	);
-static const float2 voxelInvVecP1 = float2(
-	1.f / voxelP1, 0
-	);
-static const float2 voxelInvVecM1 = float2(
-	1.f / voxelM1, 0
-	);
+	float2 voxelInv : packoffset(c2);
+	float2 voxelInvVecM1 : packoffset(c2.z);
 
-static const float2 voxelInvVecM2 = float2(
-	1.f / voxelM2, 0
-	);
+	float2 voxelInvVecP1 : packoffset(c3);
+	float2 occInv : packoffset(c3.z);
 
-static const float occExpansion = voxelExpansion + extra * 2.f;
-static const float occM1 = occExpansion - 1.f;
-static const float occM2 = occM1 - 1.f;
-static const float occP1 = occExpansion + 1.f;
+	float2 occInvVecM1 : packoffset(c4);
+	float2 occInvVecP1 : packoffset(c4.z);
+};
 
-static const float2 occInv = float2(
-	1.f / occExpansion, 0
-	);
-static const float2 occInvVecP1 = float2(
-	1.f / occP1, 0
-	);
-static const float2 occInvVecM1 = float2(
-	1.f / occM1, 0
-	);
-
-static const float2 occInvVecM2 = float2(
-	1.f / occM2, 0
-	);
-	
 static const float densStep = 100.f;
 
 inline float4 getVoxelLoc(float2 texcoord, uint instanceID)
