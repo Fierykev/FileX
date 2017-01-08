@@ -3,7 +3,8 @@ c:\users\cyber\documents\visual studio 2015\projects\filex\filex\noisegen\noiseg
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\noisegen\noisegen\noisegen\main.cpp(37): warning C4800: 'ILboolean': forcing value to bool 'true' or 'false' (performance warning)
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\noisegen\noisegen\noisegen\main.cpp(95): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\noisegen\noisegen\noisegen\main.cpp(95): warning C4305: 'initializing': truncation from 'double' to 'float'
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\noisegen\noisegen\noisegen\main.cpp(118): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\noisegen\noisegen\noisegen\main.cpp(119): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\cyber\documents\visual studio 2015\projects\filex\filex\noisegen\noisegen\noisegen\main.cpp(153): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 c:\users\cyber\documents\visual studio 2015\projects\filex\filex\noisegen\noisegen\noisegen\main.cpp(82): warning C4715: 'half4::operator[]': not all control paths return a value
   NoiseGen.vcxproj -> C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\FileX\NoiseGen\NoiseGen\x64\Debug\NoiseGen.exe
   NoiseGen.vcxproj -> C:\Users\cyber\Documents\Visual Studio 2015\Projects\FileX\FileX\NoiseGen\NoiseGen\x64\Debug\NoiseGen.pdb (Partial PDB)

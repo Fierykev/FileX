@@ -85,14 +85,14 @@ float Graphics::findY()
 {
 	UINT* tmpPos;
 	UINT ypos;
-	XMVECTOR pos = at;
+	XMVECTOR pos = eye;
 	int type = 0;
 
 	while (true)
 	{
 		voxelPosData->voxelPos =
 			XMFLOAT3(pos.m128_f32[0],
-				pos.m128_f32[1],
+				pos.m128_f32[1] - PERSON_HEIGHT,
 				pos.m128_f32[2]);
 
 		// render the voxel

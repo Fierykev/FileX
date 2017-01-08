@@ -1,6 +1,6 @@
 #include "Debug.hlsl"
 
-Texture2D<float4> uploadTex : register(t7);
+Texture2D<float4> uploadTex : register(t3);
 SamplerState nearestSample : register(s0);
 
 struct PS_INPUT

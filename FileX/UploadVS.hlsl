@@ -1,3 +1,5 @@
+#include <ProceduralConstantsH.hlsl>
+
 struct VS_INPUT
 {
 	float3 position : POSITION;
@@ -11,16 +13,14 @@ struct VS_OUTPUT
 	uint instanceID : SV_InstanceID;
 };
 
-StructuredBuffer<uint> instance : register(t3);
-
 VS_OUTPUT main(VS_INPUT input)
 {
 	VS_OUTPUT output;
 	output.position = float4(
 		input.position.xy, 0, 1
 		);
-	output.texcoord = input.texcoord;
-	output.instanceID = instance[0];
+	output.texcoord = float2(input.texcoord.x, 1.f - input.texcoord.y);
+	output.instanceID = voxelPos.x;
 
 	return output;
 }

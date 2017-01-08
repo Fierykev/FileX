@@ -87,7 +87,7 @@ VS_OUTPUT locateVertFromEdge(float3 position, float3 sampleArea, uint edgeNum)
 	float3 relPos = edgeStartLoc[edgeNum] + edgeDir[edgeNum] * ratio;
 	
 	// calculate normal gradient
-	float3 uvw = sampleArea + relPos * occInvVecM1.xxx; // TODO: change occInvVecM1 to LOD
+	float3 uvw = sampleArea + relPos * voxelSize.xxx; // TODO: change occInvVecM1 to LOD
 	float3 gradient;
 	gradient.x = densityTexture.SampleLevel(
 		nearestSample, uvw + occInv.xyy, 0).x

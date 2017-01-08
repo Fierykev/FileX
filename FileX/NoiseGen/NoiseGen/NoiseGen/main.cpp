@@ -94,6 +94,7 @@ int main()
 
 	float sizes[] = { .1, .5, .8 };
 
+	// low quality
 	for (int i = 0; i < 3; i++)
 	{
 		open_simplex_noise(time(NULL), &ctx);
@@ -122,6 +123,65 @@ int main()
 		}
 
 		wstring s = L"../../../Noise/noise";
+		s += '0' + i;
+		s += L".raw";
+		savePng(s.c_str(), (ILbyte*)image4d, WIDTH, HEIGHT, DEPTH);
+
+		open_simplex_noise_free(ctx);
+	}
+
+	// high quality
+	for (int i = 0; i < 3; i++)
+	{
+		open_simplex_noise(time(NULL), &ctx);
+
+		float FEATURE_SIZE = sizes[i];
+
+		// first loop for red value
+		for (z = 0; z < DEPTH; z++)
+		{
+			for (y = 0; y < HEIGHT; y++)
+			{
+				for (x = 0; x < WIDTH; x++)
+				{
+					value = open_simplex_noise3(ctx,
+						(double)x / FEATURE_SIZE,
+						(double)y / FEATURE_SIZE,
+						(double)z / FEATURE_SIZE);
+
+					image4d[x + y * WIDTH + z * WIDTH * HEIGHT][0] =
+						XMConvertFloatToHalf(value);
+				}
+			}
+		}
+
+		// second loop bga
+		int delta[3][3] =
+			{
+				{0, 1, 0},
+				{0, 0, 1},
+				{0, 1, 1}
+			};
+		for (z = 0; z < DEPTH; z++)
+		{
+			for (y = 0; y < HEIGHT; y++)
+			{
+				for (x = 0; x < WIDTH; x++)
+				{
+					for (w = 1; w < 4; w++)
+					{
+						image4d[x + y * WIDTH + z * WIDTH * HEIGHT][w] =
+							image4d[
+								((x + delta[w - 1][0]) % WIDTH) +
+								((y + delta[w - 1][1]) % HEIGHT) * WIDTH +
+								((z + delta[w - 1][2]) % DEPTH) * WIDTH * HEIGHT
+							][0];
+					}
+				}
+			}
+		}
+
+		wstring s = L"../../../Noise/noiseH";
 		s += '0' + i;
 		s += L".raw";
 		savePng(s.c_str(), (ILbyte*)image4d, WIDTH, HEIGHT, DEPTH);

@@ -14,11 +14,15 @@ CD3DX12_CPU_DESCRIPTOR_HANDLE Image::rtvTexStart;
 UINT Image::numResources, Image::numUploadedResources;
 bool Image::startup = false;
 
-ComPtr<ID3D12Resource> Image::texture2D, Image::instanceBuffer;
+ComPtr<ID3D12Resource> Image::texture2D;
 
 Image::Image()
 {
+	viewport.Width = STANDARD_SIZE;
+	viewport.Height = STANDARD_SIZE;
 
+	scissorRect.right = static_cast<LONG>(STANDARD_SIZE);
+	scissorRect.bottom = static_cast<LONG>(STANDARD_SIZE);
 }
 
 void Image::deleteImage()
@@ -117,28 +121,10 @@ void Image::createTexture(ID3D12Device* device)
 		mat2DDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		mat2DDesc.Texture2D.MipLevels = texture2DDesc.MipLevels;
 
-		CD3DX12_CPU_DESCRIPTOR_HANDLE srvPos(srvTexStart, uploadOffset, csuDescriptorSize);
-		device->CreateShaderResourceView(texture2D.Get(), &mat2DDesc, srvPos);
+		device->CreateShaderResourceView(texture2D.Get(), &mat2DDesc, srvTexStart);
 
-		// create upload instance buffer
-		ThrowIfFailed(device->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(sizeof(Graphics::VOXEL_POS) * STANDARD_SIZE),
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&instanceBuffer)));
-
-		// fill the buffer
-		UINT* v;
-		instanceBuffer->Map(0, nullptr, (void**)&v);
-		
-		for (UINT i = 0; i < STANDARD_SIZE; i++)
-		{
-			v[i] = i;
-		}
-
-		instanceBuffer->Unmap(0, nullptr);
+		// offset by one because of upload texture
+		srvTexStart.Offset(csuDescriptorSize);
 	}
 
 	// set subresource num
@@ -164,17 +150,6 @@ void Image::createTexture(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&texture3D)
 	));
-
-	// create the rtv
-	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
-	rtvDesc.Format = textureDesc.Format;
-	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE3D;
-	rtvDesc.Texture3D.MipSlice = 0;
-	rtvDesc.Texture3D.FirstWSlice = 0;
-	rtvDesc.Texture3D.WSize = textureDesc.DepthOrArraySize;
-	
-	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvTexStart, numResources, rtvDescriptorSize);
-	device->CreateRenderTargetView(texture3D.Get(), &rtvDesc, rtvHandle);
 
 	// create the srv for this texture
 	D3D12_SHADER_RESOURCE_VIEW_DESC matDesc = {};
@@ -202,6 +177,16 @@ void Image::createTexture(ID3D12Device* device)
 
 void Image::uploadTexture(Graphics* g, ID3D12GraphicsCommandList* commandList)
 {
+	// create the rtv
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
+	rtvDesc.Format = TEX_FORMAT;
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE3D;
+	rtvDesc.Texture3D.MipSlice = 0;
+	rtvDesc.Texture3D.FirstWSlice = 0;
+	rtvDesc.Texture3D.WSize = depth;
+
+	g->device->CreateRenderTargetView(texture3D.Get(), &rtvDesc, rtvTexStart);
+	
 	for (UINT i = 0; i < depth; i++)
 	{
 		// reset the command allocator
@@ -213,11 +198,14 @@ void Image::uploadTexture(Graphics* g, ID3D12GraphicsCommandList* commandList)
 
 		g->setupProceduralDescriptors();
 
+		// set viewport and scissor rect
+		commandList->RSSetViewports(1, &viewport);
+		commandList->RSSetScissorRects(1, &scissorRect);
+
 		// set the pipeline
 		commandList->SetPipelineState(g->uploadTexPipelineState.Get());
 
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvTexStart, numUploadedResources, rtvDescriptorSize);
-		commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+		commandList->OMSetRenderTargets(1, &rtvTexStart, FALSE, nullptr);
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		commandList->IASetVertexBuffers(0, 1, &g->plainVB);
 	
@@ -233,16 +221,8 @@ void Image::uploadTexture(Graphics* g, ID3D12GraphicsCommandList* commandList)
 		commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texture2D.Get(),
 			D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
 
-		// wait for shader
-		commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(NULL));
-
-		commandList->CopyBufferRegion(
-			g->bufferSRV[Graphics::INSTANCE].Get(),
-			0,
-			instanceBuffer.Get(),
-			sizeof(UINT) * i,
-			sizeof(UINT)
-		);
+		// set voxel pos x which will be the instance
+		g->voxelPosData->voxelPos.x = i;
 
 		commandList->DrawInstanced(_countof(g->plainVerts), 1, 0, 0);
 

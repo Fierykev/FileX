@@ -71,7 +71,10 @@ private:
 
 	ComPtr<ID3D12Resource> texture3D, texture2DUpload;
 
-	static ComPtr<ID3D12Resource> texture2D, instanceBuffer;
+	static ComPtr<ID3D12Resource> texture2D;
+
+	D3D12_VIEWPORT viewport;
+	D3D12_RECT scissorRect;
 
 	int width;
 	int height;
@@ -85,9 +88,6 @@ private:
 	static CD3DX12_CPU_DESCRIPTOR_HANDLE srvTexStart, rtvTexStart;
 	static UINT numResources, numUploadedResources;
 	static bool startup;
-
-	// TMP (should be in graphics)
-	const static UINT uploadOffset = 3;
 };
 
 #endif

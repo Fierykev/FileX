@@ -216,6 +216,9 @@
     <FxCompile Include="UploadPS.hlsl">
       <Filter>Files\Shaders\Upload3D</Filter>
     </FxCompile>
+    <FxCompile Include="SampleTypes.hlsl">
+      <Filter>Files\Shaders\Procedural</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ProceduralConstantsH.hlsl">

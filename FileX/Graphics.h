@@ -10,9 +10,9 @@
 #include "Image.h"
 #include "Image2D.h"
 
-#define NUM_VOXELS_X 8
-#define NUM_VOXELS_Y 8
-#define NUM_VOXELS_Z 8
+#define NUM_VOXELS_X 6
+#define NUM_VOXELS_Y 6
+#define NUM_VOXELS_Z 6
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 #define NUM_RENDER_TYPES 4
@@ -21,10 +21,10 @@
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
-constexpr float PERSON_HEIGHT = 0.f;
-constexpr float CHUNK_SIZE = 80.f;
+constexpr float PERSON_HEIGHT = 5.f;
+constexpr float CHUNK_SIZE = 4.f;
 
-constexpr float EXTRA = 10.f;
+constexpr float EXTRA = 5.f;
 constexpr float VOXEL_SIZE = 65.f;
 constexpr float VOXEL_SIZE_M1 = VOXEL_SIZE - 1.f;
 constexpr float VOXEL_SIZE_M2 = VOXEL_SIZE_M1 - 1.f;
@@ -34,16 +34,6 @@ constexpr float OCC_SIZE_P1 = OCC_SIZE + 1;
 constexpr float OCC_SIZE_M1 = OCC_SIZE - 1;
 
 constexpr float INV_OCC_SIZE_M1 = 1.f / OCC_SIZE_M1;
-
-/*
-#define EXTRA 4.f
-#define VOXEL_SIZE_M2 63.f
-#define VOXEL_SIZE_M1 64.f
-#define VOXEL_SIZE 65.f
-#define VOXEL_SIZE_P1 66.f
-#define OCC_SIZE 73.f
-#define OCC_SIZE_P1 74.f
-#define OCC_SIZE_M1 72.f*/
 
 constexpr float FINDY_SIZE = 256.f;
 constexpr float FINDY_SIZE_P1 = 257.f;
@@ -76,7 +66,7 @@ namespace std
 }
 
 constexpr UINT COUNTER_SIZE = sizeof(UINT64);
-constexpr float speed = 4.f, angleSpeed = .03f;
+constexpr float speed = .1f, angleSpeed = .003f;
 
 class Graphics : public Manager
 {
@@ -90,6 +80,9 @@ public:
 	virtual void onDestroy();
 	virtual void onKeyDown(UINT8 key);
 	virtual void onKeyUp(UINT8 key);
+
+	// static globals
+	static const UINT numFrames = 2;
 
 	const UINT DENSITY_SIZE = OCC_SIZE;
 
@@ -157,11 +150,13 @@ public:
 		DENSITY_TEXTURE = 0,
 		INDEX_TEXTURE,
 		FINDY_TEXTURE,
-		INSTANCE,
+		UPLOAD_TEX,
 		NOISE_0,
 		NOISE_1,
 		NOISE_2,
-		UPLOAD_TEX,
+		NOISEH_0,
+		NOISEH_1,
+		NOISEH_2,
 		ALTITUDE,
 		BUMPMAP,
 		SRV_COUNT
@@ -180,15 +175,22 @@ public:
 		DSV_COUNT
 	};
 
+	enum BVRTV : UINT32
+	{
+		RTV_FRAMES = numFrames - 1, // not to be used
+		RTV_DENSITY_TEXTURE,
+		RTV_INDEX_TEXTURE,
+		RTV_FINDY_TEXTURE,
+		RTV_UPLOAD_TEXTURE,
+		RTV_COUNT
+	};
+
 	enum BVSAMPLER :UINT32
 	{
 		NEAREST_SAMPLER = 0,
 		REPEAT_SAMPLER,
 		SAMPLER_COUNT
 	};
-
-	// static globals
-	static const UINT numFrames = 2;
 
 	// buffers
 	ComPtr<ID3D12Resource> bufferCB[CBV_COUNT],
@@ -292,7 +294,7 @@ public:
 	ComPtr<IDXGISwapChain3> swapChain;
 
 	// per frame vars
-	ComPtr<ID3D12Resource> renderTarget[numFrames], intermediateTarget[SRV_COUNT];
+	ComPtr<ID3D12Resource> renderTarget[numFrames], intermediateTarget[RTV_COUNT];
 	ComPtr<ID3D12CommandAllocator> commandAllocator[numFrames];
 
 	// heaps
@@ -311,7 +313,8 @@ public:
 	HANDLE swapChainEvent;
 
 	// Images
-	Image noise0, noise1, noise2;
+	Image noise0, noise1, noise2,
+		noiseH0, noiseH1, noiseH2;
 	Image2D altitude, bumpMap;
 
 #pragma pack(push, 1)
@@ -361,6 +364,10 @@ public:
 		XMFLOAT2 occInvVecP1 = XMFLOAT2(
 			1.f / occP1, 0
 		);
+
+		XMFLOAT2 voxelSize = XMFLOAT2(
+			1.f / (chunkSize * 16.f), 0
+		);
 	};
 #pragma pack(pop)
 
@@ -373,10 +380,10 @@ public:
 	// view params
 	XMMATRIX world, view, projection, worldViewProjection;
 
-	XMFLOAT3 origDelta{ 0.0f, 100.0f, 200.0f };
-	XMFLOAT3 eyeDelta = origDelta;
-	XMVECTOR at{ eyeDelta.x, eyeDelta.y, eyeDelta.z };
+	XMFLOAT3 origDelta{ 0.0f, 0.0f, 20.0f };
+	XMFLOAT3 atDelta = origDelta;
 	XMVECTOR eye = { 0, 0, 0 };
+	XMVECTOR at{ atDelta.x, atDelta.y, atDelta.z };
 	XMVECTOR up{ 0.0f, 1.f, 0.0f };
 
 	float yAngle = 0, xAngle = 0;

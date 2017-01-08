@@ -1,5 +1,5 @@
-Texture2D altCol0 : register(t8);
-Texture2D bump0 : register(t9);
+Texture2D altCol0 : register(t10);
+Texture2D bump0 : register(t11);
 
 SamplerState repeatSampler : register(s1);
 

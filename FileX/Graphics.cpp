@@ -115,7 +115,7 @@ void Graphics::phase1()
 
 	setupProceduralDescriptors();
 
-	renderDensity(); // NOTE: causes error
+	renderDensity();
 	renderOccupied();
 
 	// run the commands
@@ -495,19 +495,19 @@ void Graphics::updateTerrain()
 
 void Graphics::drawPhase()
 {
-	float y = findY();
+	//float y = findY();
 
-	eyeDelta.x = origDelta.x * cos(yAngle)
+	atDelta.x = origDelta.x * cos(yAngle)
 		- origDelta.z * sin(yAngle);
 
-	eyeDelta.z = origDelta.z * cos(yAngle)
+	atDelta.z = origDelta.z * cos(yAngle)
 		+ origDelta.x * sin(yAngle);
 
-	at.m128_f32[1] = y;
+	//eye.m128_f32[1] = y;
 
-	eye.m128_f32[0] = at.m128_f32[0] + eyeDelta.x;
-	eye.m128_f32[1] = at.m128_f32[1] + eyeDelta.y;
-	eye.m128_f32[2] = at.m128_f32[2] + eyeDelta.z;
+	at.m128_f32[0] = eye.m128_f32[0] + atDelta.x;
+	at.m128_f32[1] = eye.m128_f32[1] + atDelta.y;
+	at.m128_f32[2] = eye.m128_f32[2] + atDelta.z;
 
 	updateTerrain();
 
@@ -657,7 +657,7 @@ void Graphics::loadPipeline()
 	// RTV
 
 	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-	rtvHeapDesc.NumDescriptors = numFrames + SRV_COUNT;
+	rtvHeapDesc.NumDescriptors = numFrames + RTV_COUNT;
 	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	ThrowIfFailed(device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&rtvHeap)));
@@ -734,10 +734,10 @@ void Graphics::loadPipeline()
 		&voxelTextureDesc,
 		D3D12_RESOURCE_STATE_RENDER_TARGET,
 		nullptr,
-		IID_PPV_ARGS(&intermediateTarget[DENSITY_TEXTURE])
+		IID_PPV_ARGS(&intermediateTarget[RTV_DENSITY_TEXTURE])
 	));
 
-	device->CreateRenderTargetView(intermediateTarget[DENSITY_TEXTURE].Get(), &rtvDesc, rtvHandle);
+	device->CreateRenderTargetView(intermediateTarget[RTV_DENSITY_TEXTURE].Get(), &rtvDesc, rtvHandle);
 	rtvHandle.Offset(1, rtvDescriptorSize);
 
 	// bind the SRV to t0
@@ -753,7 +753,7 @@ void Graphics::loadPipeline()
 
 	// bind texture to srv
 	device->CreateShaderResourceView(
-		intermediateTarget[DENSITY_TEXTURE].Get(),
+		intermediateTarget[RTV_DENSITY_TEXTURE].Get(),
 		&srvDesc, srvHandle0);
 	srvHandle0.Offset(csuDescriptorSize);
 
@@ -773,17 +773,17 @@ void Graphics::loadPipeline()
 		&voxelTextureDesc,
 		D3D12_RESOURCE_STATE_RENDER_TARGET,
 		nullptr,
-		IID_PPV_ARGS(&intermediateTarget[INDEX_TEXTURE])
+		IID_PPV_ARGS(&intermediateTarget[RTV_INDEX_TEXTURE])
 	));
 	
-	device->CreateRenderTargetView(intermediateTarget[INDEX_TEXTURE].Get(), &rtvDesc, rtvHandle);
+	device->CreateRenderTargetView(intermediateTarget[RTV_INDEX_TEXTURE].Get(), &rtvDesc, rtvHandle);
 	rtvHandle.Offset(1, rtvDescriptorSize);
 
 	srvDesc.Format = INDEX_FORMAT;
 
 	// bind texture to srv
 	device->CreateShaderResourceView(
-		intermediateTarget[INDEX_TEXTURE].Get(),
+		intermediateTarget[RTV_INDEX_TEXTURE].Get(),
 		&srvDesc, srvHandle0);
 	srvHandle0.Offset(csuDescriptorSize);
 
@@ -808,40 +808,17 @@ void Graphics::loadPipeline()
 		&voxelTextureDesc,
 		D3D12_RESOURCE_STATE_RENDER_TARGET,
 		&clear,
-		IID_PPV_ARGS(&intermediateTarget[FINDY_TEXTURE])
+		IID_PPV_ARGS(&intermediateTarget[RTV_FINDY_TEXTURE])
 	));
 
-	device->CreateRenderTargetView(intermediateTarget[FINDY_TEXTURE].Get(), &rtvDesc, rtvHandle);
+	device->CreateRenderTargetView(intermediateTarget[RTV_FINDY_TEXTURE].Get(), &rtvDesc, rtvHandle);
 	rtvHandle.Offset(1, rtvDescriptorSize);
 
 	srvDesc.Format = DENSITY_FORMAT;
 
 	// bind texture to srv
 	device->CreateShaderResourceView(
-		intermediateTarget[FINDY_TEXTURE].Get(),
-		&srvDesc, srvHandle0);
-	srvHandle0.Offset(csuDescriptorSize);
-
-	// Instance SRV
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	srvDesc.Buffer.FirstElement = 0;
-	srvDesc.Buffer.NumElements = 1;
-	srvDesc.Buffer.StructureByteStride = sizeof(UINT);
-	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-
-	ThrowIfFailed(device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(UINT) + 255) & ~255),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		nullptr,
-		IID_PPV_ARGS(&bufferSRV[INSTANCE])));
-
-	// bind texture to srv
-	device->CreateShaderResourceView(
-		bufferSRV[INSTANCE].Get(),
+		intermediateTarget[RTV_FINDY_TEXTURE].Get(),
 		&srvDesc, srvHandle0);
 	srvHandle0.Offset(csuDescriptorSize);
 
@@ -1463,7 +1440,7 @@ void Graphics::loadAssets()
 	ThrowIfFailed(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator[frameIndex].Get(), nullptr, IID_PPV_ARGS(&commandList)));
 
 	// load in the 2D images
-	altitude.loadImage(device.Get(), L"Altitude/Mountain Texture 4.bmp");
+	altitude.loadImage(device.Get(), L"Altitude/Altitude.png");
 	altitude.uploadTexture(commandList.Get());
 
 	bumpMap.loadImage(device.Get(), L"Altitude/Mountain Texture 3.bmp");
@@ -1499,14 +1476,26 @@ void Graphics::loadAssets()
 	noise1.setPipeline(uploadTexPipelineState.Get());
 	noise2.setPipeline(uploadTexPipelineState.Get());
 
+	noiseH0.setPipeline(uploadTexPipelineState.Get());
+	noiseH1.setPipeline(uploadTexPipelineState.Get());
+	noiseH2.setPipeline(uploadTexPipelineState.Get());
+	
 	noise0.loadImage(device.Get(), L"Noise/noise0.raw");
 	noise1.loadImage(device.Get(), L"Noise/noise1.raw");
 	noise2.loadImage(device.Get(), L"Noise/noise2.raw");
+
+	noiseH0.loadImage(device.Get(), L"Noise/noiseH0.raw");
+	noiseH1.loadImage(device.Get(), L"Noise/noiseH1.raw");
+	noiseH2.loadImage(device.Get(), L"Noise/noiseH2.raw");
 
 	// upload textures
 	noise0.uploadTexture(this, commandList.Get());
 	noise1.uploadTexture(this, commandList.Get());
 	noise2.uploadTexture(this, commandList.Get());
+
+	noiseH0.uploadTexture(this, commandList.Get());
+	noiseH1.uploadTexture(this, commandList.Get());
+	noiseH2.uploadTexture(this, commandList.Get());
 
 	regenTerrain();
 }
@@ -1515,8 +1504,8 @@ void Graphics::regenTerrain()
 {
 	// reset camera
 	yAngle = 0;
-	eyeDelta = origDelta;
-	at = { eyeDelta.x, eyeDelta.y, eyeDelta.z };
+	atDelta = origDelta;
+	eye = { 0, 0, 0 };
 
 	// clear the hashmap
 	computedPos.clear();
@@ -1527,9 +1516,9 @@ void Graphics::regenTerrain()
 
 	XMFLOAT3 voxelPos;
 	startLoc =
-	{ at.m128_f32[0] + NUM_VOXELS_X * CHUNK_SIZE / 2.f,
-		at.m128_f32[1] + NUM_VOXELS_Y * CHUNK_SIZE / 2.f,
-		at.m128_f32[2] + NUM_VOXELS_Z *  CHUNK_SIZE / 2.f };
+	{ eye.m128_f32[0] + NUM_VOXELS_X * CHUNK_SIZE / 2.f,
+		eye.m128_f32[1] + NUM_VOXELS_Y * CHUNK_SIZE / 2.f,
+		eye.m128_f32[2] + NUM_VOXELS_Z *  CHUNK_SIZE / 2.f };
 
 	clock_t startGen = std::clock_t();
 
@@ -1582,7 +1571,8 @@ void Graphics::renderDensity()
 	// set the pipeline
 	commandList->SetPipelineState(densityPipelineState.Get());
 
-	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(), numFrames + DENSITY_TEXTURE, rtvDescriptorSize);
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(),
+		RTV_DENSITY_TEXTURE, rtvDescriptorSize);
 	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, &plainVB);
@@ -1736,7 +1726,7 @@ void Graphics::renderClearTex()
 	// set the pipeline
 	commandList->SetPipelineState(dataClearTexPipelineState.Get());
 
-	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(), numFrames + INDEX_TEXTURE, rtvDescriptorSize);
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(), numFrames + RTV_INDEX_TEXTURE, rtvDescriptorSize);
 	commandList->SOSetTargets(0, 0, 0);
 	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1959,16 +1949,26 @@ void Graphics::onKeyDown(UINT8 key)
 		break;
 	case VK_DOWN:
 
-		at.m128_f32[0] -= sin(yAngle) * speed;
-		at.m128_f32[2] += cos(yAngle) * speed;
+		eye.m128_f32[0] += sin(yAngle) * speed;
+		eye.m128_f32[2] -= cos(yAngle) * speed;
 
 		break;
 	case VK_UP:
 
-		at.m128_f32[0] += sin(yAngle) * speed;
-		at.m128_f32[2] -= cos(yAngle) * speed;
+		eye.m128_f32[0] -= sin(yAngle) * speed;
+		eye.m128_f32[2] += cos(yAngle) * speed;
 
 		break;
+	case 'U':
+
+		eye.m128_f32[1] += speed;
+
+		break;
+	case 'D':
+
+		eye.m128_f32[1] -= speed;
+
+	break;
 	case 'R':
 		voxelPosData->renderType = (voxelPosData->renderType + 1) % NUM_RENDER_TYPES;
 		break;

@@ -3,9 +3,9 @@
 
 cbuffer VOXEL_POS : register(b1)
 {
-	float3 voxelPos;
-	uint densityType;
-	uint renderType;
+	float3 voxelPos : packoffset(c0);
+	uint densityType : packoffset(c0.w);
+	uint renderType : packoffset(c1);
 };
 
 cbuffer GENERATION_CONSTANTS : register(b2)
@@ -28,6 +28,8 @@ cbuffer GENERATION_CONSTANTS : register(b2)
 
 	float2 occInvVecM1 : packoffset(c4);
 	float2 occInvVecP1 : packoffset(c4.z);
+
+	float2 voxelSize : packoffset(c5);
 };
 
 static const float densStep = 100.f;

@@ -2,194 +2,70 @@
 #define _DENSITY_H_
 
 #include <ProceduralConstantsH.hlsl>
+#include <SampleTypes.hlsl>
 #include "NoiseH.hlsl"
 
-Texture3D<float4> noise0 : register(t4);
-Texture3D<float4> noise1 : register(t5);
-Texture3D<float4> noise2 : register(t6);
+// low freq
+Texture3D noise0 : register(t4);
+Texture3D noise1 : register(t5);
+Texture3D noise2 : register(t6);
 
-SamplerState repeatSampler : register(s1);
-
-static const float TEX_SIZE = 16.f;
-static const float2 INV_TEX_SIZE = float2(1.f / TEX_SIZE, 0);
+// high freq
+Texture3D noiseH0 : register(t7);
+Texture3D noiseH1 : register(t8);
+Texture3D noiseH2 : register(t9);
 
 // shelf
 static const float SHELF_THICK = 3.f;
 static const float SHELF_UP = -1;
 static const float SHELF_STRENGTH = 80.f;
 
-float4 sampleType(int type, float3 pos)
+float4 evalTexID(uint texID, float3 uvw)
 {
-	if (type == 0)
-		return noise0.SampleLevel(repeatSampler, pos, 0);
-	if (type == 1)
-		return noise1.SampleLevel(repeatSampler, pos, 0);
-	if (type == 2)
-		return noise2.SampleLevel(repeatSampler, pos, 0);
+	switch(texID)
+	{
+	case 0:
+		return noise0.SampleLevel(repeatSampler, uvw, 0);
+	case 1:
+		return noise1.SampleLevel(repeatSampler, uvw, 0);
+	case 2:
+		return noise2.SampleLevel(repeatSampler, uvw, 0);
+	case 3:
+		return noiseH0.SampleLevel(repeatSampler, uvw, 0);
+	case 4:
+		return noiseH1.SampleLevel(repeatSampler, uvw, 0);
+	case 5:
+		return noiseH2.SampleLevel(repeatSampler, uvw, 0);
+	}
 
 	return float4(0, 0, 0, 0);
 }
 
-float sampleNoise(float3 uvw, int type, float soften = 1)
-{
-	//return snoise(uvw);
-	float3 tmp1 = floor(uvw * TEX_SIZE) * INV_TEX_SIZE.x;
-	float3 delta = (uvw - tmp1) * TEX_SIZE;
-	delta = lerp(delta, delta * delta * (3.f - 2.f * delta), soften);
-
-	float4 sample1 = sampleType(type, tmp1).zxyw;
-	float4 sample2 = sampleType(type, tmp1 + INV_TEX_SIZE.xyy).zxyw;
-
-	float4 lerp1 = lerp(sample1, sample2, delta.xxxx);
-	float2 lerp2 = lerp(lerp1.xy, lerp1.zw, delta.yy);
-	float lerp3 = lerp(lerp2.x, lerp2.y, delta.z);
-
-	return lerp3;
-}
-
-float4 sampleNoiseMedium(float3 uvw, int type)
-{
-	float3 tmp1 = frac(uvw * TEX_SIZE + .5);
-	float3 delta = (4 - 2 * tmp1) * tmp1 * tmp1;
-	float3 sampleLoc = uvw + (delta - tmp1) / TEX_SIZE;
-
-	return sampleType(type, sampleLoc);
-}
-
-float snap(float a, float b)
-{
-	float tmp = (.5 < a) ? 1 : 0;
-	float tmp2 = 1.f - tmp * 2.f;
-
-	return tmp * tmp2 * pow((tmp + tmp2 * a) * 2, b) * .5;
-}
-
-float shelfDensity(float3 pos)
-{
-	// scale down
-	pos /= chunkSize;
-
-	// grab some rand values
-	float ran1 = saturate(sampleNoise(pos * .00834, 0) * 2.f - .5);
-	float ran2 = sampleNoise(pos * .00742, 1);
-	float ran3 = sampleNoise(pos * .00543, 2);
-
-	float density = -pos.y;// +chunkSize - .5f;
-
-						   // shelves
-	density += lerp(
-		density, SHELF_STRENGTH,
-		.78 * saturate(SHELF_THICK - abs(pos.y - SHELF_UP))
-		* saturate(ran2 * 1.5));
-
-	density +=
-		sampleNoiseMedium(pos.xyz, 0).x;
-
-	density += ran3.x * 5.f;
-
-	density *= 3.f;
-
-	return density;
-}
-
-float littleBigPlanet(float3 pos)
-{
-	// scale down
-	pos /= chunkSize;
-
-	// grab some rand values
-	float ran1 = saturate(sampleNoise(pos * .00834, 0) * 2.f - .5);
-	float ran2 = sampleNoise(pos * .00742, 1);
-	float ran3 = sampleNoise(pos * .00543, 2);
-
-	float3 medRan1 = sampleNoiseMedium(pos * .02303, 0);
-
-	float density = -pos.y;
-
-	float3 rpos = 
-		pos + float3(ran1, ran2, ran3) * 25.f * saturate(medRan1.y * 1.4 - .3);
-	float rad = length(pos);
-	float rrad = length(rpos);
-
-	float combo = -lerp(rad, rrad, .1) * .2;
-	float fCombo = frac(combo);
-	float snapCombo = snap(fCombo, 16);
-
-	density += (snapCombo - fCombo) * 10.f;
-
-	return density;
-}
-
-float twistedWorld(float3 pos)
-{
-	// scale down
-	pos /= chunkSize;
-
-	// grab some rand values
-	float ran1 = saturate(sampleNoise(pos * .00834, 0) * 2.f - .5);
-	float ran2 = sampleNoise(pos * .00742, 1);
-	float ran3 = sampleNoise(pos * .00543, 2);
-
-	float density = -pos.y;
-
-	density += ran1 * 25;
-	density += ran2 * 5;
-	density += ran3;
-
-	density += snoise(pos);
-
-	density *= 100.f;
-
-	return density;
-}
-
-float floatingWorld(float3 pos)
-{
-	// scale down
-	pos /= chunkSize;
-
-	float ran1 = snoise(pos * 4.03).x * .25;
-	float ran2 = snoise(pos * 1.96).x * .5;
-	float ran3 = snoise(pos * 1.01).x;
-
-	float3 medRan1 = snoise(pos * .02303);
-
-	float density = -pos.y;
-
-	float3 rpos =
-		pos + float3(ran1, ran2, ran3) * 25.f * saturate(medRan1.y * 1.4 - .3);
-	float rad = length(pos);
-	float rrad = length(rpos);
-
-	float combo = -lerp(rad, rrad, .1) * .2;
-	float fCombo = frac(combo);
-	float snapCombo = snap(fCombo, 16);
-
-	density += (snapCombo - fCombo) * 10.f;
-
-	return density;
-}
-
 float density(float3 pos)
 {
-	//pos /= chunkSize;
-
-	//return -pos.y;// +pos.x;// % 10;
+	// start with nothing
+	float density = 0;
 	
-	if (densityType == 1)
-		return littleBigPlanet(pos);
-	else if (densityType == 2)
-		return twistedWorld(pos);
-	else if (densityType == 3)
-		return floatingWorld(pos);
+	// get random vals:
 
-	return shelfDensity(pos);
+	// unsigned low freq
+	float4 ulfVal0 = mediumUnsigned(0, pos * .000832);
+	float4 ulfVal1 = mediumUnsigned(1, pos * .000742);
+	float4 ulfVal2 = mediumUnsigned(2, pos * .000543);
+
+	// signed high freq
+	float3 shfVal = {
+		highSigned(3, pos * .0123) * .66
+			+ highSigned(4, pos * .0456) * .33,
+		highSigned(3, pos * .0348) * .66
+			+ highSigned(5, pos * .0144) * .33,
+		highSigned(3, pos * .0255) * .66
+			+ highSigned(5, pos * .00934) * .33	
+	};
+
+	density = -pos.y + ulfVal0;
+	
+	return density;
 }
-
-
-// ridges
-//density +=
-//sampleNoise(pos.xyz * float3(2.f, 32.f, 2.f) * .043, 0) * 2.f;
-
 
 #endif
