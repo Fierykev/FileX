@@ -239,9 +239,6 @@
     <None Include="RaysH.hlsl">
       <Filter>Files\Shaders\Procedural</Filter>
     </None>
-    <None Include="NoiseH.hlsl">
-      <Filter>Files\Shaders\Procedural</Filter>
-    </None>
     <None Include="MarbleH.hlsl">
       <Filter>Files\Shaders\Rock\Marble</Filter>
     </None>
@@ -256,6 +253,9 @@
     </None>
     <None Include="FeaturesH.hlsl">
       <Filter>Files\Shaders\Procedural\DensityFunction</Filter>
+    </None>
+    <None Include="NoiseH.hlsl">
+      <Filter>Files\Shaders\Procedural</Filter>
     </None>
   </ItemGroup>
 </Project>

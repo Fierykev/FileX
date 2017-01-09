@@ -1,3 +1,5 @@
+#define HIGH_QUALITY
+
 #include <DensityH.hlsl>
 #include "Debug.hlsl"
 

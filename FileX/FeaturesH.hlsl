@@ -3,22 +3,12 @@
 
 #include "NoiseH.hlsl"
 
-// low freq
-Texture3D noise0 : register(t4);
-Texture3D noise1 : register(t5);
-Texture3D noise2 : register(t6);
-
-// high freq
-Texture3D noiseH0 : register(t7);
-Texture3D noiseH1 : register(t8);
-Texture3D noiseH2 : register(t9);
-
 struct Random
 {
 	float4 ulfVal[3];
-	float3 shfVal;
 	float3 pos, posWarp;
 	float3 zone;
+	float3 rot[3];
 };
 
 float4 evalTexID(uint texID, float3 uvw, SamplerState s)
@@ -52,7 +42,7 @@ inline Random getRandom(float3 pos)
 	ran.ulfVal[2] = mediumUnsigned(2, pos * .00543);
 
 	// signed high freq
-	ran.shfVal = float3(
+	float3 shfVal = float3(
 		highSigned(3, pos * .0123) * .66
 		+ highSigned(4, pos * .0456) * .33,
 		highSigned(4, pos * .0348) * .66
@@ -66,11 +56,16 @@ inline Random getRandom(float3 pos)
 
 	// store the modified position
 	const float warpStrength = 25.f;
-	ran.posWarp = pos + ran.ulfVal[0].xyz * warpStrength *
+	ran.posWarp = pos + shfVal.xyz * warpStrength *
 		saturate(ran.ulfVal[2].w * 1.4f - .3f);
 
 	// store the zone
 	ran.zone = mediumUnsigned(2, pos * .0000931);
+
+	// store the rotated coords
+	ran.rot[0] = rot(ran.posWarp, rotMatrix0);
+	ran.rot[1] = rot(ran.posWarp, rotMatrix0);
+	ran.rot[2] = rot(ran.posWarp, rotMatrix0);
 
 	return ran;
 }
@@ -134,11 +129,22 @@ inline float mountain(Random ran)
 inline float highNoise(Random ran)
 {
 	float density = 0;
-
-	[unroll(3)]
-	for (uint i = 0; i < 3; i++)
-		density += ran.shfVal[i];
-
+	
+	// get if need high level detail
+#ifdef HIGH_QUALITY
+	// add in 4 octaves of noise
+	density += lowSigned(2, ran.posWarp * .0123).x * .231;
+	density += lowSigned(0, ran.posWarp * .0897).x * .8993;
+	density += lowSigned(1, ran.posWarp * .07234).x * 1.233;
+	density += lowSigned(2, ran.posWarp * .0332).x * 2.344;
+#endif
+	
+	// add in last 4 octaves of noise
+	density += lowSigned(1, ran.posWarp * .02231).x * 4.34f;
+	density += highSigned(0, ran.rot[0] * .001232).x * 5.22f;
+	density += highSigned(2, ran.rot[1] * .00311).x * 6.12f;
+	density += highSigned(1, ran.rot[2] * .003422).x * 7.34f;
+	
 	return density;
 }
 

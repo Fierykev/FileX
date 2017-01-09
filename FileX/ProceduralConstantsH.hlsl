@@ -32,6 +32,13 @@ cbuffer GENERATION_CONSTANTS : register(b2)
 	float2 voxelSize : packoffset(c5);
 };
 
+cbuffer DENSITY_CONSTANTS : register(b3)
+{
+	float4x4 rotMatrix0;
+	float4x4 rotMatrix1;
+	float4x4 rotMatrix2;
+};
+
 static const float densStep = 100.f;
 
 inline float4 getVoxelLoc(float2 texcoord, uint instanceID)

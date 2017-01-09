@@ -22,8 +22,8 @@ float density(float3 pos)
 	// create terraces
 	float densityTerrace = terrace(ran);
 
-	// create mountains
-	float densityMountain = mountain(ran);
+	// create mountains (TODO: FIX)
+	float densityMountain = 0.f;// mountain(ran);
 
 	// high noise
 	float densityHighNoise = highNoise(ran);
@@ -37,6 +37,7 @@ float density(float3 pos)
 		densityHighNoise, ran.zone.y);
 
 	density += comboDensity;
+	//density = densityGroundPlain + densityHighNoise;
 
 	return density;
 }

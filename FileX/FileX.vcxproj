@@ -204,9 +204,6 @@
     <None Include="RaysH.hlsl">
       <FileType>Document</FileType>
     </None>
-    <None Include="NoiseH.hlsl">
-      <FileType>Document</FileType>
-    </None>
     <None Include="MarbleH.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -216,6 +213,9 @@
       <FileType>Document</FileType>
     </None>
     <None Include="FeaturesH.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="NoiseH.hlsl">
       <FileType>Document</FileType>
     </None>
     <FxCompile Include="SampleDensityVS.hlsl">

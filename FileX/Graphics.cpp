@@ -909,6 +909,14 @@ void Graphics::loadPipeline()
 		nullptr,
 		IID_PPV_ARGS(&bufferCB[CB_GENERATION_CONSTANTS])));
 
+	ThrowIfFailed(device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(DENSITY_CONSTANTS) + 255) & ~255),
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&bufferCB[CB_DENSITY_CONSTANTS])));
+
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cdesc;
 	CD3DX12_CPU_DESCRIPTOR_HANDLE cbvHandle0(
 		csuHeap->GetCPUDescriptorHandleForHeapStart(),
@@ -949,6 +957,27 @@ void Graphics::loadPipeline()
 	
 	cdesc.BufferLocation = bufferCB[CB_GENERATION_CONSTANTS]->GetGPUVirtualAddress();
 	cdesc.SizeInBytes = (sizeof(GENERATION_CONSTANTS) + 255) & ~255;
+
+	device->CreateConstantBufferView(&cdesc, cbvHandle0);
+	cbvHandle0.Offset(csuDescriptorSize);
+
+	// set density constants
+	DENSITY_CONSTANTS* dc;
+	bufferCB[CB_DENSITY_CONSTANTS]->Map(0, &readRange, (void**)&dc);
+	XMStoreFloat4x4(
+		&dc->rotMatrix0,
+		XMMatrixRotationRollPitchYaw(.213, 1.23, 4.24));
+	XMStoreFloat4x4(
+		&dc->rotMatrix1,
+		XMMatrixRotationRollPitchYaw(1.87, 2.33, 2.334));
+	XMStoreFloat4x4(
+		&dc->rotMatrix2,
+		XMMatrixRotationRollPitchYaw(3.22, 1.44, .98));
+
+	bufferCB[CB_DENSITY_CONSTANTS]->Unmap(0, nullptr);
+
+	cdesc.BufferLocation = bufferCB[CB_DENSITY_CONSTANTS]->GetGPUVirtualAddress();
+	cdesc.SizeInBytes = (sizeof(DENSITY_CONSTANTS) + 255) & ~255;
 
 	device->CreateConstantBufferView(&cdesc, cbvHandle0);
 	cbvHandle0.Offset(csuDescriptorSize);

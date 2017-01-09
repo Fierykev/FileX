@@ -1,3 +1,5 @@
+#include "NoiseH.hlsl"
+
 Texture2D altCol0 : register(t10);
 Texture2D bump0 : register(t11);
 
@@ -6,14 +8,10 @@ SamplerState repeatSampler : register(s1);
 const static float3 distort = float3(1, 12, 1);
 const static float scale = .003f;
 
-Texture3D<float4> noise0 : register(t4);
-Texture3D<float4> noise1 : register(t5);
-Texture3D<float4> noise2 : register(t6);
-
-float3 genBaseCol_(float3 pos, float3 normal)
+float3 genBaseCol(float3 pos, float3 normal)
 {
 	float4 noise = noise0.SampleLevel(
-		repeatSampler, pos * .00047 * distort, 0);
+		repeatSampler, pos * .0047 * distort, 0);
 
 	// calculate the uv coords
 	float2 uv;
@@ -40,7 +38,7 @@ float3 genBaseCol_(float3 pos, float3 normal)
 	return col;
 }
 
-float3 genBaseCol(float3 pos, inout float3 normal)
+float3 genBaseCol_(float3 pos, inout float3 normal)
 {
 	float3 bw = abs(normal);
 	bw = (bw - .2) * 7;

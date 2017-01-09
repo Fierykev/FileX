@@ -1,10 +1,10 @@
-﻿C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\FeaturesH.hlsl(73,2-45): warning X3206: implicit truncation of vector type
+﻿C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\FeaturesH.hlsl(63,2-45): warning X3206: implicit truncation of vector type
   
   compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\DensityPS.cso
-C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\FeaturesH.hlsl(73,2-45): warning X3206: implicit truncation of vector type
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\FeaturesH.hlsl(63,2-45): warning X3206: implicit truncation of vector type
   
   compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\SearchTerrainCS.cso
-C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\FeaturesH.hlsl(73,2-45): warning X3206: implicit truncation of vector type
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\FeaturesH.hlsl(63,2-45): warning X3206: implicit truncation of vector type
   
   compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\VertexMeshVS.cso
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.exe

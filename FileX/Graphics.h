@@ -142,6 +142,7 @@ public:
 		CB_WORLD_POS = 0,
 		CB_VOXEL_POS,
 		CB_GENERATION_CONSTANTS,
+		CB_DENSITY_CONSTANTS,
 		CBV_COUNT
 	};
 
@@ -370,6 +371,14 @@ public:
 			1.f / (chunkSize * 16.f), 0
 		);
 	};
+
+	struct DENSITY_CONSTANTS
+	{
+		XMFLOAT4X4 rotMatrix0;
+		XMFLOAT4X4 rotMatrix1;
+		XMFLOAT4X4 rotMatrix2;
+	};
+
 #pragma pack(pop)
 
 	bool isSolid = false;

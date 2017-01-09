@@ -10,6 +10,17 @@ SamplerState nearestRepeatSampler : register(s2);
 // user function must have this
 float4 evalTexID(uint texID, float3 uvw, SamplerState s);
 
+// rot
+
+float3 rot(float3 pos, float4x4 mat)
+{
+	return float3(
+		dot(mat._11_12_13, pos),
+		dot(mat._21_22_23, pos),
+		dot(mat._31_32_33, pos)
+		);
+}
+
 // low
 
 float4 lowUnsigned(uint texID, float3 uvw, SamplerState s)
@@ -20,6 +31,11 @@ float4 lowUnsigned(uint texID, float3 uvw, SamplerState s)
 float4 lowSigned(uint texID, float3 uvw, SamplerState s)
 {
 	return evalTexID(texID, uvw, s);
+}
+
+float4 lowSigned(uint texID, float3 uvw)
+{
+	return evalTexID(texID, uvw, linearRepeatSampler);
 }
 
 // medium
