@@ -66,7 +66,7 @@ namespace std
 }
 
 constexpr UINT COUNTER_SIZE = sizeof(UINT64);
-constexpr float speed = .1f, angleSpeed = .003f;
+constexpr float speed = 1.f, angleSpeed = .3f;
 
 class Graphics : public Manager
 {
@@ -188,7 +188,8 @@ public:
 	enum BVSAMPLER :UINT32
 	{
 		NEAREST_SAMPLER = 0,
-		REPEAT_SAMPLER,
+		LINEAR_REPEAT_SAMPLER,
+		NEAREST_REPEAT_SAMPLER,
 		SAMPLER_COUNT
 	};
 

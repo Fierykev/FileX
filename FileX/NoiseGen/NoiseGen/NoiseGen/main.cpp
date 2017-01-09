@@ -92,7 +92,7 @@ int main()
 	struct osn_context *ctx;
 
 
-	float sizes[] = { .1, .5, .8 };
+	float sizes[] = { .1, .5, .9 };
 
 	// low quality
 	for (int i = 0; i < 3; i++)

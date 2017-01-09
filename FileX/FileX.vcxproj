@@ -215,6 +215,9 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
       <FileType>Document</FileType>
     </None>
+    <None Include="FeaturesH.hlsl">
+      <FileType>Document</FileType>
+    </None>
     <FxCompile Include="SampleDensityVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>

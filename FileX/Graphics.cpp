@@ -93,13 +93,13 @@ void Graphics::genVoxel(XMINT3 pos)
 	phase1();
 
 	UINT numOldVerts;
-
+	
 	if ((numOldVerts = phase2()) == 0) // no verts
 	{
 		//cout << "NO VERTS" << endl;
 		return;
 	}
-
+	
 	phase3(pos, numOldVerts);
 	phase4(pos);
 }
@@ -496,7 +496,7 @@ void Graphics::updateTerrain()
 void Graphics::drawPhase()
 {
 	float y = findY();
-	cout << y << endl;
+
 	eyeDelta.x = origDelta.x * cos(yAngle)
 		- origDelta.z * sin(yAngle);
 
@@ -874,6 +874,11 @@ void Graphics::loadPipeline()
 	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
 	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
 	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+
+	device->CreateSampler(&samplerDesc, samplerHandle0);
+	samplerHandle0.Offset(samplerDescriptorSize);
+
+	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
 
 	device->CreateSampler(&samplerDesc, samplerHandle0);
 	samplerHandle0.Offset(samplerDescriptorSize);
@@ -1726,7 +1731,8 @@ void Graphics::renderClearTex()
 	// set the pipeline
 	commandList->SetPipelineState(dataClearTexPipelineState.Get());
 
-	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(), numFrames + RTV_INDEX_TEXTURE, rtvDescriptorSize);
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(),
+		RTV_INDEX_TEXTURE, rtvDescriptorSize);
 	commandList->SOSetTargets(0, 0, 0);
 	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1866,7 +1872,7 @@ void Graphics::populateCommandList()
 
 	const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
 	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-
+	
 	for (auto p : computedPos)
 	{
 		// draw the object

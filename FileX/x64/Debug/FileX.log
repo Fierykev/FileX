@@ -1,6 +1,11 @@
-﻿  FindY.cpp
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(87): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(89): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
-c:\users\cyber\documents\visual studio 2015\projects\filex\filex\graphics.h(93): warning C4244: 'initializing': conversion from 'const float' to 'const UINT', possible loss of data
+﻿C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\FeaturesH.hlsl(73,2-45): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\DensityPS.cso
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\FeaturesH.hlsl(73,2-45): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\SearchTerrainCS.cso
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\FeaturesH.hlsl(73,2-45): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\VertexMeshVS.cso
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.exe
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Debug\FileX.pdb (Partial PDB)

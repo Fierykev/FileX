@@ -81,6 +81,9 @@
     <Filter Include="Files\Shaders\Rock\Altitude">
       <UniqueIdentifier>{3bbfdb0c-2338-4b5e-b243-cc63ab4ab3ca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Files\Shaders\Procedural\DensityFunction">
+      <UniqueIdentifier>{e721c231-6091-4ea3-9261-a19e74c6bde5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -216,9 +219,6 @@
     <FxCompile Include="UploadPS.hlsl">
       <Filter>Files\Shaders\Upload3D</Filter>
     </FxCompile>
-    <FxCompile Include="SampleTypes.hlsl">
-      <Filter>Files\Shaders\Procedural</Filter>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ProceduralConstantsH.hlsl">
@@ -239,9 +239,6 @@
     <None Include="RaysH.hlsl">
       <Filter>Files\Shaders\Procedural</Filter>
     </None>
-    <None Include="DensityH.hlsl">
-      <Filter>Files\Shaders\Procedural</Filter>
-    </None>
     <None Include="NoiseH.hlsl">
       <Filter>Files\Shaders\Procedural</Filter>
     </None>
@@ -250,6 +247,15 @@
     </None>
     <None Include="AltitudeH.hlsl">
       <Filter>Files\Shaders\Rock\Altitude</Filter>
+    </None>
+    <None Include="SampleTypes.hlsl">
+      <Filter>Files\Shaders\Procedural</Filter>
+    </None>
+    <None Include="DensityH.hlsl">
+      <Filter>Files\Shaders\Procedural\DensityFunction</Filter>
+    </None>
+    <None Include="FeaturesH.hlsl">
+      <Filter>Files\Shaders\Procedural\DensityFunction</Filter>
     </None>
   </ItemGroup>
 </Project>

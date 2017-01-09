@@ -4,38 +4,39 @@
 static const float TEX_SIZE = 16.f;
 static const float2 INV_TEX_SIZE = float2(1.f / TEX_SIZE, 0);
 
-SamplerState repeatSampler : register(s1);
+SamplerState linearRepeatSampler : register(s1);
+SamplerState nearestRepeatSampler : register(s2);
 
 // user function must have this
-float4 evalTexID(uint texID, float3 uvw);
+float4 evalTexID(uint texID, float3 uvw, SamplerState s);
 
 // low
 
-float4 lowUnsigned(uint texID, float3 uvw)
+float4 lowUnsigned(uint texID, float3 uvw, SamplerState s)
 {
-	return evalTexID(texID, uvw);
+	return abs(evalTexID(texID, uvw, s));
 }
 
-float4 lowSigned(uint texID, float3 uvw)
+float4 lowSigned(uint texID, float3 uvw, SamplerState s)
 {
-	return lowUnsigned(texID, uvw) * 2.f - 1.f;
+	return evalTexID(texID, uvw, s);
 }
 
 // medium
 
-float4 mediumUnsigned(uint texID, float3 uvw)
+float4 mediumSigned(uint texID, float3 uvw)
 {
 	// smooth input
 	float3 tmp1 = frac(uvw * TEX_SIZE + .5);
 	float3 delta = (3.f - 2.f * tmp1) * tmp1 * tmp1;
 	float3 sampleLoc = uvw + (delta - tmp1) / TEX_SIZE;
 
-	return lowUnsigned(texID, uvw);
+	return lowSigned(texID, uvw, linearRepeatSampler);
 }
 
-float4 mediumSigned(uint texID, float3 uvw)
+float4 mediumUnsigned(uint texID, float3 uvw)
 {
-	return mediumUnsigned(texID, uvw) * 2.f - 1.f;
+	return abs(lowSigned(texID, uvw, linearRepeatSampler));
 }
 
 // high
@@ -44,11 +45,12 @@ float highUnsigned(uint texID, float3 uvw, float soften = 1)
 {
 	float3 tmp1 = floor(uvw * TEX_SIZE) * INV_TEX_SIZE.x;
 	float3 delta = (uvw - tmp1) * TEX_SIZE;
-	delta = lerp(delta, delta * delta * (3.f - 2.f * delta), soften);
+	delta = lerp(delta,
+		delta * delta * (3.f - 2.f * delta), soften);
 
 	// 2 sample style
-	float4 sample1 = lowUnsigned(texID, tmp1).zxyw;
-	float4 sample2 = lowUnsigned(texID, tmp1 + INV_TEX_SIZE.xyy).zxyw;
+	float4 sample1 = lowUnsigned(texID, tmp1, nearestRepeatSampler).zxyw;
+	float4 sample2 = lowUnsigned(texID, tmp1 + INV_TEX_SIZE.xyy, nearestRepeatSampler).zxyw;
 
 	float4 lerp1 = lerp(sample1, sample2, delta.xxxx);
 	float2 lerp2 = lerp(lerp1.xy, lerp1.zw, delta.yy);
