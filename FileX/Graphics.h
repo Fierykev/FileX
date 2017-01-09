@@ -10,9 +10,9 @@
 #include "Image.h"
 #include "Image2D.h"
 
-#define NUM_VOXELS_X 6
-#define NUM_VOXELS_Y 6
-#define NUM_VOXELS_Z 6
+#define NUM_VOXELS_X 8
+#define NUM_VOXELS_Y 8
+#define NUM_VOXELS_Z 8
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 #define NUM_RENDER_TYPES 4
@@ -21,7 +21,7 @@
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
-constexpr float PERSON_HEIGHT = 5.f;
+constexpr float PERSON_HEIGHT = 0.f;
 constexpr float CHUNK_SIZE = 4.f;
 
 constexpr float EXTRA = 5.f;
@@ -37,7 +37,7 @@ constexpr float INV_OCC_SIZE_M1 = 1.f / OCC_SIZE_M1;
 
 constexpr float FINDY_SIZE = 256.f;
 constexpr float FINDY_SIZE_P1 = 257.f;
-constexpr float SAMP_EXPANSION = VOXEL_SIZE / CHUNK_SIZE;
+constexpr float SAMP_EXPANSION = .1f;// VOXEL_SIZE / CHUNK_SIZE;
 
 #define SRVS_PER_FRAME 2
 
@@ -380,10 +380,10 @@ public:
 	// view params
 	XMMATRIX world, view, projection, worldViewProjection;
 
-	XMFLOAT3 origDelta{ 0.0f, 0.0f, 20.0f };
-	XMFLOAT3 atDelta = origDelta;
+	XMFLOAT3 origDelta{ 0.0f, 10.0f, 20.0f };
+	XMFLOAT3 eyeDelta = origDelta;
+	XMVECTOR at{ eyeDelta.x, eyeDelta.y, eyeDelta.z };
 	XMVECTOR eye = { 0, 0, 0 };
-	XMVECTOR at{ atDelta.x, atDelta.y, atDelta.z };
 	XMVECTOR up{ 0.0f, 1.f, 0.0f };
 
 	float yAngle = 0, xAngle = 0;

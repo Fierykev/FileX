@@ -1,7 +1,7 @@
 #include <ProceduralConstantsH.hlsl>
 
 static const float TEX_Y = 257;
-static const float SAMP_EXPANSION = voxelInv * chunkSize;
+static const float SAMP_EXPANSION = .1f;// voxelInv * chunkSize;
 static const float Y_EXPANSION = TEX_Y * SAMP_EXPANSION;
 static const float Z_EXPANSION = Y_EXPANSION;
 

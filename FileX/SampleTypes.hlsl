@@ -27,7 +27,7 @@ float4 mediumUnsigned(uint texID, float3 uvw)
 {
 	// smooth input
 	float3 tmp1 = frac(uvw * TEX_SIZE + .5);
-	float3 delta = (3 - 2 * tmp1) * tmp1 * tmp1;
+	float3 delta = (3.f - 2.f * tmp1) * tmp1 * tmp1;
 	float3 sampleLoc = uvw + (delta - tmp1) / TEX_SIZE;
 
 	return lowUnsigned(texID, uvw);

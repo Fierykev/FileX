@@ -448,7 +448,7 @@ void Graphics::updateTerrain()
 		currentMid.y++;
 	}
 
-	// pos y
+	// pos z
 	if ((currentMid.z + 1) * CHUNK_SIZE - startLoc.z < curPos.z)
 	{
 		XMINT3 curEdge{
@@ -495,19 +495,19 @@ void Graphics::updateTerrain()
 
 void Graphics::drawPhase()
 {
-	//float y = findY();
-
-	atDelta.x = origDelta.x * cos(yAngle)
+	float y = findY();
+	cout << y << endl;
+	eyeDelta.x = origDelta.x * cos(yAngle)
 		- origDelta.z * sin(yAngle);
 
-	atDelta.z = origDelta.z * cos(yAngle)
+	eyeDelta.z = origDelta.z * cos(yAngle)
 		+ origDelta.x * sin(yAngle);
 
-	//eye.m128_f32[1] = y;
-
-	at.m128_f32[0] = eye.m128_f32[0] + atDelta.x;
-	at.m128_f32[1] = eye.m128_f32[1] + atDelta.y;
-	at.m128_f32[2] = eye.m128_f32[2] + atDelta.z;
+	at.m128_f32[1] = y;
+	
+	eye.m128_f32[0] = at.m128_f32[0] + eyeDelta.x;
+	eye.m128_f32[1] = at.m128_f32[1] + eyeDelta.y;
+	eye.m128_f32[2] = at.m128_f32[2] + eyeDelta.z;
 
 	updateTerrain();
 
@@ -1504,8 +1504,8 @@ void Graphics::regenTerrain()
 {
 	// reset camera
 	yAngle = 0;
-	atDelta = origDelta;
-	eye = { 0, 0, 0 };
+	eyeDelta = origDelta;
+	at = { eyeDelta.x, eyeDelta.y, eyeDelta.z };
 
 	// clear the hashmap
 	computedPos.clear();
@@ -1949,26 +1949,16 @@ void Graphics::onKeyDown(UINT8 key)
 		break;
 	case VK_DOWN:
 
-		eye.m128_f32[0] += sin(yAngle) * speed;
-		eye.m128_f32[2] -= cos(yAngle) * speed;
+		at.m128_f32[0] -= sin(yAngle) * speed;
+		at.m128_f32[2] += cos(yAngle) * speed;
 
 		break;
 	case VK_UP:
 
-		eye.m128_f32[0] -= sin(yAngle) * speed;
-		eye.m128_f32[2] += cos(yAngle) * speed;
+		at.m128_f32[0] += sin(yAngle) * speed;
+		at.m128_f32[2] -= cos(yAngle) * speed;
 
 		break;
-	case 'U':
-
-		eye.m128_f32[1] += speed;
-
-		break;
-	case 'D':
-
-		eye.m128_f32[1] -= speed;
-
-	break;
 	case 'R':
 		voxelPosData->renderType = (voxelPosData->renderType + 1) % NUM_RENDER_TYPES;
 		break;

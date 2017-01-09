@@ -63,7 +63,7 @@ float density(float3 pos)
 			+ highSigned(5, pos * .00934) * .33	
 	};
 
-	density = -pos.y + ulfVal0;
+	density = -pos.y;// + ulfVal0.x * 16.f;
 	
 	return density;
 }
