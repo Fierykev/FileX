@@ -26,6 +26,8 @@ public:
 
 private:
 
+	ComPtr<ID3D12GraphicsCommandList> commandList;
+
 	void sampleDensity();
 	void searchTerrain();
 	void findYRender();

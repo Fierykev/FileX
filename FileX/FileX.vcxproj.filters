@@ -9,65 +9,8 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Files\Model Loader">
-      <UniqueIdentifier>{9dbc6414-d591-45b8-8ad3-f5ae9974af5e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders">
-      <UniqueIdentifier>{18fd384a-f6c0-45fa-b095-568a20c0f1ff}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders\Procedural">
-      <UniqueIdentifier>{5546ebcf-7320-40fe-b381-75d2392d3aa9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders\Render">
-      <UniqueIdentifier>{bddce3c3-cd99-413e-ae20-7d14abdee8d5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders\Procedural\Density">
-      <UniqueIdentifier>{9304f3c8-cf3b-4176-90d4-44b7c4729a00}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders\Procedural\Occupied">
-      <UniqueIdentifier>{ea7afc35-dfd8-4931-a571-e14e8534ed13}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders\Procedural\VertexMesh">
-      <UniqueIdentifier>{ded67c18-96fb-4503-8510-529f866d489c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders\Procedural\GenVerts">
-      <UniqueIdentifier>{9e554670-0366-43ef-b12c-b13970cb0f77}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders\Procedural\GenIndices">
-      <UniqueIdentifier>{2f727850-22ae-4491-96d9-b815ff60d8f2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders\Procedural\VertSplat">
-      <UniqueIdentifier>{0b4f340d-d6cc-4672-9e4a-398b8d9aa35b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Parser">
-      <UniqueIdentifier>{9432b24d-6194-4317-aed5-92d369c335e9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders\Procedural\ClearTex">
-      <UniqueIdentifier>{edc9bd65-743c-4327-b8b6-33ed0d883a02}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders\Procedural\FindY">
-      <UniqueIdentifier>{0b0ff91f-3b37-4f9d-820d-de2b87822180}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders\Rock">
-      <UniqueIdentifier>{283e1f04-cbe2-4c13-929a-e0b13079fab9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders\Rock\Marble">
-      <UniqueIdentifier>{0981c828-2f3c-4924-a213-4267dde6017e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders\Upload3D">
-      <UniqueIdentifier>{3cddcf21-d073-409a-ba10-efc97ac82d5f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders\Rock\Altitude">
-      <UniqueIdentifier>{3bbfdb0c-2338-4b5e-b243-cc63ab4ab3ca}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shaders\Procedural\DensityFunction">
-      <UniqueIdentifier>{e721c231-6091-4ea3-9261-a19e74c6bde5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Files\CPU">
       <UniqueIdentifier>{ddea5a8f-3eeb-4ae5-890c-65a5fbef05d9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\CPU\Procedural Generation">
-      <UniqueIdentifier>{cfda7a74-04b3-4fe2-8072-a45f942adbac}</UniqueIdentifier>
     </Filter>
     <Filter Include="Files\CPU\General">
       <UniqueIdentifier>{3722a91d-44c0-4275-9f51-f7d1a6e078b2}</UniqueIdentifier>
@@ -90,6 +33,60 @@
     <Filter Include="Files\CPU\Graphics">
       <UniqueIdentifier>{435b6a0a-ca1d-4997-a0f2-f74afc99ede7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Files\CPU\ProcGen">
+      <UniqueIdentifier>{cfda7a74-04b3-4fe2-8072-a45f942adbac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU">
+      <UniqueIdentifier>{18fd384a-f6c0-45fa-b095-568a20c0f1ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU\Procedural">
+      <UniqueIdentifier>{5546ebcf-7320-40fe-b381-75d2392d3aa9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU\Procedural\Density">
+      <UniqueIdentifier>{9304f3c8-cf3b-4176-90d4-44b7c4729a00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU\Procedural\Occupied">
+      <UniqueIdentifier>{ea7afc35-dfd8-4931-a571-e14e8534ed13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU\Procedural\VertexMesh">
+      <UniqueIdentifier>{ded67c18-96fb-4503-8510-529f866d489c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU\Procedural\GenVerts">
+      <UniqueIdentifier>{9e554670-0366-43ef-b12c-b13970cb0f77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU\Procedural\GenIndices">
+      <UniqueIdentifier>{2f727850-22ae-4491-96d9-b815ff60d8f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU\Procedural\VertSplat">
+      <UniqueIdentifier>{0b4f340d-d6cc-4672-9e4a-398b8d9aa35b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU\Procedural\ClearTex">
+      <UniqueIdentifier>{edc9bd65-743c-4327-b8b6-33ed0d883a02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU\Procedural\FindY">
+      <UniqueIdentifier>{0b0ff91f-3b37-4f9d-820d-de2b87822180}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU\Procedural\DensityFunction">
+      <UniqueIdentifier>{e721c231-6091-4ea3-9261-a19e74c6bde5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU\Render">
+      <UniqueIdentifier>{bddce3c3-cd99-413e-ae20-7d14abdee8d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU\Rock">
+      <UniqueIdentifier>{283e1f04-cbe2-4c13-929a-e0b13079fab9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU\Rock\Marble">
+      <UniqueIdentifier>{0981c828-2f3c-4924-a213-4267dde6017e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU\Rock\Altitude">
+      <UniqueIdentifier>{3bbfdb0c-2338-4b5e-b243-cc63ab4ab3ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\GPU\Upload3D">
+      <UniqueIdentifier>{3cddcf21-d073-409a-ba10-efc97ac82d5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\CPU\Parser">
+      <UniqueIdentifier>{9432b24d-6194-4317-aed5-92d369c335e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Manager.cpp">
@@ -105,7 +102,7 @@
       <Filter>Files\CPU\Shader</Filter>
     </ClCompile>
     <ClCompile Include="Parser.cpp">
-      <Filter>Files\Parser</Filter>
+      <Filter>Files\CPU\Parser</Filter>
     </ClCompile>
     <ClCompile Include="FindY.cpp">
       <Filter>Files\CPU\FindY</Filter>
@@ -117,7 +114,7 @@
       <Filter>Files\CPU\Image</Filter>
     </ClCompile>
     <ClCompile Include="ProcGen.cpp">
-      <Filter>Files\CPU\Procedural Generation</Filter>
+      <Filter>Files\CPU\ProcGen</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Files\CPU</Filter>
@@ -143,7 +140,7 @@
       <Filter>Files\CPU\General</Filter>
     </ClInclude>
     <ClInclude Include="Parser.h">
-      <Filter>Files\Parser</Filter>
+      <Filter>Files\CPU\Parser</Filter>
     </ClInclude>
     <ClInclude Include="HLSL_CPU.h">
       <Filter>Files\CPU\HLSL CPU</Filter>
@@ -155,7 +152,7 @@
       <Filter>Files\CPU\Image</Filter>
     </ClInclude>
     <ClInclude Include="ProcGen.h">
-      <Filter>Files\CPU\Procedural Generation</Filter>
+      <Filter>Files\CPU\ProcGen</Filter>
     </ClInclude>
     <ClInclude Include="FindY.h">
       <Filter>Files\CPU\FindY</Filter>
@@ -163,120 +160,120 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="RenderVS.hlsl">
-      <Filter>Files\Shaders\Render</Filter>
+      <Filter>Files\GPU\Render</Filter>
     </FxCompile>
     <FxCompile Include="RenderPS.hlsl">
-      <Filter>Files\Shaders\Render</Filter>
+      <Filter>Files\GPU\Render</Filter>
     </FxCompile>
     <FxCompile Include="DensityVS.hlsl">
-      <Filter>Files\Shaders\Procedural\Density</Filter>
+      <Filter>Files\GPU\Procedural\Density</Filter>
     </FxCompile>
     <FxCompile Include="DensityGS.hlsl">
-      <Filter>Files\Shaders\Procedural\Density</Filter>
+      <Filter>Files\GPU\Procedural\Density</Filter>
     </FxCompile>
     <FxCompile Include="DensityPS.hlsl">
-      <Filter>Files\Shaders\Procedural\Density</Filter>
+      <Filter>Files\GPU\Procedural\Density</Filter>
     </FxCompile>
     <FxCompile Include="OccupiedVS.hlsl">
-      <Filter>Files\Shaders\Procedural\Occupied</Filter>
+      <Filter>Files\GPU\Procedural\Occupied</Filter>
     </FxCompile>
     <FxCompile Include="OccupiedGS.hlsl">
-      <Filter>Files\Shaders\Procedural\Occupied</Filter>
+      <Filter>Files\GPU\Procedural\Occupied</Filter>
     </FxCompile>
     <FxCompile Include="VertexMeshGS.hlsl">
-      <Filter>Files\Shaders\Procedural\VertexMesh</Filter>
+      <Filter>Files\GPU\Procedural\VertexMesh</Filter>
     </FxCompile>
     <FxCompile Include="VertexMeshVS.hlsl">
-      <Filter>Files\Shaders\Procedural\VertexMesh</Filter>
+      <Filter>Files\GPU\Procedural\VertexMesh</Filter>
     </FxCompile>
     <FxCompile Include="GenVertsVS.hlsl">
-      <Filter>Files\Shaders\Procedural\GenVerts</Filter>
+      <Filter>Files\GPU\Procedural\GenVerts</Filter>
     </FxCompile>
     <FxCompile Include="GenVertsGS.hlsl">
-      <Filter>Files\Shaders\Procedural\GenVerts</Filter>
+      <Filter>Files\GPU\Procedural\GenVerts</Filter>
     </FxCompile>
     <FxCompile Include="GenIndicesVS.hlsl">
-      <Filter>Files\Shaders\Procedural\GenIndices</Filter>
+      <Filter>Files\GPU\Procedural\GenIndices</Filter>
     </FxCompile>
     <FxCompile Include="GenIndicesGS.hlsl">
-      <Filter>Files\Shaders\Procedural\GenIndices</Filter>
+      <Filter>Files\GPU\Procedural\GenIndices</Filter>
     </FxCompile>
     <FxCompile Include="VertSplatGS.hlsl">
-      <Filter>Files\Shaders\Procedural\VertSplat</Filter>
+      <Filter>Files\GPU\Procedural\VertSplat</Filter>
     </FxCompile>
     <FxCompile Include="VertSplatVS.hlsl">
-      <Filter>Files\Shaders\Procedural\VertSplat</Filter>
+      <Filter>Files\GPU\Procedural\VertSplat</Filter>
     </FxCompile>
     <FxCompile Include="VertSplatPS.hlsl">
-      <Filter>Files\Shaders\Procedural\VertSplat</Filter>
+      <Filter>Files\GPU\Procedural\VertSplat</Filter>
     </FxCompile>
     <FxCompile Include="ClearTexGS.hlsl">
-      <Filter>Files\Shaders\Procedural\ClearTex</Filter>
+      <Filter>Files\GPU\Procedural\ClearTex</Filter>
     </FxCompile>
     <FxCompile Include="ClearTexPS.hlsl">
-      <Filter>Files\Shaders\Procedural\ClearTex</Filter>
+      <Filter>Files\GPU\Procedural\ClearTex</Filter>
     </FxCompile>
     <FxCompile Include="SampleDensityVS.hlsl">
-      <Filter>Files\Shaders\Procedural\FindY</Filter>
+      <Filter>Files\GPU\Procedural\FindY</Filter>
     </FxCompile>
     <FxCompile Include="SearchTerrainCS.hlsl">
-      <Filter>Files\Shaders\Procedural\FindY</Filter>
+      <Filter>Files\GPU\Procedural\FindY</Filter>
     </FxCompile>
     <FxCompile Include="UploadVS.hlsl">
-      <Filter>Files\Shaders\Upload3D</Filter>
+      <Filter>Files\GPU\Upload3D</Filter>
     </FxCompile>
     <FxCompile Include="ClearTexVS.hlsl">
-      <Filter>Files\Shaders\Procedural\ClearTex</Filter>
+      <Filter>Files\GPU\Procedural\ClearTex</Filter>
     </FxCompile>
     <FxCompile Include="UploadGS.hlsl">
-      <Filter>Files\Shaders\Upload3D</Filter>
+      <Filter>Files\GPU\Upload3D</Filter>
     </FxCompile>
     <FxCompile Include="UploadPS.hlsl">
-      <Filter>Files\Shaders\Upload3D</Filter>
+      <Filter>Files\GPU\Upload3D</Filter>
     </FxCompile>
     <FxCompile Include="SampleDensityGS.hlsl">
-      <Filter>Files\Shaders\Procedural\FindY</Filter>
+      <Filter>Files\GPU\Procedural\FindY</Filter>
     </FxCompile>
     <FxCompile Include="SampleDensityPS.hlsl">
-      <Filter>Files\Shaders\Procedural\FindY</Filter>
+      <Filter>Files\GPU\Procedural\FindY</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ProceduralConstantsH.hlsl">
-      <Filter>Files\Shaders\Procedural</Filter>
+      <Filter>Files\GPU\Procedural</Filter>
     </None>
     <None Include="EdgesConstantsH.hlsl">
-      <Filter>Files\Shaders\Procedural</Filter>
+      <Filter>Files\GPU\Procedural</Filter>
     </None>
     <None Include="GenVertsH.hlsl">
-      <Filter>Files\Shaders\Procedural\GenVerts</Filter>
+      <Filter>Files\GPU\Procedural\GenVerts</Filter>
     </None>
     <None Include="Debug.hlsl">
-      <Filter>Files\Shaders\Procedural</Filter>
+      <Filter>Files\GPU\Procedural</Filter>
     </None>
     <None Include="PolyEdgeH.hlsl">
-      <Filter>Files\Shaders\Procedural</Filter>
+      <Filter>Files\GPU\Procedural</Filter>
     </None>
     <None Include="RaysH.hlsl">
-      <Filter>Files\Shaders\Procedural</Filter>
+      <Filter>Files\GPU\Procedural</Filter>
     </None>
     <None Include="MarbleH.hlsl">
-      <Filter>Files\Shaders\Rock\Marble</Filter>
+      <Filter>Files\GPU\Rock\Marble</Filter>
     </None>
     <None Include="AltitudeH.hlsl">
-      <Filter>Files\Shaders\Rock\Altitude</Filter>
+      <Filter>Files\GPU\Rock\Altitude</Filter>
     </None>
     <None Include="SampleTypes.hlsl">
-      <Filter>Files\Shaders\Procedural</Filter>
+      <Filter>Files\GPU\Procedural</Filter>
     </None>
     <None Include="DensityH.hlsl">
-      <Filter>Files\Shaders\Procedural\DensityFunction</Filter>
+      <Filter>Files\GPU\Procedural\DensityFunction</Filter>
     </None>
     <None Include="FeaturesH.hlsl">
-      <Filter>Files\Shaders\Procedural\DensityFunction</Filter>
+      <Filter>Files\GPU\Procedural\DensityFunction</Filter>
     </None>
     <None Include="NoiseH.hlsl">
-      <Filter>Files\Shaders\Procedural</Filter>
+      <Filter>Files\GPU\Procedural</Filter>
     </None>
   </ItemGroup>
 </Project>

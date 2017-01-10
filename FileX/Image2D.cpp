@@ -13,7 +13,7 @@ UINT Image2D::numResources;
 
 Image2D::Image2D()
 {
-
+	
 }
 
 void Image2D::deleteImage()

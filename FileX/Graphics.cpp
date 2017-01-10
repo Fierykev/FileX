@@ -1,5 +1,6 @@
 #include <d3dcompiler.h>
 #include <iostream>
+#include <IL/il.h>
 #include "d3dx12.h"
 #include "Graphics.h"
 #include "Helper.h"
@@ -64,6 +65,9 @@ double fps = 0, frames = 0;
 Graphics::Graphics(std::wstring title, unsigned int width, unsigned int height)
 	: Manager(title, width, height)
 {
+	// init DevIL
+	ilInit();
+
 	frameIndex = 0;
 
 	ZeroMemory(fenceVal, sizeof(fenceVal));
@@ -271,7 +275,7 @@ void Graphics::loadPipeline()
 	// RTV
 
 	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-	rtvHeapDesc.NumDescriptors = numFrames + RTV_COUNT;
+	rtvHeapDesc.NumDescriptors = RTV_COUNT;
 	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	ThrowIfFailed(device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&rtvHeap)));
@@ -488,12 +492,6 @@ void Graphics::loadPipeline()
 		CBV_COUNT + SRV_COUNT, csuDescriptorSize);
 
 	uavDesc.Buffer.NumElements = 1;
-	uavDesc.Buffer.StructureByteStride = sizeof(UINT);
-
-	device->CreateUnorderedAccessView(bufferUAV[UAV_YPOS].Get(), nullptr, &uavDesc, uavHandle0);
-	uavHandle0.Offset(1, csuDescriptorSize);
-
-	uavDesc.Buffer.NumElements = 1;
 	uavDesc.Buffer.StructureByteStride = sizeof(BOOL);
 
 	device->CreateUnorderedAccessView(bufferUAV[DEBUG_VAR].Get(), nullptr, &uavDesc, uavHandle0);
@@ -645,15 +643,6 @@ void Graphics::loadAssets()
 	};
 	ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&renderPipelineWireframeState)));
 
-	// setup proc gen
-	procGen.setup();
-
-	// setup findY
-	findY.setup();
-
-	// setup image
-	Image::setup();
-
 	// setup data
 
 	// setup plane to trick PS into rendering the ray tracer output
@@ -724,6 +713,16 @@ void Graphics::loadAssets()
 	// wait for the command list to finish being run on the GPU
 	waitForGpu();
 
+	// run setup work
+	// setup proc gen
+	procGen.setup();
+
+	// setup findY
+	findY.setup();
+
+	// setup image
+	Image::setup();
+
 	// load in the volume images
 	noise0.loadImage(device.Get(), L"Noise/noise0.raw");
 	noise1.loadImage(device.Get(), L"Noise/noise1.raw");
@@ -741,6 +740,8 @@ void Graphics::loadAssets()
 	noiseH0.uploadTexture();
 	noiseH1.uploadTexture();
 	noiseH2.uploadTexture();
+
+	procGen.regenTerrain();
 }
 
 void Graphics::setupDescriptors()
@@ -793,8 +794,9 @@ void Graphics::populateCommandList()
 
 	const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
 	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-	
-	
+
+	// draw the terrain
+	procGen.drawTerrain();
 
 	// do not present the back buffer
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTarget[frameIndex].Get(),

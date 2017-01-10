@@ -76,55 +76,73 @@ void FindY::setup()
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		nullptr,
 		IID_PPV_ARGS(&Graphics::bufferUAV[Graphics::UAV_YPOS])));
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE uavHandle0(Graphics::csuHeap->GetCPUDescriptorHandleForHeapStart(),
+		Graphics::CBV_COUNT + Graphics::SRV_COUNT, Graphics::csuDescriptorSize);
+
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+	uavDesc.Buffer.FirstElement = 0;
+	uavDesc.Buffer.CounterOffsetInBytes = 0;
+	uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+	uavDesc.Buffer.NumElements = 1;
+	uavDesc.Buffer.StructureByteStride = sizeof(UINT);
+
+	Graphics::device->CreateUnorderedAccessView(Graphics::bufferUAV[Graphics::UAV_YPOS].Get(), nullptr, &uavDesc, uavHandle0);
+	uavHandle0.Offset(1, Graphics::csuDescriptorSize);
+
+	// setup commandlist
+	commandList = Graphics::commandList;
 }
 
 void FindY::sampleDensity()
 {
 	// set the pipeline (NOT NEEDED)
-	//Graphics::commandList->SetPipelineState(sampleDensityPipelineState.Get());
+	//commandList->SetPipelineState(sampleDensityPipelineState.Get());
 
-	Graphics::commandList->RSSetViewports(1, &Graphics::viewYViewport);
-	Graphics::commandList->RSSetScissorRects(1, &Graphics::viewYScissorRect);
+	commandList->RSSetViewports(1, &Graphics::viewYViewport);
+	commandList->RSSetScissorRects(1, &Graphics::viewYScissorRect);
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(Graphics::rtvHeap->GetCPUDescriptorHandleForHeapStart(),
 		Graphics::numFrames + Graphics::FINDY_TEXTURE, Graphics::rtvDescriptorSize);
-	Graphics::commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
-	Graphics::commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	Graphics::commandList->IASetVertexBuffers(0, 1, &Graphics::plainVB);
-	Graphics::commandList->DrawInstanced(_countof(Graphics::plainVerts), 2, 0, 0);
+	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandList->IASetVertexBuffers(0, 1, &Graphics::plainVB);
+	commandList->DrawInstanced(_countof(Graphics::plainVerts), 2, 0, 0);
 
 	// TODO: CHECK IF THIS IS RIGHT
 	// wait for shader
-	Graphics::commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(NULL));
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::UAV(NULL));
 }
 
 void FindY::searchTerrain()
 {
-	Graphics::commandList->SetComputeRootSignature(Graphics::computeRootSignature.Get());
+	commandList->SetComputeRootSignature(Graphics::computeRootSignature.Get());
 
 	CD3DX12_GPU_DESCRIPTOR_HANDLE cbvHandle(Graphics::csuHeap->GetGPUDescriptorHandleForHeapStart(), 0, Graphics::csuDescriptorSize);
 	CD3DX12_GPU_DESCRIPTOR_HANDLE srvHandle(Graphics::csuHeap->GetGPUDescriptorHandleForHeapStart(), Graphics::CBV_COUNT, Graphics::csuDescriptorSize);
 	CD3DX12_GPU_DESCRIPTOR_HANDLE uavHandle(Graphics::csuHeap->GetGPUDescriptorHandleForHeapStart(), Graphics::CBV_COUNT + Graphics::SRV_COUNT, Graphics::csuDescriptorSize);
 	CD3DX12_GPU_DESCRIPTOR_HANDLE samplerHandle(Graphics::samplerHeap->GetGPUDescriptorHandleForHeapStart(), 0, Graphics::samplerDescriptorSize);
 
-	Graphics::commandList->SetComputeRootDescriptorTable(Graphics::rpCB, cbvHandle);
-	Graphics::commandList->SetComputeRootDescriptorTable(Graphics::rpSRV, srvHandle);
-	Graphics::commandList->SetComputeRootDescriptorTable(Graphics::rpUAV, uavHandle);
-	Graphics::commandList->SetComputeRootDescriptorTable(Graphics::rpSAMPLER, samplerHandle);
+	commandList->SetComputeRootDescriptorTable(Graphics::rpCB, cbvHandle);
+	commandList->SetComputeRootDescriptorTable(Graphics::rpSRV, srvHandle);
+	commandList->SetComputeRootDescriptorTable(Graphics::rpUAV, uavHandle);
+	commandList->SetComputeRootDescriptorTable(Graphics::rpSAMPLER, samplerHandle);
 
-	Graphics::commandList->SetPipelineState(searchTerrainPipelineState.Get());
-	Graphics::commandList->Dispatch(1, 1, 1);
+	commandList->SetPipelineState(searchTerrainPipelineState.Get());
+	commandList->Dispatch(1, 1, 1);
 
-	Graphics::commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(Graphics::bufferUAV[Graphics::UAV_YPOS].Get(),
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(Graphics::bufferUAV[Graphics::UAV_YPOS].Get(),
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE));
 
 	// copy UAV
-	Graphics::commandList->CopyBufferRegion(yposMap.Get(),
+	commandList->CopyBufferRegion(yposMap.Get(),
 		0,
 		Graphics::bufferUAV[Graphics::UAV_YPOS].Get(),
 		0, sizeof(UINT));
 
-	Graphics::commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(Graphics::bufferUAV[Graphics::UAV_YPOS].Get(),
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(Graphics::bufferUAV[Graphics::UAV_YPOS].Get(),
 		D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
 }
 
@@ -134,7 +152,7 @@ void FindY::findYRender()
 	ThrowIfFailed(Graphics::commandAllocator[Graphics::frameIndex]->Reset());
 
 	// reset the command list
-	ThrowIfFailed(Graphics::commandList->Reset(Graphics::commandAllocator[Graphics::frameIndex].Get(),
+	ThrowIfFailed(commandList->Reset(Graphics::commandAllocator[Graphics::frameIndex].Get(),
 		sampleDensityPipelineState.Get()));
 
 	Graphics::setupDescriptors();
@@ -143,8 +161,8 @@ void FindY::findYRender()
 	searchTerrain();
 
 	// run the commands
-	ThrowIfFailed(Graphics::commandList->Close());
-	ID3D12CommandList* commandLists[] = { Graphics::commandList.Get() };
+	ThrowIfFailed(commandList->Close());
+	ID3D12CommandList* commandLists[] = { commandList.Get() };
 	Graphics::commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
 	// wait on the gpu

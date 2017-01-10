@@ -196,6 +196,9 @@ void ProcGen::setup()
 	setupBuffers();
 	setupCBV();
 	setupRTV();
+
+	// set command list
+	commandList = Graphics::commandList;
 }
 
 void ProcGen::setupBuffers()
@@ -451,10 +454,9 @@ void ProcGen::renderDensity()
 	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, &Graphics::plainVB);
-	commandList->DrawInstanced(_countof(Graphics::plainVerts), OCC_SIZE, 0, 0);
-
 	commandList->RSSetViewports(1, &voxelViewport);
 	commandList->RSSetScissorRects(1, &voxelScissorRect);
+	commandList->DrawInstanced(_countof(Graphics::plainVerts), OCC_SIZE, 0, 0);
 
 	// TODO: CHECK IF THIS IS RIGHT
 	// wait for shader
@@ -504,7 +506,6 @@ void ProcGen::renderOccupied()
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(vertexFrontBuffer.Get(),
 		D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 }
-
 
 void ProcGen::renderGenVerts(UINT vertApprox)
 {
@@ -592,6 +593,8 @@ UINT ProcGen::renderVertSplat()
 	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	commandList->IASetVertexBuffers(0, 1, &vertBuffer);
+	commandList->RSSetViewports(1, &vertSplatViewport);
+	commandList->RSSetScissorRects(1, &vertSplatScissorRect);
 
 	// store old verts
 	UINT numVerts;
@@ -776,7 +779,7 @@ void ProcGen::phase3(XMINT3 pos, UINT numOldVerts)
 	Graphics::setupDescriptors();
 
 	// indices
-	renderClearTex();
+	//renderClearTex();
 	UINT numVerts = renderVertSplat();
 	renderGenIndices(pos, numOldVerts);
 
@@ -841,30 +844,19 @@ void ProcGen::genVoxel(XMINT3 pos)
 
 void ProcGen::regenTerrain()
 {
+	// TODO: change to vector
 	// clear the hashmap
 	computedPos.clear();
 
-	// generate the terrain
-
-	// record the render commands
-	for (auto p : computedPos)
+	for (UINT z = 0; z < NUM_VOXELS_Z; z++)
 	{
-		// draw the object
-		D3D12_VERTEX_BUFFER_VIEW vertBuffer;
-		vertBuffer.BufferLocation = p.second.vertices->GetGPUVirtualAddress();
-		vertBuffer.StrideInBytes = sizeof(VERT_OUT);
-		vertBuffer.SizeInBytes = p.second.numVertices * vertBuffer.StrideInBytes;
-
-		D3D12_INDEX_BUFFER_VIEW indexBufferView;
-		indexBufferView.BufferLocation = p.second.indices->GetGPUVirtualAddress();
-		indexBufferView.Format = DXGI_FORMAT_R32_UINT;
-		indexBufferView.SizeInBytes = p.second.numIndices * sizeof(UINT);
-
-		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		commandList->IASetVertexBuffers(0, 1, &vertBuffer);
-		commandList->IASetIndexBuffer(&indexBufferView);
-		commandList->SOSetTargets(0, 0, nullptr);
-		commandList->DrawIndexedInstanced(p.second.numIndices, 1, 0, 0, 0);
+		for (UINT y = 0; y < NUM_VOXELS_Y; y++)
+		{
+			for (UINT x = 0; x < NUM_VOXELS_X; x++)
+			{
+				genVoxel(XMINT3(x, y, z));
+			}
+		}
 	}
 }
 

@@ -39,7 +39,8 @@ float density(float3 pos)
 	density += comboDensity;
 	//density = densityGroundPlain + densityHighNoise;
 
-	return density;
+	return density; // TODO: UNCOMMENT
+	return densityGroundPlain;
 }
 
 #endif

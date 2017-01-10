@@ -60,12 +60,12 @@ public:
 
 	void uploadTexture();
 
-	static void initDevil();
-
 	static void setBase(CD3DX12_CPU_DESCRIPTOR_HANDLE srvTexStartPass, UINT csuDescriptorSizePass,
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvTexStartPass, UINT rtvDescriptorSizePass);
 
 private:
+
+	static ComPtr<ID3D12GraphicsCommandList> commandList;
 
 	static ComPtr<ID3D12PipelineState> uploadTexPipelineState;
 

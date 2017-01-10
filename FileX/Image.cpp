@@ -9,6 +9,7 @@
 #define STANDARD_SIZE 16
 
 // declare static vars
+ComPtr<ID3D12GraphicsCommandList> Image::commandList;
 ComPtr<ID3D12PipelineState> Image::uploadTexPipelineState;
 UINT Image::csuDescriptorSize;
 UINT Image::rtvDescriptorSize;
@@ -64,9 +65,6 @@ void Image::setup()
 	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)uploadGS.c_str()), uploadGS.length() };
 	ThrowIfFailed(Graphics::device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&uploadTexPipelineState)));
 
-	// init devil
-	initDevil();
-
 	// setup upload textures
 	D3D12_RESOURCE_DESC texture2DDesc = {};
 
@@ -101,6 +99,9 @@ void Image::setup()
 
 	// offset by one because of upload texture
 	srvTexStart.Offset(csuDescriptorSize);
+
+	// set command list
+	commandList = { Graphics::commandList };
 }
 
 void Image::deleteImage()
@@ -226,47 +227,47 @@ void Image::uploadTexture()
 		ThrowIfFailed(Graphics::commandAllocator[Graphics::frameIndex]->Reset());
 
 		// reset the command list
-		ThrowIfFailed(Graphics::commandList->Reset(Graphics::commandAllocator[Graphics::frameIndex].Get(),
+		ThrowIfFailed(commandList->Reset(Graphics::commandAllocator[Graphics::frameIndex].Get(),
 			uploadTexPipelineState.Get()));
 
 		Graphics::setupDescriptors();
 
 		// set viewport and scissor rect
-		Graphics::commandList->RSSetViewports(1, &viewport);
-		Graphics::commandList->RSSetScissorRects(1, &scissorRect);
+		commandList->RSSetViewports(1, &viewport);
+		commandList->RSSetScissorRects(1, &scissorRect);
 
 		// set the pipeline (NOT NEEDED)
-		//Graphics::commandList->SetPipelineState(uploadTexPipelineState.Get());
+		//commandList->SetPipelineState(uploadTexPipelineState.Get());
 
-		Graphics::commandList->OMSetRenderTargets(1, &rtvTexStart, FALSE, nullptr);
-		Graphics::commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		Graphics::commandList->IASetVertexBuffers(0, 1, &Graphics::plainVB);
+		commandList->OMSetRenderTargets(1, &rtvTexStart, FALSE, nullptr);
+		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		commandList->IASetVertexBuffers(0, 1, &Graphics::plainVB);
 	
 		D3D12_SUBRESOURCE_DATA textureData = {};
 		textureData.pData = &data[STANDARD_SIZE * STANDARD_SIZE * i];
 		textureData.RowPitch = STANDARD_SIZE * sizeof(XMFLOAT4);
 		textureData.SlicePitch = textureData.RowPitch * STANDARD_SIZE;
 
-		UpdateSubresources(Graphics::commandList.Get(), texture2D.Get(),
+		UpdateSubresources(commandList.Get(), texture2D.Get(),
 			texture2DUpload.Get(), 0, 0, subresourceNum, &textureData);
 
 		// transition phase of texture
-		Graphics::commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texture2D.Get(),
+		commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texture2D.Get(),
 			D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
 
 		// set voxel pos x which will be the instance
 		ProcGen::voxelPosData->voxelPos.x = i;
 
-		Graphics::commandList->DrawInstanced(_countof(Graphics::plainVerts), 1, 0, 0);
+		commandList->DrawInstanced(_countof(Graphics::plainVerts), 1, 0, 0);
 
 		// wait for shader
 		// transition phase of texture
-		Graphics::commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texture2D.Get(),
+		commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texture2D.Get(),
 			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
 
 		// run the commands
-		ThrowIfFailed(Graphics::commandList->Close());
-		ID3D12CommandList* commandLists[] = { Graphics::commandList.Get() };
+		ThrowIfFailed(commandList->Close());
+		ID3D12CommandList* commandLists[] = { commandList.Get() };
 		Graphics::commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
 		// wait on the gpu
@@ -275,11 +276,6 @@ void Image::uploadTexture()
 
 	// update num of resources
 	numUploadedResources++;
-}
-
-void Image::initDevil()
-{
-	ilInit();
 }
 
 void Image::setBase(CD3DX12_CPU_DESCRIPTOR_HANDLE srvTexStartPass, UINT csuDescriptorSizePass,
