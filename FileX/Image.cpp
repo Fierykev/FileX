@@ -4,15 +4,17 @@
 
 #include "Graphics.h"
 
+#include "ProcGen.h"
+
 #define STANDARD_SIZE 16
 
 // declare static vars
+ComPtr<ID3D12PipelineState> Image::uploadTexPipelineState;
 UINT Image::csuDescriptorSize;
 UINT Image::rtvDescriptorSize;
 CD3DX12_CPU_DESCRIPTOR_HANDLE Image::srvTexStart;
 CD3DX12_CPU_DESCRIPTOR_HANDLE Image::rtvTexStart;
 UINT Image::numResources, Image::numUploadedResources;
-bool Image::startup = false;
 
 ComPtr<ID3D12Resource> Image::texture2D;
 
@@ -25,17 +27,88 @@ Image::Image()
 	scissorRect.bottom = static_cast<LONG>(STANDARD_SIZE);
 }
 
+void Image::setup()
+{
+	string uploadVS, uploadPS, uploadGS;
+
+#ifdef _DEBUG
+	ThrowIfFailed(ReadCSO("../x64/Debug/UploadVS.cso", uploadVS));
+	ThrowIfFailed(ReadCSO("../x64/Debug/UploadPS.cso", uploadPS));
+	ThrowIfFailed(ReadCSO("../x64/Debug/UploadGS.cso", uploadGS));
+#else
+	ThrowIfFailed(ReadCSO("../x64/Release/UploadVS.cso", uploadVS));
+	ThrowIfFailed(ReadCSO("../x64/Release/UploadPS.cso", uploadPS));
+	ThrowIfFailed(ReadCSO("../x64/Release/UploadGS.cso", uploadGS));
+#endif
+
+	const D3D12_INPUT_ELEMENT_DESC uploadTexLayout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+	};
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+	psoDesc.InputLayout = { uploadTexLayout, _countof(uploadTexLayout) };
+	psoDesc.pRootSignature = Graphics::rootSignature.Get();
+	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	psoDesc.DepthStencilState.DepthEnable = FALSE;
+	psoDesc.DepthStencilState.StencilEnable = FALSE;
+	psoDesc.SampleMask = UINT_MAX;
+	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	psoDesc.NumRenderTargets = 1;
+	psoDesc.SampleDesc.Count = 1;
+	psoDesc.RTVFormats[0] = Image::TEX_FORMAT;
+	psoDesc.VS = { reinterpret_cast<UINT8*>((void*)uploadVS.c_str()), uploadVS.length() };
+	psoDesc.PS = { reinterpret_cast<UINT8*>((void*)uploadPS.c_str()), uploadPS.length() };
+	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)uploadGS.c_str()), uploadGS.length() };
+	ThrowIfFailed(Graphics::device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&uploadTexPipelineState)));
+
+	// init devil
+	initDevil();
+
+	// setup upload textures
+	D3D12_RESOURCE_DESC texture2DDesc = {};
+
+	// setup the upload image
+	// create the texture2D for upload reasons
+	texture2DDesc.MipLevels = 1;
+	texture2DDesc.Format = TEX_FORMAT;
+	texture2DDesc.Width = STANDARD_SIZE;
+	texture2DDesc.Height = STANDARD_SIZE;
+	texture2DDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+	texture2DDesc.DepthOrArraySize = 1;
+	texture2DDesc.SampleDesc.Count = 1;
+	texture2DDesc.SampleDesc.Quality = 0;
+	texture2DDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+
+	ThrowIfFailed(Graphics::device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&texture2DDesc,
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr,
+		IID_PPV_ARGS(&texture2D)
+	));
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC mat2DDesc = {};
+	mat2DDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	mat2DDesc.Format = texture2DDesc.Format;
+	mat2DDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	mat2DDesc.Texture2D.MipLevels = texture2DDesc.MipLevels;
+
+	Graphics::device->CreateShaderResourceView(texture2D.Get(), &mat2DDesc, srvTexStart);
+
+	// offset by one because of upload texture
+	srvTexStart.Offset(csuDescriptorSize);
+}
+
 void Image::deleteImage()
 {
 	// delete the data
 	if (data)
 	{
 		delete[] data;
-
-		// TODO: figure out how to replace buffer
-		//uploadBufferSize -= intermediateSize;
-
-		// TODO: cleanup d3d
 	}
 }
 
@@ -87,46 +160,6 @@ bool Image::loadImage(ID3D12Device* device, const wchar_t* filename)
 
 void Image::createTexture(ID3D12Device* device)
 {
-	if (!startup)
-	{
-		D3D12_RESOURCE_DESC texture2DDesc = {};
-
-		// startup happened
-		startup = true;
-
-		// setup the upload image
-		// create the texture2D for upload reasons
-		texture2DDesc.MipLevels = 1;
-		texture2DDesc.Format = TEX_FORMAT;
-		texture2DDesc.Width = STANDARD_SIZE;
-		texture2DDesc.Height = STANDARD_SIZE;
-		texture2DDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-		texture2DDesc.DepthOrArraySize = 1;
-		texture2DDesc.SampleDesc.Count = 1;
-		texture2DDesc.SampleDesc.Quality = 0;
-		texture2DDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-
-		ThrowIfFailed(device->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE,
-			&texture2DDesc,
-			D3D12_RESOURCE_STATE_COPY_DEST,
-			nullptr,
-			IID_PPV_ARGS(&texture2D)
-		));
-
-		D3D12_SHADER_RESOURCE_VIEW_DESC mat2DDesc = {};
-		mat2DDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		mat2DDesc.Format = texture2DDesc.Format;
-		mat2DDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		mat2DDesc.Texture2D.MipLevels = texture2DDesc.MipLevels;
-
-		device->CreateShaderResourceView(texture2D.Get(), &mat2DDesc, srvTexStart);
-
-		// offset by one because of upload texture
-		srvTexStart.Offset(csuDescriptorSize);
-	}
-
 	// set subresource num
 	subresourceNum = 1;
 
@@ -175,7 +208,7 @@ void Image::createTexture(ID3D12Device* device)
 	numResources++;
 }
 
-void Image::uploadTexture(Graphics* g, ID3D12GraphicsCommandList* commandList)
+void Image::uploadTexture()
 {
 	// create the rtv
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
@@ -185,59 +218,59 @@ void Image::uploadTexture(Graphics* g, ID3D12GraphicsCommandList* commandList)
 	rtvDesc.Texture3D.FirstWSlice = 0;
 	rtvDesc.Texture3D.WSize = depth;
 
-	g->device->CreateRenderTargetView(texture3D.Get(), &rtvDesc, rtvTexStart);
+	Graphics::device->CreateRenderTargetView(texture3D.Get(), &rtvDesc, rtvTexStart);
 	
 	for (UINT i = 0; i < depth; i++)
 	{
 		// reset the command allocator
-		ThrowIfFailed(g->commandAllocator[g->frameIndex]->Reset());
+		ThrowIfFailed(Graphics::commandAllocator[Graphics::frameIndex]->Reset());
 
 		// reset the command list
-		ThrowIfFailed(commandList->Reset(g->commandAllocator[g->frameIndex].Get(),
-			g->renderPipelineSolidState.Get()));
+		ThrowIfFailed(Graphics::commandList->Reset(Graphics::commandAllocator[Graphics::frameIndex].Get(),
+			uploadTexPipelineState.Get()));
 
-		g->setupProceduralDescriptors();
+		Graphics::setupDescriptors();
 
 		// set viewport and scissor rect
-		commandList->RSSetViewports(1, &viewport);
-		commandList->RSSetScissorRects(1, &scissorRect);
+		Graphics::commandList->RSSetViewports(1, &viewport);
+		Graphics::commandList->RSSetScissorRects(1, &scissorRect);
 
-		// set the pipeline
-		commandList->SetPipelineState(g->uploadTexPipelineState.Get());
+		// set the pipeline (NOT NEEDED)
+		//Graphics::commandList->SetPipelineState(uploadTexPipelineState.Get());
 
-		commandList->OMSetRenderTargets(1, &rtvTexStart, FALSE, nullptr);
-		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		commandList->IASetVertexBuffers(0, 1, &g->plainVB);
+		Graphics::commandList->OMSetRenderTargets(1, &rtvTexStart, FALSE, nullptr);
+		Graphics::commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		Graphics::commandList->IASetVertexBuffers(0, 1, &Graphics::plainVB);
 	
 		D3D12_SUBRESOURCE_DATA textureData = {};
 		textureData.pData = &data[STANDARD_SIZE * STANDARD_SIZE * i];
 		textureData.RowPitch = STANDARD_SIZE * sizeof(XMFLOAT4);
 		textureData.SlicePitch = textureData.RowPitch * STANDARD_SIZE;
 
-		UpdateSubresources(commandList, texture2D.Get(),
+		UpdateSubresources(Graphics::commandList.Get(), texture2D.Get(),
 			texture2DUpload.Get(), 0, 0, subresourceNum, &textureData);
 
 		// transition phase of texture
-		commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texture2D.Get(),
+		Graphics::commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texture2D.Get(),
 			D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
 
 		// set voxel pos x which will be the instance
-		g->voxelPosData->voxelPos.x = i;
+		ProcGen::voxelPosData->voxelPos.x = i;
 
-		commandList->DrawInstanced(_countof(g->plainVerts), 1, 0, 0);
+		Graphics::commandList->DrawInstanced(_countof(Graphics::plainVerts), 1, 0, 0);
 
 		// wait for shader
 		// transition phase of texture
-		commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texture2D.Get(),
+		Graphics::commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texture2D.Get(),
 			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
 
 		// run the commands
-		ThrowIfFailed(commandList->Close());
-		ID3D12CommandList* commandLists[] = { g->commandList.Get() };
-		g->commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+		ThrowIfFailed(Graphics::commandList->Close());
+		ID3D12CommandList* commandLists[] = { Graphics::commandList.Get() };
+		Graphics::commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
 		// wait on the gpu
-		g->waitForGpu();
+		Graphics::waitForGpu();
 	}
 
 	// update num of resources
@@ -262,9 +295,4 @@ void Image::setBase(CD3DX12_CPU_DESCRIPTOR_HANDLE srvTexStartPass, UINT csuDescr
 	// reset number of resources
 	numResources = 0;
 	numUploadedResources = 0;
-}
-
-void Image::setPipeline(ComPtr<ID3D12PipelineState> pipeline)
-{
-	pipelineState = pipeline;
 }

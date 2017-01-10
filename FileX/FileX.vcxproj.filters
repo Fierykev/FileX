@@ -9,17 +9,8 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Files\General">
-      <UniqueIdentifier>{3722a91d-44c0-4275-9f51-f7d1a6e078b2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Display">
-      <UniqueIdentifier>{435b6a0a-ca1d-4997-a0f2-f74afc99ede7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Files\Model Loader">
       <UniqueIdentifier>{9dbc6414-d591-45b8-8ad3-f5ae9974af5e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Shader">
-      <UniqueIdentifier>{e1b3560c-f5ce-4ca8-b09f-038f99382d9d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Files\Shaders">
       <UniqueIdentifier>{18fd384a-f6c0-45fa-b095-568a20c0f1ff}</UniqueIdentifier>
@@ -54,15 +45,6 @@
     <Filter Include="Files\Shaders\Procedural\ClearTex">
       <UniqueIdentifier>{edc9bd65-743c-4327-b8b6-33ed0d883a02}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Files\FindY">
-      <UniqueIdentifier>{c4a59b31-2550-46cc-99f3-b16d25bb1b1c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Window Setup">
-      <UniqueIdentifier>{5ba03497-9cfa-4776-a7c2-ba7794bdc266}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\HLSL CPU">
-      <UniqueIdentifier>{e4095b41-4164-4158-aa09-47e4d77c0a43}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Files\Shaders\Procedural\FindY">
       <UniqueIdentifier>{0b0ff91f-3b37-4f9d-820d-de2b87822180}</UniqueIdentifier>
     </Filter>
@@ -71,9 +53,6 @@
     </Filter>
     <Filter Include="Files\Shaders\Rock\Marble">
       <UniqueIdentifier>{0981c828-2f3c-4924-a213-4267dde6017e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Files\Image">
-      <UniqueIdentifier>{2c5214ea-2d68-4d8f-846e-20a654b4ae12}</UniqueIdentifier>
     </Filter>
     <Filter Include="Files\Shaders\Upload3D">
       <UniqueIdentifier>{3cddcf21-d073-409a-ba10-efc97ac82d5f}</UniqueIdentifier>
@@ -84,66 +63,102 @@
     <Filter Include="Files\Shaders\Procedural\DensityFunction">
       <UniqueIdentifier>{e721c231-6091-4ea3-9261-a19e74c6bde5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Files\CPU">
+      <UniqueIdentifier>{ddea5a8f-3eeb-4ae5-890c-65a5fbef05d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\CPU\Procedural Generation">
+      <UniqueIdentifier>{cfda7a74-04b3-4fe2-8072-a45f942adbac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\CPU\General">
+      <UniqueIdentifier>{3722a91d-44c0-4275-9f51-f7d1a6e078b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\CPU\HLSL CPU">
+      <UniqueIdentifier>{e4095b41-4164-4158-aa09-47e4d77c0a43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\CPU\FindY">
+      <UniqueIdentifier>{c4a59b31-2550-46cc-99f3-b16d25bb1b1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\CPU\Image">
+      <UniqueIdentifier>{2c5214ea-2d68-4d8f-846e-20a654b4ae12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\CPU\Shader">
+      <UniqueIdentifier>{e1b3560c-f5ce-4ca8-b09f-038f99382d9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\CPU\Window Setup">
+      <UniqueIdentifier>{5ba03497-9cfa-4776-a7c2-ba7794bdc266}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Files\CPU\Graphics">
+      <UniqueIdentifier>{435b6a0a-ca1d-4997-a0f2-f74afc99ede7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Files</Filter>
-    </ClCompile>
     <ClCompile Include="Manager.cpp">
-      <Filter>Files\Window Setup</Filter>
+      <Filter>Files\CPU\Window Setup</Filter>
     </ClCompile>
     <ClCompile Include="Window.cpp">
-      <Filter>Files\Window Setup</Filter>
+      <Filter>Files\CPU\Window Setup</Filter>
     </ClCompile>
     <ClCompile Include="Graphics.cpp">
-      <Filter>Files\Display</Filter>
+      <Filter>Files\CPU\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
-      <Filter>Files\Shader</Filter>
+      <Filter>Files\CPU\Shader</Filter>
     </ClCompile>
     <ClCompile Include="Parser.cpp">
       <Filter>Files\Parser</Filter>
     </ClCompile>
     <ClCompile Include="FindY.cpp">
-      <Filter>Files\FindY</Filter>
+      <Filter>Files\CPU\FindY</Filter>
     </ClCompile>
     <ClCompile Include="Image.cpp">
-      <Filter>Files\Image</Filter>
+      <Filter>Files\CPU\Image</Filter>
     </ClCompile>
     <ClCompile Include="Image2D.cpp">
-      <Filter>Files\Image</Filter>
+      <Filter>Files\CPU\Image</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcGen.cpp">
+      <Filter>Files\CPU\Procedural Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Files\CPU</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Manager.h">
-      <Filter>Files\Window Setup</Filter>
+      <Filter>Files\CPU\Window Setup</Filter>
     </ClInclude>
     <ClInclude Include="Window.h">
-      <Filter>Files\Window Setup</Filter>
+      <Filter>Files\CPU\Window Setup</Filter>
     </ClInclude>
     <ClInclude Include="Helper.h">
-      <Filter>Files\General</Filter>
+      <Filter>Files\CPU\General</Filter>
     </ClInclude>
     <ClInclude Include="Graphics.h">
-      <Filter>Files\Display</Filter>
+      <Filter>Files\CPU\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
-      <Filter>Files\Shader</Filter>
+      <Filter>Files\CPU\Shader</Filter>
     </ClInclude>
     <ClInclude Include="d3dx12.h">
-      <Filter>Files\General</Filter>
+      <Filter>Files\CPU\General</Filter>
     </ClInclude>
     <ClInclude Include="Parser.h">
       <Filter>Files\Parser</Filter>
     </ClInclude>
     <ClInclude Include="HLSL_CPU.h">
-      <Filter>Files\HLSL CPU</Filter>
+      <Filter>Files\CPU\HLSL CPU</Filter>
     </ClInclude>
     <ClInclude Include="Image.h">
-      <Filter>Files\Image</Filter>
+      <Filter>Files\CPU\Image</Filter>
     </ClInclude>
     <ClInclude Include="Image2D.h">
-      <Filter>Files\Image</Filter>
+      <Filter>Files\CPU\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcGen.h">
+      <Filter>Files\CPU\Procedural Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="FindY.h">
+      <Filter>Files\CPU\FindY</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -218,6 +233,12 @@
     </FxCompile>
     <FxCompile Include="UploadPS.hlsl">
       <Filter>Files\Shaders\Upload3D</Filter>
+    </FxCompile>
+    <FxCompile Include="SampleDensityGS.hlsl">
+      <Filter>Files\Shaders\Procedural\FindY</Filter>
+    </FxCompile>
+    <FxCompile Include="SampleDensityPS.hlsl">
+      <Filter>Files\Shaders\Procedural\FindY</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

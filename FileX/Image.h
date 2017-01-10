@@ -50,24 +50,24 @@ public:
 
 	Image();
 
+	static void setup();
+
 	void deleteImage();
 
 	bool loadImage(ID3D12Device* device, const wchar_t* filename);
 
 	void createTexture(ID3D12Device* device);
 
-	void uploadTexture(Graphics* g, ID3D12GraphicsCommandList* commandList);
+	void uploadTexture();
 
 	static void initDevil();
 
 	static void setBase(CD3DX12_CPU_DESCRIPTOR_HANDLE srvTexStartPass, UINT csuDescriptorSizePass,
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvTexStartPass, UINT rtvDescriptorSizePass);
 
-	void setPipeline(ComPtr<ID3D12PipelineState> pipeline);
-
 private:
 
-	ComPtr<ID3D12PipelineState> pipelineState;
+	static ComPtr<ID3D12PipelineState> uploadTexPipelineState;
 
 	ComPtr<ID3D12Resource> texture3D, texture2DUpload;
 
@@ -87,7 +87,6 @@ private:
 	static UINT csuDescriptorSize, rtvDescriptorSize;
 	static CD3DX12_CPU_DESCRIPTOR_HANDLE srvTexStart, rtvTexStart;
 	static UINT numResources, numUploadedResources;
-	static bool startup;
 };
 
 #endif

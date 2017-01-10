@@ -60,7 +60,7 @@ inline Random getRandom(float3 pos)
 		saturate(ran.ulfVal[2].w * 1.4f - .3f);
 
 	// store the zone
-	ran.zone = mediumUnsigned(2, pos * .0000931);
+	ran.zone = mediumUnsigned(2, pos * .0000931).xyz;
 
 	// store the rotated coords
 	ran.rot[0] = rot(ran.posWarp, rotMatrix0);

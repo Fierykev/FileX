@@ -1,7 +1,7 @@
-#pragma once
 #ifndef SHADER_H
 #define SHADER_H
 
+#include "d3dx12.h"
 #include <Windows.h>
 #include <string>
 
