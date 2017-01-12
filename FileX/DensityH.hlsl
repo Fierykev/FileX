@@ -21,26 +21,24 @@ float density(float3 pos)
 
 	// create terraces
 	float densityTerrace = terrace(ran);
-
 	// create mountains (TODO: FIX)
 	float densityMountain = 0.f;// mountain(ran);
 
 	// high noise
 	float densityHighNoise = highNoise(ran);
-
+	
 	density = densityGroundPlain;
-
+	
 	float comboDensity = 0.f;
-	comboDensity = lerp(densityMountain,
+	comboDensity = lerp(densityShelf,
 		densityTerrace, ran.zone.x);
-	comboDensity += lerp(comboDensity,
-		densityHighNoise, ran.zone.y);
+	comboDensity = lerp(comboDensity,
+		densityHighNoise, ran.zone.y);	
 
 	density += comboDensity;
-	//density = densityGroundPlain + densityHighNoise;
 
-	return density; // TODO: UNCOMMENT
-	return densityGroundPlain;
+	//return density; // TODO: UNCOMMENT
+	return density;
 }
 
 #endif

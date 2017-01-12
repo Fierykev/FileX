@@ -1,4 +1,12 @@
-﻿  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Release\GenIndicesGS.cso
-  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Release\GenVertsVS.cso
+﻿C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\SampleTypes.hlsl(89,22-49): warning X3571: pow(f, e) will not work for negative f, use abs(f) or conditionally handle negative values if you expect them
+  
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Release\DensityPS.cso
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\SampleTypes.hlsl(89,22-49): warning X3571: pow(f, e) will not work for negative f, use abs(f) or conditionally handle negative values if you expect them
+  
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Release\SampleDensityPS.cso
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Release\SearchTerrainCS.cso
+C:\Users\cyber\documents\visual studio 2015\Projects\FileX\FileX\SampleTypes.hlsl(89,22-49): warning X3571: pow(f, e) will not work for negative f, use abs(f) or conditionally handle negative values if you expect them
+  
+  compilation object save succeeded; see C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Release\VertexMeshVS.cso
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Release\FileX.exe
   FileX.vcxproj -> C:\Users\cyber\documents\visual studio 2015\Projects\FileX\x64\Release\FileX.pdb (Full PDB)

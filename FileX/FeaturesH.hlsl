@@ -64,8 +64,8 @@ inline Random getRandom(float3 pos)
 
 	// store the rotated coords
 	ran.rot[0] = rot(ran.posWarp, rotMatrix0);
-	ran.rot[1] = rot(ran.posWarp, rotMatrix0);
-	ran.rot[2] = rot(ran.posWarp, rotMatrix0);
+	ran.rot[1] = rot(ran.posWarp, rotMatrix1);
+	ran.rot[2] = rot(ran.posWarp, rotMatrix2);
 
 	return ran;
 }
@@ -133,8 +133,8 @@ inline float highNoise(Random ran)
 	// get if need high level detail
 #ifdef HIGH_QUALITY
 	// add in 4 octaves of noise
-	density += lowSigned(2, ran.posWarp * .0123).x * .231;
-	density += lowSigned(0, ran.posWarp * .0897).x * .8993;
+	density += lowSigned(2, ran.posWarp * .123).x * .231;
+	density += lowSigned(0, ran.posWarp * .897).x * .2993;
 	density += lowSigned(1, ran.posWarp * .07234).x * 1.233;
 	density += lowSigned(2, ran.posWarp * .0332).x * 2.344;
 #endif
@@ -142,8 +142,8 @@ inline float highNoise(Random ran)
 	// add in last 4 octaves of noise
 	density += lowSigned(1, ran.posWarp * .02231).x * 4.34f;
 	density += highSigned(0, ran.rot[0] * .001232).x * 5.22f;
-	density += highSigned(2, ran.rot[1] * .00311).x * 6.12f;
-	density += highSigned(1, ran.rot[2] * .003422).x * 7.34f;
+	density += highSigned(2, ran.rot[0] * .00311).x * 6.12f;
+	density += highSigned(1, ran.rot[0] * .003422).x * 7.34f;
 	
 	return density;
 }

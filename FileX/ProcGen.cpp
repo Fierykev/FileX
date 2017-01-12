@@ -1,3 +1,5 @@
+#include <time.h>
+
 #include "ProcGen.h"
 #include "Helper.h"
 #include "Shader.h"
@@ -106,12 +108,14 @@ void ProcGen::setupShaders()
 	psoDesc.PS = { reinterpret_cast<UINT8*>((void*)dataDensityPS.c_str()), dataDensityPS.length() };
 	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataDensityGS.c_str()), dataDensityGS.length() };
 	ThrowIfFailed(Graphics::device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&densityPipelineState)));
+	densityPipelineState->SetName(L"Density Pipeline State");
 
 	psoDesc.VS = { reinterpret_cast<UINT8*>((void*)dataClearTexVS.c_str()), dataClearTexVS.length() };
 	psoDesc.PS = { reinterpret_cast<UINT8*>((void*)dataClearTexPS.c_str()), dataClearTexPS.length() };
 	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataClearTexGS.c_str()), dataClearTexGS.length() };
 	psoDesc.RTVFormats[0] = INDEX_FORMAT;
 	ThrowIfFailed(Graphics::device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&dataClearTexPipelineState)));
+	dataClearTexPipelineState->SetName(L"Clear Tex Pipeline State");
 
 	const D3D12_INPUT_ELEMENT_DESC vertSplatLayout[] =
 	{
@@ -125,6 +129,7 @@ void ProcGen::setupShaders()
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
 	psoDesc.RTVFormats[0] = INDEX_FORMAT;
 	ThrowIfFailed(Graphics::device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&dataVertSplatPipelineState)));
+	dataVertSplatPipelineState->SetName(L"Vert Splat Pipeline State");
 
 	const D3D12_INPUT_ELEMENT_DESC occupiedLayout[] =
 	{
@@ -150,6 +155,7 @@ void ProcGen::setupShaders()
 	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataOccupiedGS.c_str()), dataOccupiedGS.length() };
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
 	ThrowIfFailed(Graphics::device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&occupiedPipelineState)));
+	occupiedPipelineState->SetName(L"Occupied Pipeline State");
 
 	const D3D12_INPUT_ELEMENT_DESC bitPosLayout[] =
 	{
@@ -162,12 +168,14 @@ void ProcGen::setupShaders()
 	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataGenVertsGS.c_str()), dataGenVertsGS.length() };
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
 	ThrowIfFailed(Graphics::device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&genVertsPipelineState)));
+	genVertsPipelineState->SetName(L"Gen Verts Pipeline State");
 
 	psoDesc.VS = { reinterpret_cast<UINT8*>((void*)dataGenIndicesMeshVS.c_str()), dataGenIndicesMeshVS.length() };
 	psoDesc.PS = { 0, 0 };
 	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataGenIndicesMeshGS.c_str()), dataGenIndicesMeshGS.length() };
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
 	ThrowIfFailed(Graphics::device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&dataGenIndicesPipelineState)));
+	dataGenIndicesPipelineState->SetName(L"Gen Indices Pipeline State");
 
 	const D3D12_SO_DECLARATION_ENTRY vertexMeshOut[] =
 	{
@@ -188,6 +196,7 @@ void ProcGen::setupShaders()
 	psoDesc.GS = { reinterpret_cast<UINT8*>((void*)dataVertexMeshGS.c_str()), dataVertexMeshGS.length() };
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
 	ThrowIfFailed(Graphics::device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&vertexMeshPipelineState)));
+	vertexMeshPipelineState->SetName(L"Vertex Mesh Pipeline State");
 }
 
 void ProcGen::setup()
@@ -844,6 +853,8 @@ void ProcGen::genVoxel(XMINT3 pos)
 
 void ProcGen::regenTerrain()
 {
+	clock_t startGen = clock();
+
 	// TODO: change to vector
 	// clear the hashmap
 	computedPos.clear();
@@ -858,6 +869,9 @@ void ProcGen::regenTerrain()
 			}
 		}
 	}
+
+	double delta = (clock() - startGen) / (double)CLOCKS_PER_SEC;
+	//cout << "CREATION TIME: " << delta << endl;
 }
 
 void ProcGen::drawTerrain()

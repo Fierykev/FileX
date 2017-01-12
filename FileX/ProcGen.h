@@ -15,7 +15,12 @@ using namespace std;
 #define DENSITY_FORMAT DXGI_FORMAT_R32_FLOAT
 #define INDEX_FORMAT DXGI_FORMAT_R32_UINT
 
-constexpr float EXTRA = 5.f;
+#define NUM_VOXELS_X 15
+#define NUM_VOXELS_Y 8
+#define NUM_VOXELS_Z 15
+#define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
+
+constexpr float EXTRA = 10.f;
 constexpr float VOXEL_SIZE = 65.f;
 constexpr float VOXEL_SIZE_M1 = VOXEL_SIZE - 1.f;
 constexpr float VOXEL_SIZE_M2 = VOXEL_SIZE_M1 - 1.f;

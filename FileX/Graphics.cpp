@@ -116,7 +116,7 @@ void Graphics::onUpdate()
 void Graphics::drawPhase()
 {
 	float y = findY.findY(at);
-	cout << y << endl;
+	//cout << y << endl;
 	eyeDelta.x = origDelta.x * cos(yAngle)
 		- origDelta.z * sin(yAngle);
 
@@ -129,7 +129,8 @@ void Graphics::drawPhase()
 	eye.m128_f32[1] = at.m128_f32[1] + eyeDelta.y;
 	eye.m128_f32[2] = at.m128_f32[2] + eyeDelta.z;
 
-	//regenTerrain();
+	// TODO: REMOVE
+	//procGen.regenTerrain();
 
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
@@ -428,6 +429,11 @@ void Graphics::loadPipeline()
 	samplerDesc.MipLODBias = 0.0f;
 	samplerDesc.MaxAnisotropy = 1;
 	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+
+	device->CreateSampler(&samplerDesc, samplerHandle0);
+	samplerHandle0.Offset(samplerDescriptorSize);
+
+	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 
 	device->CreateSampler(&samplerDesc, samplerHandle0);
 	samplerHandle0.Offset(samplerDescriptorSize);

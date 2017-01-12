@@ -2,6 +2,7 @@
 #include <EdgesConstantsH.hlsl>
 #include <RaysH.hlsl>
 #include <DensityH.hlsl>
+#include <SamplersH.hlsl>
 #include "Debug.hlsl"
 
 #define NUM_STEPS 16
@@ -20,8 +21,6 @@ struct VS_OUTPUT
 };
 
 Texture3D<float> densityTexture : register(t0);
-
-SamplerState nearestSample : register(s0);
 
 float ambientOcclusion(float3 position)
 {
@@ -44,13 +43,10 @@ float ambientOcclusion(float3 position)
 		{
 			rays += delta;
 
-			float range = j * 1.f;
-
-			float den = densityTexture.SampleLevel(nearestSample,
+			float den = densityTexture.SampleLevel(linearClampSample,
 				rays, 0);
 
 			isVis = lerp(isVis, 0, saturate(den * 7.f));
-				//* occWeigths[j].z);
 		}
 		
 		for (uint k = 0; k < FAR_SAMPLES; k++)
@@ -73,12 +69,12 @@ float ambientOcclusion(float3 position)
 VS_OUTPUT locateVertFromEdge(float3 position, float3 sampleArea, uint edgeNum)
 {
 	float samplePT0 = densityTexture.SampleLevel(
-		nearestSample,
+		nearestClampSample,
 		sampleArea + occInvVecM1.xxx * edgeStartLoc[edgeNum],
 		0).x;
 
 	float samplePT1 = densityTexture.SampleLevel(
-		nearestSample,
+		nearestClampSample,
 		sampleArea + occInvVecM1.xxx * edgeEndLoc[edgeNum],
 		0).x;
 
@@ -90,17 +86,17 @@ VS_OUTPUT locateVertFromEdge(float3 position, float3 sampleArea, uint edgeNum)
 	float3 uvw = sampleArea + relPos * voxelSize.xxx; // TODO: change occInvVecM1 to LOD
 	float3 gradient;
 	gradient.x = densityTexture.SampleLevel(
-		nearestSample, uvw + occInv.xyy, 0).x
+		linearClampSample, uvw + occInv.xyy, 0).x
 		- densityTexture.SampleLevel(
-			nearestSample, uvw - occInv.xyy, 0).x;
+			linearClampSample, uvw - occInv.xyy, 0).x;
 	gradient.y = densityTexture.SampleLevel(
-		nearestSample, uvw + occInv.yxy, 0).x;
+		linearClampSample, uvw + occInv.yxy, 0).x;
 		- densityTexture.SampleLevel(
-			nearestSample, uvw - occInv.yxy, 0).x;
+			linearClampSample, uvw - occInv.yxy, 0).x;
 	gradient.z = densityTexture.SampleLevel(
-		nearestSample, uvw + occInv.yyx, 0).x
+		linearClampSample, uvw + occInv.yyx, 0).x
 		- densityTexture.SampleLevel(
-			nearestSample, uvw - occInv.yyx, 0).x;
+			linearClampSample, uvw - occInv.yyx, 0).x;
 
 	VS_OUTPUT vout;
 	vout.position =
@@ -124,7 +120,6 @@ VS_OUTPUT main(VS_INPUT input)
 		((float3)position + extra) * occInvVecM1.xxx;
 
 	sampleArea += occInvVecM1.xxx * .25f;
-	//sampleArea.xyz *= (occM1.x * occInv.x).xxx;
 
 	float3 worldPos = voxelPos.xyz
 		+ (float3)position * voxelInvVecM1.xxx * chunkSize;

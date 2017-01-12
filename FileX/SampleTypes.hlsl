@@ -1,11 +1,10 @@
 #ifndef _SAMPLE_TYPES_H_
 #define _SAMPLE_TYPES_H_
 
+#include <SamplersH.hlsl>
+
 static const float TEX_SIZE = 16.f;
 static const float2 INV_TEX_SIZE = float2(1.f / TEX_SIZE, 0);
-
-SamplerState linearRepeatSampler : register(s1);
-SamplerState nearestRepeatSampler : register(s2);
 
 // user function must have this
 float4 evalTexID(uint texID, float3 uvw, SamplerState s);
@@ -35,7 +34,7 @@ float4 lowSigned(uint texID, float3 uvw, SamplerState s)
 
 float4 lowSigned(uint texID, float3 uvw)
 {
-	return evalTexID(texID, uvw, linearRepeatSampler);
+	return evalTexID(texID, uvw, linearRepeatSample);
 }
 
 // medium
@@ -47,12 +46,12 @@ float4 mediumSigned(uint texID, float3 uvw)
 	float3 delta = (3.f - 2.f * tmp1) * tmp1 * tmp1;
 	float3 sampleLoc = uvw + (delta - tmp1) / TEX_SIZE;
 
-	return lowSigned(texID, uvw, linearRepeatSampler);
+	return lowSigned(texID, uvw, linearRepeatSample);
 }
 
 float4 mediumUnsigned(uint texID, float3 uvw)
 {
-	return abs(lowSigned(texID, uvw, linearRepeatSampler));
+	return abs(lowSigned(texID, uvw, linearRepeatSample));
 }
 
 // high
@@ -65,8 +64,8 @@ float highUnsigned(uint texID, float3 uvw, float soften = 1)
 		delta * delta * (3.f - 2.f * delta), soften);
 
 	// 2 sample style
-	float4 sample1 = lowUnsigned(texID, tmp1, nearestRepeatSampler).zxyw;
-	float4 sample2 = lowUnsigned(texID, tmp1 + INV_TEX_SIZE.xyy, nearestRepeatSampler).zxyw;
+	float4 sample1 = lowUnsigned(texID, tmp1, nearestRepeatSample).zxyw;
+	float4 sample2 = lowUnsigned(texID, tmp1 + INV_TEX_SIZE.xyy, nearestRepeatSample).zxyw;
 
 	float4 lerp1 = lerp(sample1, sample2, delta.xxxx);
 	float2 lerp2 = lerp(lerp1.xy, lerp1.zw, delta.yy);

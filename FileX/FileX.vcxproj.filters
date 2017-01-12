@@ -275,5 +275,8 @@
     <None Include="NoiseH.hlsl">
       <Filter>Files\GPU\Procedural</Filter>
     </None>
+    <None Include="SamplersH.hlsl">
+      <Filter>Files\GPU\Procedural</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -1,3 +1,4 @@
+#include <SamplersH.hlsl>
 #include "Debug.hlsl"
 
 Texture2D<float4> uploadTex : register(t3);
@@ -11,5 +12,5 @@ struct PS_INPUT
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-	return uploadTex.Sample(nearestSample, input.uv);
+	return uploadTex.Sample(nearestClampSample, input.uv);
 }
