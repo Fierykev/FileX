@@ -22,7 +22,7 @@ float density(float3 pos)
 	// create terraces
 	float densityTerrace = terrace(ran);
 	// create mountains (TODO: FIX)
-	float densityMountain = 0.f;// mountain(ran);
+	float densityMountain = mountain(ran);
 
 	// high noise
 	float densityHighNoise = highNoise(ran);

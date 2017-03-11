@@ -129,9 +129,6 @@ void Graphics::drawPhase()
 	eye.m128_f32[1] = at.m128_f32[1] + eyeDelta.y;
 	eye.m128_f32[2] = at.m128_f32[2] + eyeDelta.z;
 
-	// TODO: REMOVE
-	//procGen.regenTerrain();
-
 	// reset the command allocator
 	ThrowIfFailed(commandAllocator[frameIndex]->Reset());
 

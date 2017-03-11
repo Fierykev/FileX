@@ -1,4 +1,5 @@
 #include <time.h>
+#include <thread>
 
 #include "ProcGen.h"
 #include "Helper.h"
@@ -22,6 +23,13 @@ ProcGen::ProcGen()
 
 	vertSplatScissorRect.right = SPLAT_SIZE * 3;
 	vertSplatScissorRect.bottom = SPLAT_SIZE;
+
+	// spwan creation threads
+}
+
+ProcGen::~ProcGen()
+{
+
 }
 
 void ProcGen::setupShaders()
@@ -314,9 +322,6 @@ void ProcGen::setupCBV()
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cdesc;
 
 	Graphics::bufferCB[Graphics::CB_VOXEL_POS]->Map(0, &readRange, (void**)&voxelPosData);
-
-	voxelPosData->densityType = 0;
-	voxelPosData->renderType = 0;
 
 	// IS NOT UNMAPPED
 
@@ -850,6 +855,8 @@ void ProcGen::genVoxel(XMINT3 pos)
 	phase3(pos, numOldVerts);
 	phase4(pos);
 }
+
+
 
 void ProcGen::regenTerrain()
 {

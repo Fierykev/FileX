@@ -7,7 +7,7 @@ Texture2D bump0 : register(t11);
 const static float3 distort = float3(1, 12, 1);
 const static float scale = .003f;
 
-float3 genBaseCol(float3 pos, float3 normal)
+float3 genBaseCol_(float3 pos, float3 normal)
 {
 	float4 noise = noise0.SampleLevel(
 		linearRepeatSample, pos * .0047 * distort, 0);
@@ -37,7 +37,7 @@ float3 genBaseCol(float3 pos, float3 normal)
 	return col;
 }
 
-float3 genBaseCol_(float3 pos, inout float3 normal)
+float3 genBaseCol(float3 pos, inout float3 normal)
 {
 	float3 bw = abs(normal);
 	bw = (bw - .2) * 7;

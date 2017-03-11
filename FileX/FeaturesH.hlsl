@@ -37,9 +37,9 @@ inline Random getRandom(float3 pos)
 	Random ran;
 
 	// unsigned low freq
-	ran.ulfVal[0] = mediumUnsigned(0, pos * .00832);
-	ran.ulfVal[1] = mediumUnsigned(1, pos * .00742);
-	ran.ulfVal[2] = mediumUnsigned(2, pos * .00543);
+	ran.ulfVal[0] = mediumUnsigned(0, pos * .0832);
+	ran.ulfVal[1] = mediumUnsigned(1, pos * .0742);
+	ran.ulfVal[2] = mediumUnsigned(2, pos * .0543);
 
 	// signed high freq
 	float3 shfVal = float3(
@@ -57,7 +57,7 @@ inline Random getRandom(float3 pos)
 	// store the modified position
 	const float warpStrength = 25.f;
 	ran.posWarp = pos + shfVal.xyz * warpStrength *
-		saturate(ran.ulfVal[2].w * 1.4f - .3f);
+		ran.ulfVal[2].w;
 
 	// store the zone
 	ran.zone = mediumUnsigned(2, pos * .0000931).xyz;

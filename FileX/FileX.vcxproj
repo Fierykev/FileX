@@ -130,6 +130,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Manager.cpp" />
     <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="Pathing.cpp" />
     <ClCompile Include="ProcGen.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -144,6 +145,7 @@
     <ClInclude Include="Image2D.h" />
     <ClInclude Include="Manager.h" />
     <ClInclude Include="Parser.h" />
+    <ClInclude Include="Pathing.h" />
     <ClInclude Include="ProcGen.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Window.h" />

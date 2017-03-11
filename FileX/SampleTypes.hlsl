@@ -6,6 +6,8 @@
 static const float TEX_SIZE = 16.f;
 static const float2 INV_TEX_SIZE = float2(1.f / TEX_SIZE, 0);
 
+// openVDB
+
 // user function must have this
 float4 evalTexID(uint texID, float3 uvw, SamplerState s);
 

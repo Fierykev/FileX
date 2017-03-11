@@ -28,7 +28,7 @@ float4 main(PS_INPUT input) : SV_TARGET
 
 	float3 color = float3(.5, .5, .5);
 
-	color = genBaseCol(input.worldPos, normal);
+	color = float3(0, 1, 0);//genBaseCol(input.worldPos, normal);
 
 	//color = saturate(lerp(.8, input.ambient, .1) * 2.1 - .1);
 
@@ -37,17 +37,9 @@ float4 main(PS_INPUT input) : SV_TARGET
 	float ambient = input.ambient;
 	float3 lightColor = light * ambient * color;
 	
-	float3 diff = color.xyz * max(dot(normal, light), 0.0);
+	float3 diff = color.xyz * ambient;// max(dot(normal, light), 0.0);
 
 	diff = clamp(diff, 0.0, 1.0);
 	
-	if (renderType == 1)
-		return float4(ambient.xxx, 1);
-	else if (renderType == 2)
-		return float4(normal, 1);
-	else if (renderType == 3)
-		return float4(color, 1);
-	
-	// if no render type matches choose this
-	return float4(diff, 1);
+	return float4(diff, 1);// float4(ambient, ambient, ambient, 1);
 }

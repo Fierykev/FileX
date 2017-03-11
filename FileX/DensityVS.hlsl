@@ -24,9 +24,6 @@ VS_OUTPUT main(VS_INPUT input)
 	float3 samplePos = float3(input.texcoord.xy,
 		input.instanceID * occInv.x);
 
-	//samplePos *= voxelExpansion * voxelInvVecM1.x;
-	//samplePos.xy *= occExpansion.x * occInvVecM1.x;
-
 	samplePos = (samplePos * occExpansion.xxx - extra) * voxelInv.x;
 	samplePos *= chunkSize;
 	

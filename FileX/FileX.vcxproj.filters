@@ -87,6 +87,9 @@
     <Filter Include="Files\CPU\Parser">
       <UniqueIdentifier>{9432b24d-6194-4317-aed5-92d369c335e9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Files\CPU\Pathing">
+      <UniqueIdentifier>{93c9f094-fa4d-4bad-b9ab-905cff9f672a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Manager.cpp">
@@ -118,6 +121,9 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Files\CPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Pathing.cpp">
+      <Filter>Files\CPU\Pathing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +162,9 @@
     </ClInclude>
     <ClInclude Include="FindY.h">
       <Filter>Files\CPU\FindY</Filter>
+    </ClInclude>
+    <ClInclude Include="Pathing.h">
+      <Filter>Files\CPU\Pathing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

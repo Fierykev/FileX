@@ -5,6 +5,7 @@
 #include <wrl.h>
 #include <Windows.h>
 #include <unordered_map>
+#include <thread>
 
 #include "d3dx12.h"
 
@@ -15,9 +16,9 @@ using namespace std;
 #define DENSITY_FORMAT DXGI_FORMAT_R32_FLOAT
 #define INDEX_FORMAT DXGI_FORMAT_R32_UINT
 
-#define NUM_VOXELS_X 15
-#define NUM_VOXELS_Y 8
-#define NUM_VOXELS_Z 15
+#define NUM_VOXELS_X 4
+#define NUM_VOXELS_Y 4
+#define NUM_VOXELS_Z 4
 #define NUM_VOXELS (NUM_VOXELS_X * NUM_VOXELS_Y * NUM_VOXELS_Z)
 
 constexpr float EXTRA = 10.f;
@@ -32,6 +33,8 @@ constexpr float OCC_SIZE_M1 = OCC_SIZE - 1;
 constexpr float CHUNK_SIZE = 4.f;
 
 constexpr float INV_OCC_SIZE_M1 = 1.f / OCC_SIZE_M1;
+
+constexpr UINT NUM_PROC_GEN_THREADS = 8;
 
 class Graphics;
 
@@ -58,6 +61,8 @@ class ProcGen
 public:
 	ProcGen();
 
+	~ProcGen();
+
 #pragma pack(push, 1)
 	struct BITPOS
 	{
@@ -67,8 +72,6 @@ public:
 	struct VOXEL_POS
 	{
 		XMFLOAT3 voxelPos;
-		UINT densityType;
-		UINT renderType;
 	};
 
 	struct DRAW_DATA

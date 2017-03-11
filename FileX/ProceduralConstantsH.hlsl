@@ -4,8 +4,6 @@
 cbuffer VOXEL_POS : register(b1)
 {
 	float3 voxelPos : packoffset(c0);
-	uint densityType : packoffset(c0.w);
-	uint renderType : packoffset(c1);
 };
 
 cbuffer GENERATION_CONSTANTS : register(b2)
